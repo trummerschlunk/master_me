@@ -1,8 +1,12 @@
 // -*-Faust-*-
 
-// GPLv3
+declare name "Soundsgood";
+declare version "1.0";
+declare author "Klaus Scheuermann";
+declare license "GPLv3";
+
 // double precision -double needed!
-//
+
 import("stdfaust.lib");
 
 // init values
