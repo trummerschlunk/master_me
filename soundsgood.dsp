@@ -190,23 +190,6 @@ lk2 = par(i,2,kfilter : zi) :> 10 * log10(max(ma.EPSILON)) : -(0.691) with {
   zi = an.ms_envelope_rect(Tg); // mean square: average power = energy/Tg = integral of squared signal / Tg
 
   kfilter = ebu.ebur128;
-  // //kfilter = fi.highpass(1, 60) : fi.high_shelf(4, 1800);
-  // // Highpass:
-  // // At 48 kHz, this is the right highpass filter (maybe a Bessel or Thiran filter?):
-  // A48kHzHP = ( /* 1.0, */ -1.99004745483398, 0.99007225036621); B48kHzHP = (1.0, -2.0, 1.0);
-  // highpass48kHz = fi.iir(B48kHzHP,A48kHzHP);
-  // //highpass = fi.highpass(2, 40); // Butterworth highpass: roll-off is a little too sharp
-  // highpass = fi.highpass(1, 60); // From Klaus 2022-05
-  // //highpass = highpass48kHz; // From the spec
-
-
-  // A48kHzShelf = ( /* 1.0, */ -1.69065929318241, 0.73248077421585);  B48kHzShelf = (1.53512485958697, -2.69169618940638, 1.19839281085285);
-  // shelf48kHz = fi.iir(B48kHzShelf,A48kHzShelf);
-  // // shelf = fi.high_shelf(4, 1430); // Original JOS choice
-  // // shelf = fi.high_shelf(4, 1800); // From Klaus 2022-05
-  // shelf = shelf48kHz; // From the spec
-
-  // kfilter = highpass : shelf;
 };
 
 lufs_meter(l,r) = l,r <: l, attach(r, (lk2 : vbargraph("h:soundsgood/h:easy/[9][unit:dB]out-lufs-s",-40,0))) : _,_;
