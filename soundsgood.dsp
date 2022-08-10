@@ -85,8 +85,31 @@ leveler(target) = B <:    B    ,   (B <: B,B : lk2, + : calc : _ <: B) : ro.inte
     //leveler_gate_thresh = vslider("[8]lev gate thresh[unit:dB]", init_leveler_gatethreshold,-90,0,1);
 
     leveler_speed_gated(sc) = (ef.gate_gain_mono(leveler_gate_thresh,0.1,0,0.1,abs(sc)) <: attach(_, (1-_) : meter_leveler_gate)) : _ * leveler_speed;
-    // leveler_speed_gated(sc) = sc : (co.peak_expansion_gain_N_chan(1,leveler_gate_thresh,20,0.1,0.05,0.3,6,1,1) <: attach(_, (1-_) : meter_leveler_gate)) : _ * leveler_speed;
+    //leveler_speed_gated(sc) = sc : (peak_expansion_gain_N_chan(1,leveler_gate_thresh,20,0.1,0.05,0.3,6,1,1) <: attach(_, (1-_) : meter_leveler_gate)) : _ * leveler_speed;
+
+    // from Bart Brouns expander
+    peak_expansion_gain_N_chan(strength,thresh,range,att,hold,rel,knee,prePost,link,1) =
+      level(hold) : peak_expansion_gain_mono(strength,thresh,range,att,rel,knee,prePost);
+    peak_expansion_gain_mono(strength,thresh,range,attack,release,knee,prePost,level) =
+      level:ba.bypass1(prePost,si.lag_ud(attack,release)) :ba.linear2db : gain_computer(strength,thresh,range,knee) : ba.bypass1((prePost !=1),si.lag_ud(att,rel))
+    with {
+      gain_computer(strength,thresh,range,knee,level) =
+        ( select3((level>(thresh-(knee/2)))+(level>(thresh+(knee/2)))
+                 , (level-thresh)
+                 , ((level-thresh-(knee/2)):pow(2) /(min(ma.EPSILON,knee*-2)))
+                 , 0
+                 )  *abs(strength):max(range)
+                                   * (-1+(2*(strength>0)))
+        );
+      att = select2((strength>0),release,attack);
+      rel = select2((strength>0),attack,release);
+    };
+
+    level(hold,x) =
+      x:abs; //:ba.slidingMax(hold*ma.SR,192000*maxRelTime);
 };
+
+
 
 
 // LIMITER
