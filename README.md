@@ -1,5 +1,5 @@
 # soundsgood
-11;rgb:ffff/ffff/ffff
+
 better sound for live-streaming
 
 ![soundsgood on Gnome desktop](/img/soundsgood-gui.png "soundsgood on Gnome desktop")
