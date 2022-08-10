@@ -7,7 +7,6 @@ declare license "GPLv3";
 
 // double precision -double needed!
 
-const = library("lib/constants.dsp");
 import("stdfaust.lib");
 
 // init values
