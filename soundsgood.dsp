@@ -1,3 +1,5 @@
+// -*-Faust-*-
+
 // GPLv3
 // double precision -double needed!
 //
@@ -31,7 +33,7 @@ init_brickwall_ceiling = -1;
 process =
 
     si.bus(2)
-    : DCblock2
+    : dc_filter(2)
 
     : gate
     : correlate_meter
@@ -52,8 +54,10 @@ process =
 
 
 // DC FILTER
-dc_filter(N) = par(i,N,fi.dcblocker);
-DCblock2 = par(i, 2, fi.dcblockerat(10));
+dc_filter(N) = par(i,N,fi.dcblockerat(dc_filter_freq))
+with {
+  dc_filter_freq = 10.0;
+};
 
 // GATE
 gate = ef.gate_stereo(gate_thresh,gate_att,gate_hold,gate_rel);
