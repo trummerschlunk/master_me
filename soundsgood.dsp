@@ -62,14 +62,6 @@ with {
 // GATE
 gate = ef.gate_stereo(gate_thresh,gate_att,gate_hold,gate_rel);
 
-// stereo to m/s encoder
-ms_enc = _*0.5,_*0.5 <: +, -;
-// m/s to stereo decoder
-ms_dec = _,_ <: +, -;
-
-
-
-
 
 // LEVELER
 leveler(target) = B <:    B    ,   (B <: B,B : lk2, + : calc : _ <: B) : ro.interleave(N,2) : par(i,N,*)
