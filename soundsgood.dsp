@@ -446,42 +446,6 @@ MSdecode(on,m,s) =
 
 /*
 
-declare peak_expansion_gain_N_chan author "Bart Brouns";
-declare peak_expansion_gain_N_chan license "GPLv3";
-
-// generalise expansion gains for N channels.
-// first we define a mono version:
-peak_expansion_gain_N_chan(strength,thresh,range,att,hold,rel,knee,prePost,link,1) =
-  level(hold) : peak_expansion_gain_mono(strength,thresh,range,att,rel,knee,prePost);
-
-// The actual N-channels version:
-// Calculate the maximum gain reduction of N channels,
-// and then crossfade between that and each channel's own gain reduction,
-// to link/unlink channels
-peak_expansion_gain_N_chan(strength,thresh,range,att,hold,rel,knee,prePost,link,N) =
-  par(i, N, level(hold) :peak_expansion_gain_mono(strength,thresh,range,att,rel,knee,prePost))
-
-  <: (si.bus(N),(ba.parallelMax(N) <: si.bus(N))) : ro.interleave(N,2) : par(i,N,(it.interpolate_linear(link)));
-
-peak_expansion_gain_mono(strength,thresh,range,attack,release,knee,prePost,level) =
-  level:ba.bypass1(prePost,si.lag_ud(attack,release)) :ba.linear2db : gain_computer(strength,thresh,range,knee) : ba.bypass1((prePost !=1),si.lag_ud(att,rel))
-with {
-  gain_computer(strength,thresh,range,knee,level) =
-    ( select3((level>(thresh-(knee/2)))+(level>(thresh+(knee/2)))
-             , (level-thresh)
-             , ((level-thresh-(knee/2)):pow(2) /(min(ma.EPSILON,knee*-2)))
-             , 0
-             )  *abs(strength):max(range)
-                               * (-1+(2*(strength>0)))
-    );
-  att = select2((strength>0),release,attack);
-  rel = select2((strength>0),attack,release);
-};
-
-level(hold,x) =
-  x:abs; //:ba.slidingMax(hold*ma.SR,192000*maxRelTime);
-
-
 declare FFexpander_N_chan author "Bart Brouns";
 declare FFexpander_N_chan license "GPLv3";
 
