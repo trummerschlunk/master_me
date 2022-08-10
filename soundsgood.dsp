@@ -1,6 +1,12 @@
-// GPLv3
+// -*-Faust-*-
+
+declare name "Soundsgood";
+declare version "1.0";
+declare author "Klaus Scheuermann";
+declare license "GPLv3";
+
 // double precision -double needed!
-//
+
 import("stdfaust.lib");
 
 // init values
@@ -31,7 +37,7 @@ init_brickwall_ceiling = -1;
 process =
 
     si.bus(2)
-    : DCblock2
+    : dc_filter(2)
 
     : gate
     : correlate_meter
@@ -52,19 +58,13 @@ process =
 
 
 // DC FILTER
-dc_filter(N) = par(i,N,fi.dcblocker);
-DCblock2 = par(i, 2, fi.dcblockerat(10));
+dc_filter(N) = par(i,N,fi.dcblockerat(dc_filter_freq))
+with {
+  dc_filter_freq = 10.0;
+};
 
 // GATE
 gate = ef.gate_stereo(gate_thresh,gate_att,gate_hold,gate_rel);
-
-// stereo to m/s encoder
-ms_enc = _*0.5,_*0.5 <: +, -;
-// m/s to stereo decoder
-ms_dec = _,_ <: +, -;
-
-
-
 
 
 // LEVELER
@@ -75,7 +75,6 @@ leveler(target) = B <:    B    ,   (B <: B,B : lk2, + : calc : _ <: B) : ro.inte
 
     calc(lufs,sc) = (lufs : leveler_meter_lufs : (target - _) : lp1p(leveler_speed_gated(sc)) : limit(limit_neg,limit_pos) : leveler_meter_gain : ba.db2linear) , sc : _,!;
 
-
     // target = vslider("[3]target[unit:dB]", init_leveler_target,-50,0,1);
 
     //limit_pos = vslider("[5]max +", init_leveler_maxboost, 0, 60, 1);
@@ -85,44 +84,29 @@ leveler(target) = B <:    B    ,   (B <: B,B : lk2, + : calc : _ <: B) : ro.inte
     //leveler_speed = vslider("[4]speed", init_leveler_speed, .005, 0.15, .005);
     //leveler_gate_thresh = vslider("[8]lev gate thresh[unit:dB]", init_leveler_gatethreshold,-90,0,1);
 
-    leveler_speed_gated(sc) = (gate_gain_mono(leveler_gate_thresh,0.1,0,0.1,abs(sc)) <: attach(_, (1-_) : meter_leveler_gate)) : _ * leveler_speed;
-    //leveler_speed_gated(sc) = sc : (peak_expansion_gain_N_chan(1,leveler_gate_thresh,20,0.1,0.05,0.3,6,1,1) <: attach(_, (1-_) : meter_leveler_gate)) : _ * leveler_speed;
-
-    // from library:
-    gate_gain_mono(thresh,att,hold,rel,x) = x : extendedrawgate : an.amp_follower_ar(att,rel) with {
-        extendedrawgate(x) = max(float(rawgatesig(x)),holdsig(x));
-        rawgatesig(x) = inlevel(x) > ba.db2linear(thresh);
-        minrate = min(att,rel);
-        inlevel = an.amp_follower_ar(minrate,minrate);
-        holdcounter(x) = (max(holdreset(x) * holdsamps,_) ~-(1));
-        holdsig(x) = holdcounter(x) > 0;
-        holdreset(x) = rawgatesig(x) < rawgatesig(x)'; // reset hold when raw gate falls
-        holdsamps = int(hold*ma.SR);
-    };
-
-    // from Bart Brouns expander
-    peak_expansion_gain_N_chan(strength,thresh,range,att,hold,rel,knee,prePost,link,1) =
-      level(hold) : peak_expansion_gain_mono(strength,thresh,range,att,rel,knee,prePost);
-    peak_expansion_gain_mono(strength,thresh,range,attack,release,knee,prePost,level) =
-      level:ba.bypass1(prePost,si.lag_ud(attack,release)) :ba.linear2db : gain_computer(strength,thresh,range,knee) : ba.bypass1((prePost !=1),si.lag_ud(att,rel))
-    with {
-      gain_computer(strength,thresh,range,knee,level) =
-        ( select3((level>(thresh-(knee/2)))+(level>(thresh+(knee/2)))
-                 , (level-thresh)
-                 , ((level-thresh-(knee/2)):pow(2) /(min(ma.EPSILON,knee*-2)))
-                 , 0
-                 )  *abs(strength):max(range)
-                                   * (-1+(2*(strength>0)))
-        );
-      att = select2((strength>0),release,attack);
-      rel = select2((strength>0),attack,release);
-    };
-
-    level(hold,x) =
-      x:abs; //:ba.slidingMax(hold*ma.SR,192000*maxRelTime);
-
-
-
+    leveler_speed_gated(sc) = (ef.gate_gain_mono(leveler_gate_thresh,0.1,0,0.1,abs(sc)) <: attach(_, (1-_) : meter_leveler_gate)) : _ * leveler_speed;
+    // leveler_speed_gated(sc) = sc : (peak_expansion_gain_N_chan(1,leveler_gate_thresh,20,0.1,0.05,0.3,6,1,1) <: attach(_, (1-_) : meter_leveler_gate)) : _ * leveler_speed;
+    //
+    // // from Bart Brouns expander
+    // peak_expansion_gain_N_chan(strength,thresh,range,att,hold,rel,knee,prePost,link,1) =
+    //   level(hold) : peak_expansion_gain_mono(strength,thresh,range,att,rel,knee,prePost);
+    // peak_expansion_gain_mono(strength,thresh,range,attack,release,knee,prePost,level) =
+    //   level:ba.bypass1(prePost,si.lag_ud(attack,release)) :ba.linear2db : gain_computer(strength,thresh,range,knee) : ba.bypass1((prePost !=1),si.lag_ud(att,rel))
+    // with {
+    //   gain_computer(strength,thresh,range,knee,level) =
+    //     ( select3((level>(thresh-(knee/2)))+(level>(thresh+(knee/2)))
+    //              , (level-thresh)
+    //              , ((level-thresh-(knee/2)):pow(2) /(min(ma.EPSILON,knee*-2)))
+    //              , 0
+    //              )  *abs(strength):max(range)
+    //                                * (-1+(2*(strength>0)))
+    //     );
+    //   att = select2((strength>0),release,attack);
+    //   rel = select2((strength>0),attack,release);
+    // };
+    //
+    // level(hold,x) =
+    //   x:abs; //:ba.slidingMax(hold*ma.SR,192000*maxRelTime);
 };
 
 
@@ -346,9 +330,9 @@ brickwall_meter = _ <: attach(ba.linear2db : abs : vbargraph("h:soundsgood/t:exp
 
 mscomp8i(target) =
 
-    MSencode(1)
+    midside
   : Eight_band_Compressor_N_chan(2)
-  : MSdecode(1)
+  : midside
 ;
 
 
@@ -421,171 +405,18 @@ with {
   maxGR = -30;
 };
 
-MSencode(on,l,r) =
-  select2(on
-         , l
-         , ((l+r)/sqrt(2)))
-, select2(on
-         , r
-         , ((l-r)/sqrt(2)));
-MSdecode(on,m,s) =
-  select2(on
-         , m
-         , ((m+s)/sqrt(2)))
-, select2(on
-         , s
-         , ((m-s)/sqrt(2)));
 
+//--------------------`midside`-------------------
+// Conversion from left and rigth channel to mid and side
+// channel. Note that `midside : midside` equals the identity function
+// `si.bus(2)`.
+//
+// #### Usage
+//
+// ```
+// left, right : midside : mid, side
+// mid, side : midside : left, right
+// ```
 
-
-
-
-
-
-
-
-/*
-
-
-
-// expander
-declare name "Expander / Upward Compressor";
-declare version "0.1";
-declare author "Bart Brouns";
-declare license "GPLv3";
-
-import("stdfaust.lib");
-
-// maximum time in seconds for attack, hold and release
-maxRelTime = 1;
-
-expander20 =
-  FFexpanderSC_N_chan(strength,threshold,range,attack,hold,release,knee,prePost,link,meter,20,sidechain(freq),SCswitch,0)
-  // FFexpander_N_chan(strength,threshold,range,attack,hold,release,knee,prePost,link,meter,2)
-  // , (level(hold,x):peak_expansion_gain_mono(strength,threshold,range,attack,release,knee,prePost)/range*-1)  // for looking at the GR on the scope
-;
-// example sidechain function
-sidechain(freq) = fi.highpass(1,freq);
-freq = hslider("SC HP freq", 240, 1, 20000, 1);
-
-
-//------------------------------------------------------------
-
-declare peak_expansion_gain_N_chan author "Bart Brouns";
-declare peak_expansion_gain_N_chan license "GPLv3";
-
-// generalise expansion gains for N channels.
-// first we define a mono version:
-peak_expansion_gain_N_chan(strength,thresh,range,att,hold,rel,knee,prePost,link,1) =
-  level(hold) : peak_expansion_gain_mono(strength,thresh,range,att,rel,knee,prePost);
-
-// The actual N-channels version:
-// Calculate the maximum gain reduction of N channels,
-// and then crossfade between that and each channel's own gain reduction,
-// to link/unlink channels
-peak_expansion_gain_N_chan(strength,thresh,range,att,hold,rel,knee,prePost,link,N) =
-  par(i, N, level(hold) :peak_expansion_gain_mono(strength,thresh,range,att,rel,knee,prePost))
-
-  <: (si.bus(N),(ba.parallelMax(N) <: si.bus(N))) : ro.interleave(N,2) : par(i,N,(it.interpolate_linear(link)));
-
-peak_expansion_gain_mono(strength,thresh,range,attack,release,knee,prePost,level) =
-  level:ba.bypass1(prePost,si.lag_ud(attack,release)) :ba.linear2db : gain_computer(strength,thresh,range,knee) : ba.bypass1((prePost !=1),si.lag_ud(att,rel))
-with {
-  gain_computer(strength,thresh,range,knee,level) =
-    ( select3((level>(thresh-(knee/2)))+(level>(thresh+(knee/2)))
-             , (level-thresh)
-             , ((level-thresh-(knee/2)):pow(2) /(min(ma.EPSILON,knee*-2)))
-             , 0
-             )  *abs(strength):max(range)
-                               * (-1+(2*(strength>0)))
-    );
-  att = select2((strength>0),release,attack);
-  rel = select2((strength>0),attack,release);
-};
-
-level(hold,x) =
-  x:abs; //:ba.slidingMax(hold*ma.SR,192000*maxRelTime);
-
-
-declare FFexpander_N_chan author "Bart Brouns";
-declare FFexpander_N_chan license "GPLv3";
-
-// feed forward expander
-FFexpander_N_chan(strength,thresh,range,att,hold,rel,knee,prePost,link,meter,N) =
-  FFexpanderSC_N_chan(strength,thresh,range,att,hold,rel,knee,prePost,link,meter,N,_,0,0);
-
-
-// feed forward expander with sidechain
-FFexpanderSC_N_chan(strength,thresh,range,att,hold,rel,knee,prePost,link,meter,N,SCfunction,SCswitch,SCsignal) =
-  si.bus(N) <:
-  ((par(i, N, select2(SCswitch,_,SCsignal):SCfunction)
-    : peak_expansion_gain_N_chan(strength,thresh,range,att,hold,rel,knee,prePost,link,N))
-  ,si.bus(N))
-  : ro.interleave(N,2)
-  : par(i,N,(meter:ba.db2linear)*_);
-
-
-
-
-
-
-
-
-//---------------------------------- GUI --------------------------------------
-expander_group(x) = vgroup("Expander / Upward Compressor", x);
-
-meter_group(x)  = expander_group(vgroup("[0]", x));
-knob_group(x)  = expander_group(hgroup("[1]", x));
-
-checkbox_group(x)  = meter_group(hgroup("[0]", x));
-
-maxGR = -100;
-meter = _<:(_, (max(maxGR):meter_group((hbargraph("[1][unit:dB][tooltip: gain reduction in dB]", maxGR, 0))))):attach;
-
-ctl_group(x)  = knob_group(hgroup("[3] Compression Control", x));
-
-threshold = ctl_group(hslider("[0] Threshold [unit:dB] [style:knob]
-      [tooltip: When the signal level exceeds the Threshold (in dB), its level is compressed according to the Strength]",
-                              maxGR, maxGR, 10, 0.1));
-
-strength = ctl_group(hslider("[1] Strength [style:knob]
-      [tooltip: A compression Strength of 0 means no gain reduction and 1 means full gain reduction]",
-                             8, -100, 100, 0.1));
-
-range = ctl_group(hslider("[2] Range [unit:dB] [style:knob]
-      [tooltip: When the signal level exceeds the Threshold (in dB), its level is compressed according to the Strength]",
-                          maxGR*0.3, maxGR, 0, 0.1));
-
-knee = ctl_group(hslider("[3] Knee [unit:dB] [style:knob]
-      [tooltip: soft knee amount in dB]",
-                         6, 0, 30, 0.1));
-
-env_group(x)  = knob_group(hgroup("[4] Compression Response", x));
-
-attack = env_group(hslider("[1] Attack [unit:ms] [style:knob] [scale:log]
-      [tooltip: Time constant in ms (1/e smoothing time) for the compression gain to approach (exponentially) a new lower target level (the compression `kicking in')]",
-                           2, 0.001, 1000, 0.1)-0.001) : *(0.001) :max(0);
-hold = env_group(hslider("[2] Hold [unit:ms] [style:knob] [scale:log]
-      [tooltip: Time constant in ms (1/e smoothing time) for the compression gain to approach (exponentially) a new lower target level (the compression `kicking in')]",
-                         30, 0.001, 1000, 0.1)-0.001) : *(0.001) :max(0);
-// The actual attack value is 0.1 smaller than the one displayed.
-// This is done for hard limiting:
-// You need 0 attack for that, but a log scale starting at 0 is useless
-
-release = env_group(hslider("[3] Release [unit:ms] [style: knob] [scale:log]
-      [tooltip: Time constant in ms (1/e smoothing time) for the compression gain to approach (exponentially) a new higher target level (the compression 'releasing')]",
-                            42, 0.001, maxRelTime*1000, 0.1)-0.001) : *(0.001) : max(0);
-
-sw_group(x)  = env_group(vgroup("[3]", x));
-prePost = sw_group(checkbox("[1] slow/fast  [tooltip: Unchecked: log  domain return-to-threshold detector
-      Checked: linear return-to-zero detector]")*-1)+1;
-SCswitch = sw_group(checkbox("[2] External SideChain  [tooltip: Unchecked: original signal
-      Checked: Use external Sidechain]")*-1)+1;
-
-link = env_group(hslider("[4] link [style:knob]
-      [tooltip: 0 means all channels get individual gain reduction, 1 means they all get the same gain reduction]",
-                         1, 0, 1, 0.01));
-
-// meter upward
-// SC function
-// lin / log
+// Author: Jakob Dübel
+midside = si.bus(2) <: +(_, _), -(_, _) : /(sqrt(2)), /(sqrt(2));
