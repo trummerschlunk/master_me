@@ -7,6 +7,7 @@ declare license "GPLv3";
 
 // double precision -double needed!
 
+const = library("lib/constants.dsp");
 import("stdfaust.lib");
 
 // init values
@@ -346,9 +347,9 @@ brickwall_meter = _ <: attach(ba.linear2db : abs : vbargraph("h:soundsgood/t:exp
 
 mscomp8i(target) =
 
-    MSencode(1)
+    midside
   : Eight_band_Compressor_N_chan(2)
-  : MSdecode(1)
+  : midside
 ;
 
 
@@ -421,17 +422,18 @@ with {
   maxGR = -30;
 };
 
-MSencode(on,l,r) =
-  select2(on
-         , l
-         , ((l+r)/sqrt(2)))
-, select2(on
-         , r
-         , ((l-r)/sqrt(2)));
-MSdecode(on,m,s) =
-  select2(on
-         , m
-         , ((m+s)/sqrt(2)))
-, select2(on
-         , s
-         , ((m-s)/sqrt(2)));
+
+//--------------------`midside`-------------------
+// Conversion from left and rigth channel to mid and side
+// channel. Note that `midside : midside` equals the identity function
+// `si.bus(2)`.
+//
+// #### Usage
+//
+// ```
+// left, right : midside : mid, side
+// mid, side : midside : left, right
+// ```
+
+// Author: Jakob Dübel
+midside = si.bus(2) <: +(_, _), -(_, _) : /(sqrt(2)), /(sqrt(2));
