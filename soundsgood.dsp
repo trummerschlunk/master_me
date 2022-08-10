@@ -446,31 +446,6 @@ MSdecode(on,m,s) =
 
 /*
 
-
-
-// expander
-declare name "Expander / Upward Compressor";
-declare version "0.1";
-declare author "Bart Brouns";
-declare license "GPLv3";
-
-import("stdfaust.lib");
-
-// maximum time in seconds for attack, hold and release
-maxRelTime = 1;
-
-expander20 =
-  FFexpanderSC_N_chan(strength,threshold,range,attack,hold,release,knee,prePost,link,meter,20,sidechain(freq),SCswitch,0)
-  // FFexpander_N_chan(strength,threshold,range,attack,hold,release,knee,prePost,link,meter,2)
-  // , (level(hold,x):peak_expansion_gain_mono(strength,threshold,range,attack,release,knee,prePost)/range*-1)  // for looking at the GR on the scope
-;
-// example sidechain function
-sidechain(freq) = fi.highpass(1,freq);
-freq = hslider("SC HP freq", 240, 1, 20000, 1);
-
-
-//------------------------------------------------------------
-
 declare peak_expansion_gain_N_chan author "Bart Brouns";
 declare peak_expansion_gain_N_chan license "GPLv3";
 
