@@ -76,7 +76,6 @@ leveler(target) = B <:    B    ,   (B <: B,B : lk2, + : calc : _ <: B) : ro.inte
 
     calc(lufs,sc) = (lufs : leveler_meter_lufs : (target - _) : lp1p(leveler_speed_gated(sc)) : limit(limit_neg,limit_pos) : leveler_meter_gain : ba.db2linear) , sc : _,!;
 
-
     // target = vslider("[3]target[unit:dB]", init_leveler_target,-50,0,1);
 
     //limit_pos = vslider("[5]max +", init_leveler_maxboost, 0, 60, 1);
@@ -86,20 +85,8 @@ leveler(target) = B <:    B    ,   (B <: B,B : lk2, + : calc : _ <: B) : ro.inte
     //leveler_speed = vslider("[4]speed", init_leveler_speed, .005, 0.15, .005);
     //leveler_gate_thresh = vslider("[8]lev gate thresh[unit:dB]", init_leveler_gatethreshold,-90,0,1);
 
-    leveler_speed_gated(sc) = (gate_gain_mono(leveler_gate_thresh,0.1,0,0.1,abs(sc)) <: attach(_, (1-_) : meter_leveler_gate)) : _ * leveler_speed;
+    leveler_speed_gated(sc) = (ef.gate_gain_mono(leveler_gate_thresh,0.1,0,0.1,abs(sc)) <: attach(_, (1-_) : meter_leveler_gate)) : _ * leveler_speed;
     //leveler_speed_gated(sc) = sc : (peak_expansion_gain_N_chan(1,leveler_gate_thresh,20,0.1,0.05,0.3,6,1,1) <: attach(_, (1-_) : meter_leveler_gate)) : _ * leveler_speed;
-
-    // from library:
-    gate_gain_mono(thresh,att,hold,rel,x) = x : extendedrawgate : an.amp_follower_ar(att,rel) with {
-        extendedrawgate(x) = max(float(rawgatesig(x)),holdsig(x));
-        rawgatesig(x) = inlevel(x) > ba.db2linear(thresh);
-        minrate = min(att,rel);
-        inlevel = an.amp_follower_ar(minrate,minrate);
-        holdcounter(x) = (max(holdreset(x) * holdsamps,_) ~-(1));
-        holdsig(x) = holdcounter(x) > 0;
-        holdreset(x) = rawgatesig(x) < rawgatesig(x)'; // reset hold when raw gate falls
-        holdsamps = int(hold*ma.SR);
-    };
 
     // from Bart Brouns expander
     peak_expansion_gain_N_chan(strength,thresh,range,att,hold,rel,knee,prePost,link,1) =
@@ -121,9 +108,6 @@ leveler(target) = B <:    B    ,   (B <: B,B : lk2, + : calc : _ <: B) : ro.inte
 
     level(hold,x) =
       x:abs; //:ba.slidingMax(hold*ma.SR,192000*maxRelTime);
-
-
-
 };
 
 
