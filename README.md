@@ -1,10 +1,10 @@
 # soundsgood
-
+11;rgb:ffff/ffff/ffff
 better sound for live-streaming
 
 ![soundsgood on Gnome desktop](/img/soundsgood-gui.png "soundsgood on Gnome desktop")
 
-![DSP signal flow](/img/soundsgood.png "DSP signal flow")
+![DSP signal flow](/img/soundsgood-process.png "DSP signal flow")
 
 
 ## Build for JACK and run
