@@ -66,9 +66,9 @@ prefilter = stage1 : stage2;
 
 
 // Normalize such that 997Hz has unity gain 1.0.  Otherwise a sinewave
-// of ~1000Hz would gain 0.06742813dB. This is additional to the
+// of ~1000Hz would gain 0.66dB. This is additional to the
 // ITU-recommendation biquads! 997Hz is the closest prime number to
 // 1000Hz.
-normalize997 = *(0.9922671036981437);
+normalize997 = *(0.9273671710547968);
 
 ebur128 = prefilter : normalize997;
