@@ -29,40 +29,37 @@ declare license "ISC";
 
 import("stdfaust.lib");
 
+freq2k(f_c) = tan((ma.PI * f_c)/ma.SR);
 
 stage1 = fi.tf22t(b0,b1,b2,a1,a2)
 with {
-  f_0 = 1681.974450955533;
-  G = 3.999843853973347;
-  Q = 0.7071752369554196;
-  K = tan((ma.PI * f_0)/ma.SR);
-  Vh = pow(10, (G/20.0));
-  Vb = pow(Vh, (0.4996667741545416));
+  f_c = 1681.7632251028442; // Hertz
+  gain = 3.9997778685513232; // Decibel
+  K = freq2k(f_c);
+  V_0 = pow(10, (gain/20.0));
 
-  Ksq = K * K;
-  KQ = K/Q;
+  denominator = 1.0 + sqrt(2.0)*K + K^2;
+  b0 = (V_0 + sqrt((2.0*V_0))*K + K^2) / denominator;
+  b1 = 2.0*(K^2 - V_0) / denominator;
+  b2 = (V_0 - sqrt(2.0*V_0)*K + K^2) / denominator;
 
-  a0 = 1 + KQ + Ksq;
-  b0 = (Vh + Vb*KQ + K^2)/(a0);
-  b1 = 2*((Ksq - Vh)/(a0));
-  b2 = (Vh - Vb*KQ + K^2)/(a0);
-  a1 = 2*((Ksq - 1)/(a0));
-  a2 = (1 - KQ + Ksq)/(a0);
+  a1 = 2*(K^2 - 1) / denominator;
+  a2 = (1 - sqrt(2.0)*K + K^2) / denominator;
 };
 
 stage2 = fi.tf22t(b0,b1,b2,a1,a2)
 with {
-  f_0 = 38.13547087602444;
-  Q = 0.5003270373238773;
-  K = tan((ma.PI * f_0)/ma.SR);
-  Ksq = K * K;
-  KQ = K/Q;
-  
-  b0 = 1;
-  b1 = -2;
-  b2 = 1;
-  a1 = 2*((Ksq - 1)/(1 + KQ + Ksq));
-  a2 = (1 + KQ + Ksq)/(1 - KQ + Ksq);
+  f_c = 38.135470876002174; // Hertz
+  Q = 0.5003270373223665;
+  K = freq2k(f_c);
+
+  denominator = (K^2) * Q + K + Q;
+  b0 = Q / denominator;
+  b1 = -2*Q / denominator;
+  b2 = b0;
+
+  a1 = (2*Q * (K^2 - 1)) / denominator;
+  a2 = ((K^2) * Q - K + Q) / denominator;
 };
 
 prefilter = stage1 : stage2;
