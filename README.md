@@ -11,5 +11,5 @@ better sound for live-streaming
 
 ```
 $ faust2jack --double-precision-floats soundsgood.dsp
-$ ./soundsgood.dsp
+$ ./soundsgood
 ```
