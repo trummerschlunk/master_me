@@ -39,7 +39,7 @@ tone_generator = os.osc(f) * g <: _,_ with{
 
 // +++++++++++++++++++++++++ LUFS METER +++++++++++++++++++++++++
 
-lk2 = par(i,2,kfilter : zi) :> 10 * log10(max(ma.EPSILON)) : -(0.691) with {
+lk2 = par(i,2,kfilter : zi) :> 10 * log10(max(ma.EPSILON)) : /*-(0.691)*/ with {
   //Tg = 0.4; // 3 second window for 'short-term' measurement
   Tg = 3;
   zi = an.ms_envelope_rect(Tg); // mean square: average power = energy/Tg = integral of squared signal / Tg
