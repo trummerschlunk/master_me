@@ -36,7 +36,7 @@ init_brickwall_ceiling = -1;
 
 // main
 process =
-
+    //tone_generator :
     si.bus(2)
     : dc_filter(2)
 
@@ -60,6 +60,12 @@ process =
     : si.bus(2)
 
 ;
+
+// tone_generator
+tone_generator = os.osc(f) * g <: _,_ with{
+  g = vslider("tone_gen_gain",-50, -70,0,1):ba.db2linear;
+  f = vslider("tone_gen_freq[unit:Hz] [scale:log]",1000,20,20000,1);
+};
 
 
 // DC FILTER
@@ -212,8 +218,7 @@ limiter = limiter_lad_N(2,limiter_lad_lookahead, init_limiter_lad_ceil : ba.db2l
 
 
 // BRICKWALL
-brickwall = limiter_lad_N(N, limiter_lad_lookahead, limiter_lad_ceil, limiter_lad_attack, limiter_lad_hold, limiter_lad_release)
-    with{
+brickwall = limiter_lad_N(N, limiter_lad_lookahead, limiter_lad_ceil, limiter_lad_attack, limiter_lad_hold, limiter_lad_release) with{
 
     N=2;
 
@@ -239,15 +244,13 @@ brickwall = limiter_lad_N(N, limiter_lad_lookahead, limiter_lad_ceil, limiter_la
             maxN(N) = max(maxN(N - 1));
         };
 
-
-
 };
 
 
 
 // +++++++++++++++++++++++++ LUFS METER +++++++++++++++++++++++++
 
-lk2 = par(i,2,kfilter : zi) :> 10 * log10(max(ma.EPSILON)) : -(0.691) with {
+lk2 = par(i,2,kfilter : zi) :> 10 * log10(max(ma.EPSILON)) : /*-(0.691)*/ with {
   //Tg = 0.4; // 3 second window for 'short-term' measurement
   Tg = 3;
   zi = an.ms_envelope_rect(Tg); // mean square: average power = energy/Tg = integral of squared signal / Tg
@@ -255,7 +258,7 @@ lk2 = par(i,2,kfilter : zi) :> 10 * log10(max(ma.EPSILON)) : -(0.691) with {
   kfilter = ebu.ebur128;
 };
 
-lufs_meter(l,r) = l,r <: l, attach(r, (lk2 : vbargraph("h:soundsgood/h:easy/[9][unit:dB]out-lufs-s",-40,0))) : _,_;
+lufs_meter(l,r) = l,r <: l, attach(r, (lk2 : vbargraph("h:soundsgood/h:easy/[9][unit:dB]out-lufs-s",-70,0))) : _,_;
 
 
 
