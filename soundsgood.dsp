@@ -107,7 +107,7 @@ tilt_eq = par(i,2,_) : par(i,2, fi.lowshelf(N, -gain, freq) : fi.highshelf(N, ga
 side_eq = midside : (_, eq) : (_*gain_m,_*gain_s) : midside with{
     eq = fi.peak_eq(eq_gain,eq_freq,eq_bandwidth);
 
-    eq_gain = vslider("h:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[1]eq gain [unit:db]",0,-6,6,0.5);
+    eq_gain = vslider("h:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[1]eq gain [unit:db]",0,0,6,0.5);
     eq_freq = vslider("h:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[2]eq freq [unit:Hz] [scale:log]", 630, 100, 3000,1);
     eq_bandwidth = vslider("h:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[3]eq bandwidth [unit:Hz] [scale:log]", 50, 10, 3000,1);
 
