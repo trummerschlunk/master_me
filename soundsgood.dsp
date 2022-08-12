@@ -44,22 +44,26 @@ process =
     : correlate_meter
     : correlate_correct_bp
 
-    : leveler(target)
+    : leveler_bp
 
-    : tilt_eq
-    : side_eq
+    : eq_bp
 
-    : mscomp8i(target)
-    : kneecomp(target)
+    : mscomp8i_bp
+    : kneecomp_bp
 
-    : limiter
-    : brickwall
+    : limiter_bp
+    : brickwall_bp
 
     : lufs_meter
 
     : si.bus(2)
 
 ;
+
+// stereo bypass with si.smoo fading
+bp2(sw,pr) =  _,_ <: _,_,pr : (_*sm,_*sm),(_*(1-sm),_*(1-sm)) :> _,_ with {
+    sm = sw : si.smoo;
+};
 
 // tone_generator
 tone_generator = os.osc(f) * g <: _,_ with{
@@ -75,30 +79,39 @@ with {
 };
 
 // GATE
-gate = ef.gate_stereo(gate_thresh,gate_att,gate_hold,gate_rel) with{
-  gate_thresh = vslider("h:soundsgood/t:expert/h:[1]gate/[1]thr",-90,-90,0,1);
-  gate_att = vslider("h:soundsgood/t:expert/h:[1]gate/[2]att",0,0,0.1,0.01);
-  gate_hold = vslider("h:soundsgood/t:expert/h:[1]gate/[3]hold",0.1,0,1,0.1);
-  gate_rel = vslider("h:soundsgood/t:expert/h:[1]gate/[4]rel",0.5,0,5,0.1);
+gate = bp2(checkbox("h:soundsgood/t:expert/h:[1]gate/[1]bypass"),ef.gate_stereo(gate_thresh,gate_att,gate_hold,gate_rel)) with{
+  gate_thresh = vslider("h:soundsgood/t:expert/h:[1]gate/[2]thr",-90,-90,0,1);
+  gate_att = vslider("h:soundsgood/t:expert/h:[1]gate/[3]att",0,0,0.1,0.01);
+  gate_hold = vslider("h:soundsgood/t:expert/h:[1]gate/[4]hold",0.1,0,1,0.1);
+  gate_rel = vslider("h:soundsgood/t:expert/h:[1]gate/[5]rel",0.5,0,5,0.1);
+};
+
+// EQ with bypass
+eq_bp = bp2(checkbox("h:soundsgood/t:expert/h:[4]eq/[1]bypass"),eq);
+eq = hp_eq : tilt_eq : side_eq;
+
+// HIGHPASS
+hp_eq = par(i,2,fi.highpass(1,freq)) with {
+  freq = vslider("h:soundsgood/t:expert/h:[4]eq/h:[1]highpass/[1]freq [unit:Hz] [scale:log]", 5, 5, 1000,1);
 };
 
 // TILT EQ STEREO
 tilt_eq = par(i,2,_) : par(i,2, fi.lowshelf(N, -gain, freq) : fi.highshelf(N, gain, freq)) with{
     N = 1;
-    gain = vslider("h:soundsgood/t:expert/h:[4]eq/h:tilt eq/[1]gain [unit:db]",0,-6,6,0.5);
-    freq = vslider("h:soundsgood/t:expert/h:[4]eq/h:tilt eq/[2]freq [unit:Hz] [scale:log]", 630, 200, 2000,1);
+    gain = vslider("h:soundsgood/t:expert/h:[4]eq/h:[2]tilt eq/[1]gain [unit:db]",0,-6,6,0.5);
+    freq = vslider("h:soundsgood/t:expert/h:[4]eq/h:[2]tilt eq/[2]freq [unit:Hz] [scale:log]", 630, 200, 2000,1);
 };
 
 // SIDE EQ
 side_eq = ms_enc : (_, eq) : (_*gain_m,_*gain_s) : ms_dec with{
     eq = fi.peak_eq(eq_gain,eq_freq,eq_bandwidth);
 
-    eq_gain = vslider("h:soundsgood/t:expert/h:[4]eq/h:side eq/[1]eq gain [unit:db]",0,-6,6,0.5);
-    eq_freq = vslider("h:soundsgood/t:expert/h:[4]eq/h:side eq/[2]eq freq [unit:Hz] [scale:log]", 630, 100, 3000,1);
-    eq_bandwidth = vslider("h:soundsgood/t:expert/h:[4]eq/h:side eq/[3]eq bandwidth [unit:Hz] [scale:log]", 50, 10, 3000,1);
+    eq_gain = vslider("h:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[1]eq gain [unit:db]",0,-6,6,0.5);
+    eq_freq = vslider("h:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[2]eq freq [unit:Hz] [scale:log]", 630, 100, 3000,1);
+    eq_bandwidth = vslider("h:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[3]eq bandwidth [unit:Hz] [scale:log]", 50, 10, 3000,1);
 
-    gain_m = vslider("h:soundsgood/t:expert/h:[4]eq/h:side eq/[4]gain M [unit:db]",0,-6,6,0.5) : ba.db2linear;
-    gain_s = vslider("h:soundsgood/t:expert/h:[4]eq/h:side eq/[5]gain S [unit:db]",0,-6,6,0.5) : ba.db2linear;
+    gain_m = vslider("h:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[4]gain M [unit:db]",0,-6,6,0.5) : ba.db2linear;
+    gain_s = vslider("h:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[5]gain S [unit:db]",0,-6,6,0.5) : ba.db2linear;
 
     // stereo to m/s encoder
     ms_enc = _*0.5,_*0.5 <: +, -;
@@ -107,6 +120,7 @@ side_eq = ms_enc : (_, eq) : (_*gain_m,_*gain_s) : ms_dec with{
 };
 
 // LEVELER
+leveler_bp = bp2(checkbox("h:soundsgood/t:expert/h:[3]leveler/[1]bypass"),leveler(target));
 leveler(target) = B <:    B    ,   (B <: B,B : lk2, + : calc : _ <: B) : ro.interleave(N,2) : par(i,N,*)
     with {
     N = 2;
@@ -114,14 +128,7 @@ leveler(target) = B <:    B    ,   (B <: B,B : lk2, + : calc : _ <: B) : ro.inte
 
     calc(lufs,sc) = (lufs : leveler_meter_lufs : (target - _) : lp1p(leveler_speed_gated(sc)) : limit(limit_neg,limit_pos) : leveler_meter_gain : ba.db2linear) , sc : _,!;
 
-    // target = vslider("[3]target[unit:dB]", init_leveler_target,-50,0,1);
-
-    //limit_pos = vslider("[5]max +", init_leveler_maxboost, 0, 60, 1);
-    //limit_neg = vslider("[6]max -", init_leveler_maxcut, 0, 60, 1) : ma.neg;
     limit(lo,hi) = min(hi) : max(lo);
-
-    //leveler_speed = vslider("[4]speed", init_leveler_speed, .005, 0.15, .005);
-    //leveler_gate_thresh = vslider("[8]lev gate thresh[unit:dB]", init_leveler_gatethreshold,-90,0,1);
 
     leveler_speed_gated(sc) = (ef.gate_gain_mono(leveler_gate_thresh,0.1,0,0.1,abs(sc)) <: attach(_, (1-_) : meter_leveler_gate)) : _ * leveler_speed;
     // leveler_speed_gated(sc) = sc : (peak_expansion_gain_N_chan(1,leveler_gate_thresh,20,0.1,0.05,0.3,6,1,1) <: attach(_, (1-_) : meter_leveler_gate)) : _ * leveler_speed;
@@ -158,6 +165,7 @@ leveler(target) = B <:    B    ,   (B <: B,B : lk2, + : calc : _ <: B) : ro.inte
 };
 
 // KNEE COMPRESSOR
+kneecomp_bp = bp2(checkbox("h:soundsgood/t:expert/h:[7]knee-comp/[1]bypass"),kneecomp(target));
 kneecomp(target) = ms_enc : co.RMS_FBcompressor_peak_limiter_N_chan(strength,thresh,threshLim,att,rel,knee,link,meter,meterLim,2) : ms_dec : post_gain with {
 
   strength = 0.1; //vslider("strength", 0.1, 0, 1, 0.1);
@@ -168,7 +176,7 @@ kneecomp(target) = ms_enc : co.RMS_FBcompressor_peak_limiter_N_chan(strength,thr
   knee = 12; //vslider("knee",12,0,12,1);
   link = 0.5; //vslider("link", 0.5, 0, 1, 0.1);
   meter = _<: _,(ba.linear2db : ma.neg : vbargraph("h:soundsgood/t:expert/h:[7]knee-comp/[unit:dB]",0,3)) : attach;
-  meterLim = _<: _,(ba.linear2db : ma.neg : vbargraph("h:soundsgood/t:expert/h:[7]knee-comp/[unit:dB]",0,3)) : attach;
+  meterLim = _; //_<: _,(ba.linear2db : ma.neg : vbargraph("h:soundsgood/t:expert/h:[7]knee-comp/[unit:dB]",0,3)) : attach;
 
   // stereo to m/s encoder
   ms_enc = _*0.5,_*0.5 <: +, -;
@@ -184,6 +192,8 @@ kneecomp(target) = ms_enc : co.RMS_FBcompressor_peak_limiter_N_chan(strength,thr
 
 
 // LIMITER
+limiter_bp = bp2(checkbox("h:soundsgood/t:expert/h:[7]limiter/[1]bypass"),limiter);
+
 limiter = limiter_lad_N(2,limiter_lad_lookahead, init_limiter_lad_ceil : ba.db2linear, limiter_lad_attack, limiter_lad_hold, limiter_lad_release) : post_gain with{
 
     N=2;
@@ -212,12 +222,14 @@ limiter = limiter_lad_N(2,limiter_lad_lookahead, init_limiter_lad_ceil : ba.db2l
 
     };
 
-    limiter_postgain = vslider("h:soundsgood/t:expert/h:[7]limiter/[2]post-gain[unit:dB]", init_limiter_postgain,-10,+10,0.5) : ba.db2linear;
-    limiter_meter = _ <: attach(ba.linear2db : abs : vbargraph("h:soundsgood/t:expert/h:[7]limiter/[1][unit:dB]gr",0,12));
+    limiter_postgain = vslider("h:soundsgood/t:expert/h:[7]limiter/[3]post-gain[unit:dB]", init_limiter_postgain,-10,+10,0.5) : ba.db2linear;
+    limiter_meter = _ <: attach(ba.linear2db : abs : vbargraph("h:soundsgood/t:expert/h:[7]limiter/[2][unit:dB]gr",0,12));
 };
 
 
 // BRICKWALL
+brickwall_bp = bp2(checkbox("h:soundsgood/t:expert/h:[8]brickwall/[1]bypass"),brickwall);
+
 brickwall = limiter_lad_N(N, limiter_lad_lookahead, limiter_lad_ceil, limiter_lad_attack, limiter_lad_hold, limiter_lad_release) with{
 
     N=2;
@@ -243,6 +255,7 @@ brickwall = limiter_lad_N(N, limiter_lad_lookahead, limiter_lad_ceil, limiter_la
             maxN(2) = max;
             maxN(N) = max(maxN(N - 1));
         };
+    brickwall_meter = _ <: attach(ba.linear2db : abs : vbargraph("h:soundsgood/t:expert/h:[8]brickwall/[8][unit:dB]gr",0,12));
 
 };
 
@@ -291,6 +304,7 @@ correlate_meter(x,y) = x,y <: x , attach(y, (corr(t) : meter_correlate_meter )) 
 };
 
 // stereo correction based on correlation
+correlate_correct_bp = bp2(checkbox("h:soundsgood/t:expert/h:[2]correlation/[1]bypass"), correlate_correct);
 correlate_correct(l,r) = out_pos1, out_neg1, out_0, out_pos, out_neg :> _,_ with {
 
     t = .2; // averaging period in seconds
@@ -321,8 +335,7 @@ correlate_correct(l,r) = out_pos1, out_neg1, out_0, out_pos, out_neg :> _,_ with
     out_neg = l * corr_neg , r * corr_neg; // old: out_neg = l * corr_neg , (0-(r * corr_neg));
 };
 
-// stereo correction bypass checkbox
-correlate_correct_bp = ba.bypass2(bypass_correlate_correct, correlate_correct);
+
 
 
 
@@ -336,7 +349,6 @@ target = vslider("h:soundsgood/h:easy/[2]Target[unit:dB]", init_leveler_target,-
 
 
 meter_correlate_meter = vbargraph("h:soundsgood/t:expert/h:[2]correlation/correlation",-1,1);
-bypass_correlate_correct = checkbox("h:soundsgood/t:expert/h:[2]correlation/corr-bp");
 
 
 
@@ -347,9 +359,6 @@ bypass_correlate_correct = checkbox("h:soundsgood/t:expert/h:[2]correlation/corr
 
 
 
-
-
-brickwall_meter = _ <: attach(ba.linear2db : abs : vbargraph("h:soundsgood/t:expert/h:[8]brickwall/[8][unit:dB]gr",0,12));
 
 // lufs_meter = vbargraph("[unit:dB]LUFS",-70,0);
 
@@ -367,7 +376,7 @@ brickwall_meter = _ <: attach(ba.linear2db : abs : vbargraph("h:soundsgood/t:exp
 
 
 // MSCOMP8 Interpolated (Bart Brouns)
-
+mscomp8i_bp = bp2(checkbox("h:soundsgood/t:expert/h:[5]mscomp/h:[0]bypass/[1]bypass"),mscomp8i(target));
 
 mscomp8i(target) =
 
