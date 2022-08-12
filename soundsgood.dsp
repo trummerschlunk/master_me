@@ -407,7 +407,8 @@ with {
   compressor(meter,N,prePost,strength,thresh,att,rel,knee,link) =
     co.FFcompressor_N_chan(strength,thresh,att,rel,knee,prePost,link,meter,N);
 
-  meter(i) = _<:(_, (ba.linear2db:max(-40):min(0):vbargraph("h:soundsgood/t:expert/h:[6]mscomp_meter/[%i][unit:dB]%i[tooltip: gain reduction in dB]", -3, 0))):attach;
+  //meter(i) = _<:(_, (ba.linear2db:max(-40):min(0):vbargraph("h:soundsgood/t:expert/h:[6]mscomp_meter/[%i][unit:dB]%i[tooltip: gain reduction in dB]", -3, 0))):attach;
+  meter(i) = _<:(_, (ba.linear2db:max(-40):min(0):vbargraph("h:soundsgood/t:expert/h:[6]mscomp_meter/[%i][unit:dB][tooltip: gain reduction in dB]", -3, 0))):attach;
 
   // inGain = CG(hslider("[1]input gain", 0, -30, 30, 0.1)):ba.db2linear;
   //crossoverFreqs = BT(vslider("[1]freq", 60, 20, 20000, 1),vslider("[1]freq", 8000, 20, 20000, 1)):LogArray(Nr_crossoverFreqs);
