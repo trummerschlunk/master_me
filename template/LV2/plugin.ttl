@@ -1,0 +1,204 @@
+@prefix atom:    <http://lv2plug.in/ns/ext/atom#> .
+@prefix bufsize: <http://lv2plug.in/ns/ext/buf-size#> .
+@prefix doap:    <http://usefulinc.com/ns/doap#> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix lv2:     <http://lv2plug.in/ns/lv2core#> .
+@prefix opts:    <http://lv2plug.in/ns/ext/options#> .
+@prefix patch:   <http://lv2plug.in/ns/ext/patch#> .
+@prefix pg:      <http://lv2plug.in/ns/ext/port-groups#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ui:      <http://lv2plug.in/ns/extensions/ui#> .
+@prefix unit:    <http://lv2plug.in/ns/extensions/units#> .
+
+{% if inputs == 1 or outputs == 1 %}
+<{{lv2uri}}#portGroup_dpf_mono>
+    a pg:Group , pg:MonoGroup ;
+    lv2:name "Mono" ;
+    lv2:symbol "dpf_mono" .
+{% endif %}
+
+{% if inputs == 2 or outputs == 2 %}
+<{{lv2uri}}#portGroup_dpf_stereo>
+    a pg:Group , pg:StereoGroup ;
+    lv2:name "Stereo" ;
+    lv2:symbol "dpf_stereo" .
+{% endif %}
+
+<{{lv2uri}}#mode>
+    a lv2:Parameter ;
+    rdfs:label "Mode" ;
+    rdfs:comment "Simple vs Advanced mode switch" ;
+    rdfs:range atom:String .
+
+<{{lv2uri}}>
+    a lv2:UtilityPlugin, lv2:Plugin, doap:Project ;
+
+    lv2:extensionData opts:interface ,
+                      <http://lv2plug.in/ns/ext/state#interface> ,
+                      <http://lv2plug.in/ns/ext/worker#interface> ;
+
+    lv2:optionalFeature lv2:hardRTCapable ,
+                        bufsize:boundedBlockLength ;
+
+    lv2:requiredFeature opts:options ,
+                        <http://lv2plug.in/ns/ext/urid#map> ,
+                        <http://lv2plug.in/ns/ext/worker#schedule> ;
+
+    opts:supportedOption bufsize:nominalBlockLength ,
+                         bufsize:maxBlockLength ,
+                         <http://lv2plug.in/ns/ext/parameters#sampleRate> ;
+
+    patch:readable <{{lv2uri}}#mode> ;
+
+    {% if uitype is defined %}
+    ui:ui <{{lv2uri}}#DPF_UI> ;
+    {% endif %}
+
+    {% for i in range(inputs) %}
+    lv2:port [
+        a lv2:InputPort, lv2:AudioPort ;
+        lv2:index {{i}} ;
+        lv2:symbol "lv2_audio_in_{{i+1}}" ;
+        lv2:name "Audio Input {{i+1}}" ;
+        {% if inputs == 2 %}
+        pg:group <{{lv2uri}}#portGroup_dpf_stereo> ;
+            {% if i == 0 %}
+        lv2:designation pg:left ;
+            {% else %}
+        lv2:designation pg:right ;
+            {% endif %}
+        {% endif %}
+    ] ;
+    {% endfor %}
+
+    {% for i in range(outputs) %}
+    lv2:port [
+        a lv2:OutputPort, lv2:AudioPort ;
+        lv2:index {{inputs+i}} ;
+        lv2:symbol "lv2_audio_out_{{i+1}}" ;
+        lv2:name "Audio Output {{i+1}}" ;
+        {% if outputs == 2 %}
+        pg:group <{{lv2uri}}#portGroup_dpf_stereo> ;
+            {% if i == 0 %}
+        lv2:designation pg:left ;
+            {% else %}
+        lv2:designation pg:right ;
+            {% endif %}
+        {% endif %}
+    ] ;
+    {% endfor %}
+
+    lv2:port [
+        a lv2:InputPort, atom:AtomPort ;
+        lv2:index {{inputs+outputs}} ;
+        lv2:name "Events Input" ;
+        lv2:symbol "lv2_events_in" ;
+        atom:bufferType atom:Sequence ;
+        atom:supports atom:String ;
+        atom:supports patch:Message ;
+        lv2:designation lv2:control ;
+    ] ;
+
+    lv2:port [
+        a lv2:OutputPort, atom:AtomPort ;
+        lv2:index {{inputs+outputs+1}} ;
+        lv2:name "Events Output" ;
+        lv2:symbol "lv2_events_out" ;
+        atom:bufferType atom:Sequence ;
+        atom:supports atom:String ;
+        atom:supports patch:Message ;
+        lv2:designation lv2:control ;
+    ] ;
+
+    {% for p in active %}
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index {{inputs+outputs+loop.index0+2}} ;
+        lv2:name {{cstr(p.label)}} ;
+        lv2:symbol {{cstr(cid(p.meta.symbol|default("lv2_port_" ~ (inputs+outputs+loop.index0))))}} ;
+        lv2:default {{p.init}} ;
+        lv2:minimum {{p.min}} ;
+        lv2:maximum {{p.max}} ;
+        {% if p.type in ["button"] or p.meta.trigger is defined %}
+        lv2:portProperty <http://lv2plug.in/ns/ext/port-props#trigger> ;
+        {% endif %}
+        {% if p.type in ["button", "checkbox"] or p.meta.boolean is defined %}
+        lv2:portProperty lv2:toggled ;
+        {% endif %}
+        {% if p.type in ["button", "checkbox"] or p.meta.boolean is defined or p.meta.integer is defined %}
+        lv2:portProperty lv2:integer ;
+        {% endif %}
+        {% if p.scale == "log" %}
+        lv2:portProperty <http://lv2plug.in/ns/ext/port-props#logarithmic> ;
+        {% endif %}
+        {% if p.unit == "dB" %}
+        unit:unit unit:db ;
+        {% endif %}
+        {% if p.unit == "Hz" %}
+        unit:unit unit:hz ;
+        {% endif %}
+    ] ;
+    {% endfor %}
+
+    {% for p in passive %}
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index {{inputs+outputs+active|length+loop.index0+2}} ;
+        lv2:name {{cstr(p.label)}} ;
+        lv2:symbol {{cstr(cid(p.meta.symbol|default("lv2_port_" ~ (inputs+outputs+active|length+loop.index0))))}} ;
+        lv2:default {{p.init}} ;
+        lv2:minimum {{p.min}} ;
+        lv2:maximum {{p.max}} ;
+        {% if p.type in ["button", "checkbox"] or p.meta.boolean is defined %}
+        lv2:portProperty lv2:toggled ;
+        {% endif %}
+        {% if p.type in ["button", "checkbox"] or p.meta.boolean is defined or p.meta.integer is defined %}
+        lv2:portProperty lv2:integer ;
+        {% endif %}
+        {% if p.scale == "log" %}
+        lv2:portProperty <http://lv2plug.in/ns/ext/port-props#logarithmic> ;
+        {% endif %}
+        {% if p.unit == "dB" %}
+        unit:unit unit:db ;
+        {% endif %}
+        {% if p.unit == "Hz" %}
+        unit:unit unit:hz ;
+        {% endif %}
+    ] ;
+    {% endfor %}
+
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index {{inputs+outputs+active|length+passive|length+2}} ;
+        lv2:name "Enabled" ;
+        lv2:symbol "lv2_enabled" ;
+        lv2:default 1 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1 ;
+        lv2:portProperty lv2:toggled , lv2:integer ;
+        lv2:designation lv2:enabled ;
+    ] ;
+
+    doap:name {{cstr(name)}} ;
+
+    {% if author is defined %}
+    doap:developer [
+        foaf:name {{cstr(author)}} ;
+    ] ;
+    {% endif %}
+
+    {% if licenseurl is defined %}
+    doap:license <{{licenseurl}}> ;
+    {% endif %}
+
+    doap:maintainer [
+        foaf:name {{cstr(brand)}} ;
+        foaf:homepage <{{homepage}}> ;
+    ] ;
+
+    {% if meta.description is defined %}
+    rdfs:comment {{cstr(meta.description)}} ;
+    {% endif %}
+
+    lv2:microVersion {{version_minor}} ;
+    lv2:minorVersion {{version_micro}} .

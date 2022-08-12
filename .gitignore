@@ -1,2 +1,6 @@
+/bin/
+/build/
+/.cache/
+compile_commands.json
 soundsgood
 *~
