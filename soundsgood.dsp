@@ -73,6 +73,12 @@ with {
 };
 
 
+// stereo to m/s encoder
+ms_enc = _*0.5,_*0.5 <: +, -;
+// m/s to stereo decoder
+ms_dec = _,_ <: +, -;
+
+
 // GATE
 gate_bp = bp2(checkbox("v:soundsgood/t:expert/h:[1]gate/[1]gate bypass"),gate);
 gate = ef.gate_stereo(gate_thresh,gate_att,gate_hold,gate_rel) with{
@@ -173,7 +179,7 @@ eq = hp_eq : tilt_eq : side_eq with{
   };
 
   // SIDE EQ
-  side_eq = midside : (_, eq) : midside with{
+  side_eq = ms_enc : (_, eq) : ms_dec with{
       eq = fi.peak_eq(eq_gain,eq_freq,eq_bandwidth);
 
       eq_gain = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[1]eq side gain [unit:db]",0,0,6,0.5);
@@ -188,9 +194,9 @@ mscomp8i_bp = bp2(checkbox("v:soundsgood/t:expert/h:[5]mscomp/h:[0]bypass/[1]msc
 
 mscomp8i(target) =
 
-    midside
+    ms_enc
   : Eight_band_Compressor_N_chan(2)
-  : midside
+  : ms_dec
 ;
 
 
@@ -253,7 +259,7 @@ with {
 
 // KNEE COMPRESSOR
 kneecomp_bp = bp2(checkbox("v:soundsgood/t:expert/h:[7]kneecomp/[1]kneecomp bypass"),kneecomp(target));
-kneecomp(target) = midside : co.RMS_FBcompressor_peak_limiter_N_chan(strength,thresh,threshLim,att,rel,knee,link,meter,meterLim,2) : midside : post_gain with {
+kneecomp(target) = ms_enc : co.RMS_FBcompressor_peak_limiter_N_chan(strength,thresh,threshLim,att,rel,knee,link,meter,meterLim,2) : ms_dec : post_gain with {
 
     strength = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[1]kneecomp strength", 0.1, 0, 1, 0.1);
     thresh = target + vslider("v:soundsgood/t:expert/h:[7]kneecomp/[unit:dB][2]kneecomp threshold",init_kneecomp_thresh,-12,6,1);
@@ -367,29 +373,3 @@ lufs_meter(l,r) = l,r <: l, attach(r, (lk2 : vbargraph("v:soundsgood/h:easy/[9][
 lp1p(cf, x) = fi.pole(b, x * (1 - b)) with {
     b = exp(-2 * ma.PI * cf / ma.SR);
 };
-
-
-
-
-
-
-
-
-
-
-
-
-//--------------------`midside`-------------------
-// Conversion from left and rigth channel to mid and side
-// channel. Note that `midside : midside` equals the identity function
-// `si.bus(2)`.
-//
-// #### Usage
-//
-// ```
-// left, right : midside : mid, side
-// mid, side : midside : left, right
-// ```
-
-// Author: Jakob Dübel
-midside = si.bus(2) <: +(_, _), -(_, _) : /(sqrt(2)), /(sqrt(2));
