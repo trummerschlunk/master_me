@@ -1,6 +1,6 @@
 # soundsgood
 
-better sound for live-streaming
+Better sound for live-streaming.
 
 ![soundsgood on Gnome desktop](/img/soundsgood-gui.png "soundsgood on Gnome desktop")
 
@@ -10,6 +10,6 @@ better sound for live-streaming
 ## Build for JACK and run
 
 ```
-$ faust2jack --double-precision-floats soundsgood.dsp
+$ faust2jack soundsgood.dsp
 $ ./soundsgood
 ```
