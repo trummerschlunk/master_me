@@ -21,7 +21,7 @@ Nch = 2; //number of channels
 
 // main
 process =
-    //tone_generator :
+    tone_generator :
     si.bus(2)
 
     : lufs_meter
