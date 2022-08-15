@@ -351,12 +351,16 @@ brickwall = limiter_lad_N(N, limiter_lad_lookahead, limiter_lad_ceil, limiter_la
 
 // +++++++++++++++++++++++++ LUFS METER +++++++++++++++++++++++++
 
-lk2 = par(i,2,kfilter : zi) :> 10 * log10(max(ma.EPSILON)) : -(0.691) with {
-  //Tg = 0.4; // 3 second window for 'short-term' measurement
-  Tg = 3;
-  zi = an.ms_envelope_rect(Tg); // mean square: average power = energy/Tg = integral of squared signal / Tg
+lk2 = par(i,2,kfilter : zi) :> 4.342944819 * log(max(1e-12)) : -(0.691) with {
+    // maximum assumed sample rate is 192k
+    maxSR = 192000;
+    sump(n) = ba.slidingSump(n, Tg*maxSR)/n;
+    envelope(period, x) = x * x :  sump(rint(period * ma.SR));
+    //Tg = 0.4; // 3 second window for 'short-term' measurement
+    Tg = 3;
+    zi = envelope(Tg); // mean square: average power = energy/Tg = integral of squared signal / Tg
 
-  kfilter = ebu.prefilter;
+    kfilter = ebu.prefilter;
 };
 
 lufs_meter(l,r) = l,r <: l, attach(r, (lk2 : vbargraph("v:soundsgood/h:easy/[9][unit:dB]out lufs-s",-70,0))) : _,_;
