@@ -37,8 +37,7 @@ target = vslider("v:soundsgood/h:easy/[2]Target[unit:dB]", init_leveler_target,-
 // main
 process =
     //tone_generator :
-    si.bus(2)
-    : lufs_meter_in
+    lufs_meter_in
     : dc_filter(2)
 
     : gate_bp
@@ -53,8 +52,8 @@ process =
         : mscomp8i_bp
         : kneecomp_bp
 
-        : limiter_bp
-        : brickwall_bp
+          // : limiter_bp
+          // : brickwall_bp
 
         : lufs_meter_out
     )~(si.bus(2))
@@ -270,19 +269,24 @@ with {
   maxGR = -30;
 };
 
+
 // KNEE COMPRESSOR
 kneecomp_bp = bp2(checkbox("v:soundsgood/t:expert/h:[7]kneecomp/[1]kneecomp bypass"),kneecomp(target));
-kneecomp(target) = ms_enc : co.RMS_FBcompressor_peak_limiter_N_chan(strength,thresh,threshLim,att,rel,knee,link,meter,meterLim,2) : ms_dec : post_gain with {
+kneecomp(target) = ms_enc : co.RMS_FBcompressor_peak_limiter_N_chan(strength,thresh,threshLim,att,rel,knee,link,meter,meterLim,2): post_gain  : ms_dec  with {
 
-    strength = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[1]kneecomp strength", 0.1, 0, 1, 0.1);
-    thresh = target + vslider("v:soundsgood/t:expert/h:[7]kneecomp/[unit:dB][2]kneecomp threshold",init_kneecomp_thresh,-12,6,1);
-    threshLim = +6; //vslider("threshLim",3,-12,3,1);
-    att = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[3]kneecomp attack",0.4,0.001,1,0.001);
-    rel = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[4]kneecomp release",0.8,0.01,1,0.001);
-    knee = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[5]kneecomp knee",12,0,12,1);
+    strength = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[1]kneecomp strength", 1, 0, 1, 0.1);
+    thresh = target + vslider("v:soundsgood/t:expert/h:[7]kneecomp/[unit:dB][2]kneecomp threshold",init_kneecomp_thresh,-30,0,1);
+    threshLim =
+        // +6;
+        vslider("v:soundsgood/t:expert/h:[7]kneecomp/[unit:dB][3]threshLim",0,-30,0,1);
+    att = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[3]kneecomp attack[unit:ms]",10,1,100,1)*0.001;
+    rel = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[4]kneecomp release[unit:ms]",100,1,1000,1)*0.001;
+    knee = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[5]kneecomp knee",12,0,60,1);
     link = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[6]kneecomp link", 0.5, 0, 1, 0.1);
-    meter = _<: _,(ba.linear2db : ma.neg : vbargraph("v:soundsgood/t:expert/h:[7]kneecomp/[unit:dB]",0,3)) : attach;
-    meterLim = _; //_<: _,(ba.linear2db : ma.neg : vbargraph("v:soundsgood/t:expert/h:[7]knee-comp/[unit:dB]",0,3)) : attach;
+    meter = _<: _,( ba.linear2db:vbargraph("v:soundsgood/t:expert/h:[7]kneecomp/comp[unit:dB]",-20,0)) : attach;
+    meterLim =
+        // _;
+        _<: _,( ba.linear2db:vbargraph("v:soundsgood/t:expert/h:[7]kneecomp/lim[unit:dB]",-20,0)) : attach;
 
     //post_gain
     post_gain = par(i,2,_ * g) with {
