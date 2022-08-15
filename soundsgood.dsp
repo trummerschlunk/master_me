@@ -45,7 +45,7 @@ process =
     : correlate_correct_bp
 
     : (
-        leveler_sc
+        leveler_sc(target)
 
         : eq_bp
 
@@ -77,9 +77,6 @@ ms_enc = _*0.5,_*0.5 <: +, -;
 // m/s to stereo decoder
 ms_dec = _,_ <: +, -;
 
-
-// lowpass filter for leveler
-lp1p(cf) = si.smooth(ba.tau2pole(1/(2*ma.PI*cf)));
 
 
 // GATE
@@ -137,36 +134,18 @@ correlate_correct(l,r) = out_pos1, out_neg1, out_0, out_pos, out_neg :> _,_ with
     out_0 = (l * corr_0 + r * corr_0) , (l * corr_0 + r * corr_0);
     out_pos = l * corr_pos , r * corr_pos;
     out_neg = l * corr_neg , r * corr_neg; // old: out_neg = l * corr_neg , (0-(r * corr_neg));
+
+    lp1p(cf) = si.smooth(ba.tau2pole(1/(2*ma.PI*cf)));
 };
 
 
 
 
 // LEVELER
-leveler_bp = bp2(checkbox("v:soundsgood/t:expert/h:[3]leveler/[1]leveler bypass"),leveler(target));
-leveler(target) = B <:    B    ,   (B <: B,B : lk2, + : calc : _ <: B) : ro.interleave(N,2) : par(i,N,*)
-    with {
-    N = 2;
-    B = si.bus(N);
-
-    calc(lufs,sc) = (lufs : leveler_meter_lufs : (target - _) : lp1p(leveler_speed_gated(sc)) : limit(limit_neg,limit_pos) : leveler_meter_gain : ba.db2linear) , sc : _,!;
-
-                                                                                                                                                                       limit(lo,hi) = min(hi) : max(lo);
-
-    leveler_speed_gated(sc) = (ef.gate_gain_mono(leveler_gate_thresh,0.1,0,0.1,abs(sc)) <: attach(_, (1-_) : meter_leveler_gate)) : _ * leveler_speed;
+leveler_sc_bp = bp2(checkbox("v:soundsgood/t:expert/h:[3]leveler/[1]leveler bypass"),leveler_sc(target));
 
 
-    leveler_meter_lufs = vbargraph("v:soundsgood/h:easy/[1][unit:dB]leveler lufs-s",-70,0);
-    leveler_meter_gain = vbargraph("v:soundsgood/h:easy/[3]Leveler gain",-50,50);
-    meter_leveler_gate = vbargraph("v:soundsgood/t:expert/h:[3]leveler/[6]leveler gate",0,1);
-
-    leveler_speed = vslider("v:soundsgood/t:expert/h:[3]leveler/[4][scale:log]leveler speed", init_leveler_speed, .005, 0.15, .005);
-    leveler_gate_thresh = vslider("v:soundsgood/t:expert/h:[3]leveler/[5]leveler gate threshold[unit:dB]", init_leveler_gatethreshold,-90,0,1);
-    limit_pos = vslider("v:soundsgood/t:expert/h:[3]leveler/[7]leveler max +", init_leveler_maxboost, 0, 60, 1);
-    limit_neg = vslider("v:soundsgood/t:expert/h:[3]leveler/[8]leveler max -", init_leveler_maxcut, 0, 60, 1) : ma.neg;
-};
-
-leveler_sc =
+leveler_sc(target) =
     ro.crossnn(N)
     : B,(B <: B,B : lk2, + : (calc*(1-bp)+bp) : _ <: B)
         :
@@ -177,7 +156,7 @@ with {
 
     calc(lufs,sc) = (lufs : leveler_meter_lufs : (target - _) : lp1p(leveler_speed_gated(sc)) : limit(limit_neg,limit_pos) : leveler_meter_gain : ba.db2linear) , sc : _,!;
 
-                                                                                                                                                                       bp = checkbox("v:soundsgood/t:expert/h:[3]leveler/[1]leveler bypass") : si.smoo;
+    bp = checkbox("v:soundsgood/t:expert/h:[3]leveler/[1]leveler bypass") : si.smoo;
 
     limit(lo,hi) = min(hi) : max(lo);
 
@@ -192,6 +171,8 @@ with {
     leveler_gate_thresh = vslider("v:soundsgood/t:expert/h:[3]leveler/[5]leveler gate threshold[unit:dB]", init_leveler_gatethreshold,-90,0,1);
     limit_pos = vslider("v:soundsgood/t:expert/h:[3]leveler/[7]leveler max +", init_leveler_maxboost, 0, 60, 1);
     limit_neg = vslider("v:soundsgood/t:expert/h:[3]leveler/[8]leveler max -", init_leveler_maxcut, 0, 60, 1) : ma.neg;
+
+    lp1p(cf) = si.smooth(ba.tau2pole(1/(2*ma.PI*cf)));
 };
 
 // EQ with bypass
