@@ -78,6 +78,10 @@ ms_enc = _*0.5,_*0.5 <: +, -;
 ms_dec = _,_ <: +, -;
 
 
+// lowpass filter for leveler
+lp1p(cf) = si.smooth(ba.tau2pole(1/(2*ma.PI*cf)));
+
+
 // GATE
 gate_bp = bp2(checkbox("v:soundsgood/t:expert/h:[1]gate/[1]gate bypass"),gate);
 gate = ef.gate_stereo(gate_thresh,gate_att,gate_hold,gate_rel) with{
@@ -391,16 +395,3 @@ lk2 = par(i,2,kfilter : zi) :> 4.342944819 * log(max(1e-12)) : -(0.691) with {
 };
 
 lufs_meter(l,r) = l,r <: l, attach(r, (lk2 : vbargraph("v:soundsgood/h:easy/[9][unit:dB]out lufs-s",-70,0))) : _,_;
-
-
-
-
-
-
-
-
-
-//lp by Dario Sanphilippo
-lp1p(cf, x) = fi.pole(b, x * (1 - b)) with {
-    b = exp(-2 * ma.PI * cf / ma.SR);
-};
