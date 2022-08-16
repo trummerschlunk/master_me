@@ -191,15 +191,7 @@ eq = hp_eq : tilt_eq : side_eq_b with{
       freq = vslider("v:soundsgood/t:expert/h:[4]eq/h:[2]tilt eq/[2]eq tilt freq [unit:Hz] [scale:log] [symbol:eq_tilt_freq]", 630, 200, 2000,1);
   };
 
-  // SIDE EQ
-  side_eq_q = ms_enc : (_, eq) : ms_dec with{
-      eq = fi.peak_eq_cq(eq_gain,eq_freq,eq_q);
 
-      eq_gain = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[1]eq side gain [unit:db] [symbol:eq_side_gain]",0,0,12,0.5);
-      eq_freq = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[2]eq side freq [unit:Hz] [scale:log] [symbol:eq_side_freq]", 630, 100, 3000,1);
-      eq_q = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[3]eq side q [symbol:eq_side_q]", 0.7, 0.1, 4,0.1);
-
-  };
 
   // SIDE EQ add bandpass
   side_eq_b =  ms_enc : _,filt : ms_dec with{
@@ -213,7 +205,7 @@ eq = hp_eq : tilt_eq : side_eq_b with{
 
       bandp_gain = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[1]eq side gain [unit:db] [symbol:eq_side_gain]",-100,-100,12,1):ba.db2linear;
       bandp_freq = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[2]eq side freq [unit:Hz] [scale:log] [symbol:eq_side_freq]", 600,200,5000,1);
-      bandp_width = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[3]eq side q [symbol:eq_side_q]", 0.6,0.1,0.9,0.1);
+      bandp_width = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[3]eq side bandwidth [symbol:eq_side_bandwidth]", 0.6,0.1,0.9,0.1);
 
   };
 };
@@ -258,8 +250,8 @@ with {
   meter(i) = _<:(_, (ba.linear2db:max(-40):min(0):vbargraph("v:soundsgood/t:expert/h:[6]mscomp_meter/[%i][unit:dB][tooltip: gain reduction in dB]", -3, 0))):attach;
 
 
-  //crossoverFreqs = vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[1]mscomp low freq", 60, 20, 20000, 1),vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[1]freq", 8000, 20, 20000, 1):LogArray(Nr_crossoverFreqs);
-  crossoverFreqs = 60,8000 :LogArray(Nr_crossoverFreqs);
+  crossoverFreqs = vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[1][symbol:mscomp_low_crossover][scale:log]low crossover", 60, 20, 20000, 1),vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[1][symbol:mscomp_high_crossover][scale:log]high crossover", 8000, 20, 20000, 1):LogArray(Nr_crossoverFreqs);
+  //crossoverFreqs = 60,8000 :LogArray(Nr_crossoverFreqs);
   strength_array = vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[2][symbol:mscomp_low_strength]low strength", 0.1, 0, 8, 0.1),vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[2][symbol:mscomp_high_strength]high strength", 0.3, 0, 8, 0.1):LinArray(Nr_bands);
   thresh_array = target + vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[3][symbol:mscomp_low_threshold]low thresh", -2, -12, 12, 0.5),target + vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[3][symbol:mscomp_high_threshold]high thresh", -6, -12, 12, 0.5):LinArray(Nr_bands);
   att_array = (vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[4][symbol:mscomp_low_attack]low attack", 15, 0, 100, 0.1)*0.001,vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[4][symbol:mscomp_high_attack]high attack", 0.1, 0, 100, 0.1)*0.001):LogArray(Nr_bands);
