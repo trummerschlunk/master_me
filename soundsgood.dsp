@@ -178,7 +178,7 @@ with {
 
 // EQ with bypass
 eq_bp = bp2(checkbox("v:soundsgood/t:expert/h:[4]eq/[1][symbol:eq_bypass]eq bypass"),eq);
-eq = hp_eq : tilt_eq : side_eq with{
+eq = hp_eq : tilt_eq : side_eq_b with{
   // HIGHPASS
   hp_eq = par(i,2,fi.highpass(1,freq)) with {
     freq = vslider("v:soundsgood/t:expert/h:[4]eq/h:[1]highpass/[1]eq highpass freq [unit:Hz] [scale:log] [symbol:eq_highpass_freq]", 5, 5, 1000,1);
@@ -192,12 +192,28 @@ eq = hp_eq : tilt_eq : side_eq with{
   };
 
   // SIDE EQ
-  side_eq = ms_enc : (_, eq) : ms_dec with{
-      eq = fi.peak_eq(eq_gain,eq_freq,eq_bandwidth);
+  side_eq_q = ms_enc : (_, eq) : ms_dec with{
+      eq = fi.peak_eq_cq(eq_gain,eq_freq,eq_q);
 
-      eq_gain = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[1]eq side gain [unit:db] [symbol:eq_side_gain]",0,0,6,0.5);
+      eq_gain = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[1]eq side gain [unit:db] [symbol:eq_side_gain]",0,0,12,0.5);
       eq_freq = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[2]eq side freq [unit:Hz] [scale:log] [symbol:eq_side_freq]", 630, 100, 3000,1);
-      eq_bandwidth = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[3]eq side bandwidth [unit:Hz] [scale:log] [symbol:eq_side_bandwidth]", 50, 10, 3000,1);
+      eq_q = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[3]eq side q [symbol:eq_side_q]", 0.7, 0.1, 4,0.1);
+
+  };
+
+  // SIDE EQ add bandpass
+  side_eq_b =  ms_enc : _,filt : ms_dec with{
+      filt = _ <: _,bandp * bandp_gain:> _;
+      bandp = fi.bandpass(2,freq_low,freq_high);
+
+
+
+      freq_low = bandp_freq - bandp_freq*bandp_width;
+      freq_high = bandp_freq + bandp_freq*bandp_width;
+
+      bandp_gain = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[1]eq side gain [unit:db] [symbol:eq_side_gain]",-100,-100,12,1):ba.db2linear;
+      bandp_freq = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[2]eq side freq [unit:Hz] [scale:log] [symbol:eq_side_freq]", 600,200,5000,1);
+      bandp_width = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[3]eq side q [symbol:eq_side_q]", 0.6,0.1,0.9,0.1);
 
   };
 };
