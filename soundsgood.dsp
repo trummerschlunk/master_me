@@ -323,15 +323,36 @@ with {
 
 // LIMITER NO LATENCY
 limiter_no_latency =
-    co.FFcompressor_N_chan(1,threshLim,0,att,knee*0.25,0,link,meterLim : ba.db2linear,2)
+    FFcompressor_N_chan(1,threshLim,0,att,knee*0.25,0,link,meterLim,2)
 with {
 
     threshLim = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[unit:dB][3]threshLim",init_brickwall_ceiling,-30,0,1);
     att = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[3]kneecomp attack[unit:ms]",40,1,100,1)*0.001;
     knee = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[5]kneecomp knee",6,0,30,1);
-    link = 1;//vslider("v:soundsgood/t:expert/h:[7]kneecomp/[6]kneecomp link", 0.5, 0, 1, 0.1);
-           meterLim =
-               _<: _,( ba.linear2db:vbargraph("v:soundsgood/t:expert/h:[7]kneecomp/lim[unit:dB]",-20,0)) : attach;
+    link = 1;
+    //vslider("v:soundsgood/t:expert/h:[7]kneecomp/[6]kneecomp link", 0.5, 0, 1, 0.1);
+    meterLim =
+        _<: _,( vbargraph("v:soundsgood/t:expert/h:[7]kneecomp/lim[unit:dB]",-20,0)) : attach;
+    // The following code is in the libraries in the dev version of faust, but not yet in the latest release:
+    // TODO: use co.FFcompressor_N_chan
+    peak_compression_gain_mono_db(strength,thresh,att,rel,knee,prePost) =
+        abs : ba.bypass1(prePost,si.onePoleSwitching(att,rel)) : ba.linear2db : gain_computer(strength,thresh,knee) : ba.bypass1((prePost !=1),si.onePoleSwitching(rel,att))
+    with {
+        gain_computer(strength,thresh,knee,level) =
+            select3((level>(thresh-(knee/2)))+(level>(thresh+(knee/2))),
+                    0,
+                    ((level-thresh+(knee/2)) : pow(2)/(2*max(ma.EPSILON,knee))),
+                    (level-thresh))
+            : max(0)*-strength;
+    };
+    peak_compression_gain_N_chan_db(strength,thresh,att,rel,knee,prePost,link,1) =
+        peak_compression_gain_mono_db(strength,thresh,att,rel,knee,prePost);
+    peak_compression_gain_N_chan_db(strength,thresh,att,rel,knee,prePost,link,N) =
+        par(i, N, peak_compression_gain_mono_db(strength,thresh,att,rel,knee,prePost))
+        <: (si.bus(N),(ba.parallelMin(N) <: si.bus(N))) : ro.interleave(N,2) : par(i,N,(it.interpolate_linear(link)));
+    FFcompressor_N_chan(strength,thresh,att,rel,knee,prePost,link,meter,N) =
+        si.bus(N) <: (peak_compression_gain_N_chan_db(strength,thresh,att,rel,knee,prePost,link,N),si.bus(N)) : ro.interleave(N,2) : par(i,N,(meter: ba.db2linear)*_);
+
 };
 
 // KNEE COMPRESSOR
