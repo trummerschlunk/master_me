@@ -177,12 +177,18 @@ with {
 
     lp1p(cf) = si.smooth(ba.tau2pole(1/(2*ma.PI*cf)));
 };
+
+
 // SIDE CHAIN COMPRESSOR
 sc_compressor =
-    ((RMS_compression_gain_N_chan_db(strength,thresh,att,rel,knee,0,link,N)),si.bus(N))
-    : ro.interleave(N,2) : par(i,N,(meter : ba.db2linear)*_)
+    (
+        (ms_enc,ms_enc):
+        (((RMS_compression_gain_N_chan_db(strength,thresh,att,rel,knee,0,link,N)),si.bus(N) )
+         : ro.interleave(N,2) : par(i,N,(meter : ba.db2linear*(1-bypass)+bypass)*_))
+        : ms_dec)
 with {
     N = 2;
+    bypass = checkbox("v:soundsgood/t:expert/h:[7]kneecomp/[1]kneecomp bypass"):si.smoo;
     strength = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[1]kneecomp strength", 1, 0, 1, 0.1);
     thresh = target + vslider("v:soundsgood/t:expert/h:[7]kneecomp/[unit:dB][2]kneecomp threshold",init_kneecomp_thresh,-30,0,1);
     threshLim =
