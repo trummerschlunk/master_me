@@ -184,7 +184,7 @@ sc_compressor =
     (
         (ms_enc,ms_enc):
         (((RMS_compression_gain_N_chan_db(strength,thresh,att,rel,knee,0,link,N)),si.bus(N) )
-         : ro.interleave(N,2) : par(i,N,(meter : ba.db2linear*(1-bypass)+bypass)*_))
+         : ro.interleave(N,2) : par(i,N,(meter : post_gain : ba.db2linear*(1-bypass)+bypass)*_))
         : ms_dec)
 with {
     N = 2;
@@ -221,6 +221,10 @@ with {
             s = ba.sec2samp(time):int:max(1);
         };
     };
+    //post_gain
+    post_gain =
+        _+
+        (vslider("v:soundsgood/t:expert/h:[7]kneecomp/[9]kneecomp makeup[unit:dB]", init_kneecomp_postgain,-10,+10,0.5) :si.smoo);
 };
 
 
