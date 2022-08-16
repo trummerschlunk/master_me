@@ -189,14 +189,11 @@ sc_compressor =
 with {
     N = 2;
     bypass = checkbox("v:soundsgood/t:expert/h:[7]kneecomp/[1]kneecomp bypass"):si.smoo;
-    strength = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[1]kneecomp strength", 1, 0, 1, 0.1);
+    strength = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[1]kneecomp strength", 1, 0, 4, 0.1);
     thresh = target + vslider("v:soundsgood/t:expert/h:[7]kneecomp/[unit:dB][2]kneecomp threshold",init_kneecomp_thresh,-30,0,1);
-    threshLim =
-        // +6;
-        vslider("v:soundsgood/t:expert/h:[7]kneecomp/[unit:dB][3]threshLim",0,-30,0,1);
-    att = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[3]kneecomp attack[unit:ms]",10,1,100,1)*0.001;
-    rel = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[4]kneecomp release[unit:ms]",100,1,1000,1)*0.001;
-    knee = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[5]kneecomp knee",12,0,60,1);
+    att = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[3]kneecomp attack[unit:ms]",40,1,100,1)*0.001;
+    rel = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[4]kneecomp release[unit:ms]",200,1,1000,1)*0.001;
+    knee = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[5]kneecomp knee",6,0,30,1);
     link = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[6]kneecomp link", 0.5, 0, 1, 0.1);
     meter = _<: _,( vbargraph("v:soundsgood/t:expert/h:[7]kneecomp/comp[unit:dB]",-20,0)) : attach;
 
@@ -329,9 +326,9 @@ limiter_no_latency =
     co.FFcompressor_N_chan(1,threshLim,0,att,knee*0.25,0,link,meterLim : ba.db2linear,2)
 with {
 
-    threshLim = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[unit:dB][3]threshLim",0,-30,0,1);
-    att = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[3]kneecomp attack[unit:ms]",10,1,100,1)*0.001;
-    knee = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[5]kneecomp knee",12,0,60,1);
+    threshLim = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[unit:dB][3]threshLim",init_brickwall_ceiling,-30,0,1);
+    att = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[3]kneecomp attack[unit:ms]",40,1,100,1)*0.001;
+    knee = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[5]kneecomp knee",6,0,30,1);
     link = 1;//vslider("v:soundsgood/t:expert/h:[7]kneecomp/[6]kneecomp link", 0.5, 0, 1, 0.1);
            meterLim =
                _<: _,( ba.linear2db:vbargraph("v:soundsgood/t:expert/h:[7]kneecomp/lim[unit:dB]",-20,0)) : attach;
