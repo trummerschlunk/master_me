@@ -292,13 +292,13 @@ sc_compressor =
         : ms_dec)
 with {
     N = 2;
-    bypass = checkbox("v:soundsgood/t:expert/h:[5]kneecomp/[1]kneecomp bypass"):si.smoo;
-    strength = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_strength][1]kneecomp strength", 0.1, 0, 1, 0.1);
-    thresh = target + vslider("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_threshold][unit:dB][2]kneecomp threshold",init_kneecomp_thresh,-12,6,1);
-    att = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_attack][3]kneecomp attack[unit:ms]",40,1,100,1)*0.001;
-    rel = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_release][4]kneecomp release[unit:ms]",200,1,1000,1)*0.001;
-    knee = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_knee][5]kneecomp knee",6,0,30,1);
-    link = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_link][6]kneecomp link", 0.6, 0, 1, 0.1);
+    bypass = checkbox("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_bypass][1]kneecomp bypass"):si.smoo;
+    strength = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_strength][2]kneecomp strength", 0.1, 0, 1, 0.1);
+    thresh = target + vslider("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_threshold][unit:dB][3]kneecomp threshold",init_kneecomp_thresh,-12,6,1);
+    att = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_attack][4]kneecomp attack[unit:ms]",40,1,100,1)*0.001;
+    rel = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_release][5]kneecomp release[unit:ms]",200,1,1000,1)*0.001;
+    knee = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_knee][6]kneecomp knee",6,0,30,1);
+    link = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_link][7]kneecomp link", 0.6, 0, 1, 0.1);
     meter = _<: _,( vbargraph("v:soundsgood/t:expert/h:[5]kneecomp/[unit:dB]",-6,0)) : attach;
 
     // dev version of faust has this in the libs, TODO, use co.RMS_compression_gain_N_chan_db
@@ -403,7 +403,7 @@ brickwall_no_latency =
     co.FFcompressor_N_chan(1,threshLim,att,rel,knee,0,link,meterLim,2)
 with {
 
-    threshLim = vslider("v:soundsgood/t:expert/h:[8]brickwall/[3]brickwall ceiling[unit:dB][symbol:brickwall_ceiling]",init_brickwall_ceiling,-30,-0,0.1);
+    threshLim = vslider("v:soundsgood/t:expert/h:[8]brickwall/[3]brickwall ceiling[unit:dB][symbol:brickwall_ceiling]",init_brickwall_ceiling,-6,-0,0.1);
     att = 0;
     rel = vslider("v:soundsgood/t:expert/h:[8]brickwall/[4]brickwall release[unit:ms][symbol:brickwall_release]",init_brickwall_release,5,100,1) *0.001;
     knee = 0;
