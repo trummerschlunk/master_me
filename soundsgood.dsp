@@ -43,6 +43,7 @@ process =
     : dc_filter(2)
 
     : gate_bp
+    : mono_bp
     : correlate_meter
     : correlate_correct_bp
 
@@ -106,11 +107,11 @@ correlate_meter(x,y) = x,y <: x , attach(y, (corr(t) : meter_correlate_meter )) 
     cov(t, x1, x2) = avg(t, (x1 - avg(t, x1)) * (x2 - avg(t, x2))); // covariance
     corr(t, x1, x2) = cov(t, x1, x2) / max(ma.EPSILON, (sd(t, x1) * sd(t, x2))); // correlation
 
-    meter_correlate_meter = vbargraph("v:soundsgood/t:expert/h:[2]correlation/correlation meter[symbol:correlation_meter]",-1,1);
+    meter_correlate_meter = vbargraph("v:soundsgood/t:expert/h:[2]stereotools/correlation meter[symbol:correlation_meter]",-1,1);
 };
 
 // stereo correction based on correlation
-correlate_correct_bp = bp2(checkbox("v:soundsgood/t:expert/h:[2]correlation/[1][symbol:correlation_bypass]correlate correct bypass"), correlate_correct);
+correlate_correct_bp = bp2(checkbox("v:soundsgood/t:expert/h:[2]stereotools/[1][symbol:correlation_bypass]correlate correct bypass"), correlate_correct);
 correlate_correct(l,r) = out_pos1, out_neg1, out_0, out_pos, out_neg :> _,_ with {
 
     t = .2; // averaging period in seconds
@@ -143,7 +144,9 @@ correlate_correct(l,r) = out_pos1, out_neg1, out_0, out_pos, out_neg :> _,_ with
     lp1p(cf) = si.smooth(ba.tau2pole(1/(2*ma.PI*cf)));
 };
 
-
+// Mono Switch
+mono_bp = bp2(1 - checkbox("v:soundsgood/t:expert/h:[2]stereotools/[2][symbol:mono]mono"),mono);
+mono = _*0.5,_*0.5 <: +, +;
 
 
 // LEVELER
@@ -202,14 +205,12 @@ eq = hp_eq : tilt_eq : side_eq_b with{
       filt = _ <: _,bandp * bandp_gain:> _;
       bandp = fi.bandpass(2,freq_low,freq_high);
 
-
-
-      freq_low = bandp_freq - bandp_freq*bandp_width;
-      freq_high = bandp_freq + bandp_freq*bandp_width;
+      freq_low = bandp_freq - bandp_freq*bandp_width : max(50);
+      freq_high = bandp_freq + bandp_freq*bandp_width : min(8000);
 
       bandp_gain = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[1]eq side gain [unit:db] [symbol:eq_side_gain]",-100,-100,12,1):ba.db2linear;
       bandp_freq = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[2]eq side freq [unit:Hz] [scale:log] [symbol:eq_side_freq]", 600,200,5000,1);
-      bandp_width = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[3]eq side bandwidth [symbol:eq_side_bandwidth]", 0.6,0.1,0.9,0.1);
+      bandp_width = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[3]eq side bandwidth [symbol:eq_side_bandwidth]", 0.6,0.1,4,0.1);
 
   };
 };
