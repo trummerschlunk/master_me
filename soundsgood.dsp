@@ -20,7 +20,7 @@ init_leveler_target = -18;
 init_leveler_maxboost = 40;
 init_leveler_maxcut = 40;
 init_leveler_gatethreshold = -45;
-init_leveler_speed = .03;
+init_leveler_speed = .05;
 
 init_kneecomp_thresh = 0;
 init_kneecomp_postgain = 0;
@@ -29,6 +29,7 @@ init_limiter_lad_ceil = -2;
 init_limiter_postgain = 0;
 
 init_brickwall_ceiling = -1;
+init_brickwall_release = 75;
 
 
 target = vslider("v:soundsgood/h:easy/[2]Target[unit:dB][symbol:target]", init_leveler_target,-50,0,1);
@@ -48,15 +49,18 @@ process =
     : (
         leveler_sc(target)
 
-        : eq_bp
+        : (sc_compressor
+           : eq_bp
 
-        : mscomp8i_bp
-        : kneecomp_bp
+           : mscomp8i_bp
+             // : kneecomp_bp
 
-        : limiter_bp
-        : brickwall_bp
+           : limiter_bp
+             // : brickwall_bp
 
-        : lufs_meter_out
+           : brickwall_no_latency
+           : lufs_meter_out
+          )~(si.bus(2))
     )~(si.bus(2))
 ;
 
@@ -188,7 +192,7 @@ eq = hp_eq : tilt_eq : side_eq_b with{
   tilt_eq = par(i,2,_) : par(i,2, fi.lowshelf(N, -gain, freq) : fi.highshelf(N, gain, freq)) with{
       N = 1;
       gain = vslider("v:soundsgood/t:expert/h:[4]eq/h:[2]tilt eq/[1]eq tilt gain [unit:db] [symbol:eq_tilt_gain]",0,-6,6,0.5);
-      freq = vslider("v:soundsgood/t:expert/h:[4]eq/h:[2]tilt eq/[2]eq tilt freq [unit:Hz] [scale:log] [symbol:eq_tilt_freq]", 630, 200, 2000,1);
+      freq = 630; //vslider("v:soundsgood/t:expert/h:[4]eq/h:[2]tilt eq/[2]eq tilt freq [unit:Hz] [scale:log] [symbol:eq_tilt_freq]", 630, 200, 2000,1);
   };
 
 
@@ -279,25 +283,71 @@ with {
 };
 
 // KNEE COMPRESSOR
-kneecomp_bp = bp2(checkbox("v:soundsgood/t:expert/h:[7]kneecomp/[1][symbol:kneecomp_bypass]kneecomp bypass"),kneecomp(target));
+kneecomp_bp = bp2(checkbox("v:soundsgood/t:expert/h:[5]kneecomp/[1][symbol:kneecomp_bypass]kneecomp bypass"),kneecomp(target));
 kneecomp(target) = ms_enc : co.RMS_FBcompressor_peak_limiter_N_chan(strength,thresh,threshLim,att,rel,knee,link,meter,meterLim,2) : ms_dec : post_gain with {
 
-    strength = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[1][symbol:kneecomp_strength]kneecomp strength", 0.1, 0, 1, 0.1);
-    thresh = target + vslider("v:soundsgood/t:expert/h:[7]kneecomp/[unit:dB][2][symbol:kneecomp_threshold]kneecomp threshold",init_kneecomp_thresh,-12,6,1);
+    strength = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[1][symbol:kneecomp_strength]kneecomp strength", 0.1, 0, 1, 0.1);
+    thresh = target + vslider("v:soundsgood/t:expert/h:[5]kneecomp/[unit:dB][2][symbol:kneecomp_threshold]kneecomp threshold",init_kneecomp_thresh,-12,6,1);
     threshLim = +6; //vslider("threshLim",3,-12,3,1);
-    att = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[3][symbol:kneecomp_attack]kneecomp attack",0.4,0.001,1,0.001);
-    rel = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[4][symbol:kneecomp_release]kneecomp release",0.8,0.01,1,0.001);
-    knee = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[5][symbol:kneecomp_knee]kneecomp knee",12,0,12,1);
-    link = vslider("v:soundsgood/t:expert/h:[7]kneecomp/[6][symbol:kneecomp_link]kneecomp link", 0.5, 0, 1, 0.1);
-    meter = _<: _,(ba.linear2db : ma.neg : vbargraph("v:soundsgood/t:expert/h:[7]kneecomp/[unit:dB]",0,3)) : attach;
+    att = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[3][symbol:kneecomp_attack]kneecomp attack",0.4,0.001,1,0.001);
+    rel = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[4][symbol:kneecomp_release]kneecomp release",0.8,0.01,1,0.001);
+    knee = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[5][symbol:kneecomp_knee]kneecomp knee",12,0,12,1);
+    link = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[6][symbol:kneecomp_link]kneecomp link", 0.5, 0, 1, 0.1);
+    meter = _<: _,(ba.linear2db : ma.neg : vbargraph("v:soundsgood/t:expert/h:[5]kneecomp/[unit:dB]",0,3)) : attach;
     meterLim = _; //_<: _,(ba.linear2db : ma.neg : vbargraph("v:soundsgood/t:expert/h:[7]knee-comp/[unit:dB]",0,3)) : attach;
 
     //post_gain
     post_gain = par(i,2,_ * g) with {
-        g =  vslider("v:soundsgood/t:expert/h:[7]kneecomp/[9]kneecomp makeup[unit:dB][symbol:kneecomp_makeup]", init_kneecomp_postgain,-10,+10,0.5) : ba.db2linear;
+        g =  vslider("v:soundsgood/t:expert/h:[5]kneecomp/[9]kneecomp makeup[unit:dB][symbol:kneecomp_makeup]", init_kneecomp_postgain,-10,+10,0.5) : ba.db2linear;
     };
 
 };
+
+// SIDE CHAIN COMPRESSOR
+sc_compressor =
+    (
+        (ms_enc,ms_enc):
+        (((RMS_compression_gain_N_chan_db(strength,thresh,att,rel,knee,0,link,N)),si.bus(N) )
+         : ro.interleave(N,2) : par(i,N,(meter : post_gain : ba.db2linear*(1-bypass)+bypass)*_))
+        : ms_dec)
+with {
+    N = 2;
+    bypass = checkbox("v:soundsgood/t:expert/h:[5]kneecomp/[1]kneecomp bypass"):si.smoo;
+    strength = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[1]kneecomp strength", 0.1, 0, 1, 0.1);
+    thresh = target + vslider("v:soundsgood/t:expert/h:[5]kneecomp/[unit:dB][2]kneecomp threshold",init_kneecomp_thresh,-12,6,1);
+    att = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[3]kneecomp attack[unit:ms]",40,1,100,1)*0.001;
+    rel = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[4]kneecomp release[unit:ms]",200,1,1000,1)*0.001;
+    knee = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[5]kneecomp knee",6,0,30,1);
+    link = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[6]kneecomp link", 0.8, 0, 1, 0.1);
+    meter = _<: _,( vbargraph("v:soundsgood/t:expert/h:[5]kneecomp/[unit:dB]",-6,0)) : attach;
+
+    // dev version of faust has this in the libs, TODO, use co.RMS_compression_gain_N_chan_db
+    RMS_compression_gain_N_chan_db(strength,thresh,att,rel,knee,prePost,link,1) =
+        RMS_compression_gain_mono_db(strength,thresh,att,rel,knee,prePost);
+
+    RMS_compression_gain_N_chan_db(strength,thresh,att,rel,knee,prePost,link,N) =
+        par(i,N,RMS_compression_gain_mono_db(strength,thresh,att,rel,knee,prePost))
+        <: (si.bus(N),(ba.parallelMin(N) <: si.bus(N))) : ro.interleave(N,2) : par(i,N,(it.interpolate_linear(link)));
+
+    RMS_compression_gain_mono_db(strength,thresh,att,rel,knee,prePost) =
+        RMS(rel) : ba.bypass1(prePost,si.onePoleSwitching(att,0)) : ba.linear2db : gain_computer(strength,thresh,knee) : ba.bypass1((prePost!=1),si.onePoleSwitching(0,att))
+    with {
+        gain_computer(strength,thresh,knee,level) =
+            select3((level>(thresh-(knee/2)))+(level>(thresh+(knee/2))),
+                    0,
+                    ((level-thresh+(knee/2)) : pow(2)/(2*max(ma.EPSILON,knee))),
+                    (level-thresh))
+            : max(0)*-strength;
+        RMS(time) = ba.slidingRMS(s) with {
+            s = ba.sec2samp(time):int:max(1);
+        };
+    };
+    //post_gain
+    post_gain =
+        _+
+        (vslider("v:soundsgood/t:expert/h:[5]kneecomp/[9]kneecomp makeup[unit:dB]", init_kneecomp_postgain,-10,+10,0.5) :si.smoo);
+};
+
 
 
 // LIMITER
@@ -368,7 +418,40 @@ brickwall = limiter_lad_N(N, limiter_lad_lookahead, limiter_lad_ceil, limiter_la
 
 };
 
+// LIMITER NO LATENCY
+brickwall_no_latency =
+    co.FFcompressor_N_chan(1,threshLim,att,rel,knee,0,link,meterLim,2)
+with {
 
+    threshLim = vslider("v:soundsgood/t:expert/h:[8]brickwall/[3]brickwall ceiling[unit:dB][symbol:brickwall_ceiling]",init_brickwall_ceiling,-30,-0,0.1);
+    att = 0;
+    rel = vslider("v:soundsgood/t:expert/h:[8]brickwall/[4]brickwall release[unit:ms][symbol:brickwall_release]",init_brickwall_release,5,100,1) *0.001;
+    knee = 0;
+    link = 1;
+           meterLim =
+               _<: _,( ba.linear2db:vbargraph("v:soundsgood/t:expert/h:[8]brickwall/lim[unit:dB]",-20,0)) : attach;
+
+     // The following code is in the libraries in the dev version of faust, but not yet in the latest release:
+     // TODO: use co.FFcompressor_N_chan
+     peak_compression_gain_mono_db(strength,thresh,att,rel,knee,prePost) =
+         abs : ba.bypass1(prePost,si.onePoleSwitching(att,rel)) : ba.linear2db : gain_computer(strength,thresh,knee) : ba.bypass1((prePost !=1),si.onePoleSwitching(rel,att))
+     with {
+         gain_computer(strength,thresh,knee,level) =
+             select3((level>(thresh-(knee/2)))+(level>(thresh+(knee/2))),
+                     0,
+                     ((level-thresh+(knee/2)) : pow(2)/(2*max(ma.EPSILON,knee))),
+                     (level-thresh))
+             : max(0)*-strength;
+     };
+     peak_compression_gain_N_chan_db(strength,thresh,att,rel,knee,prePost,link,1) =
+         peak_compression_gain_mono_db(strength,thresh,att,rel,knee,prePost);
+     peak_compression_gain_N_chan_db(strength,thresh,att,rel,knee,prePost,link,N) =
+         par(i, N, peak_compression_gain_mono_db(strength,thresh,att,rel,knee,prePost))
+         <: (si.bus(N),(ba.parallelMin(N) <: si.bus(N))) : ro.interleave(N,2) : par(i,N,(it.interpolate_linear(link)));
+     FFcompressor_N_chan(strength,thresh,att,rel,knee,prePost,link,meter,N) =
+         si.bus(N) <: (peak_compression_gain_N_chan_db(strength,thresh,att,rel,knee,prePost,link,N),si.bus(N)) : ro.interleave(N,2) : par(i,N,(meter: ba.db2linear)*_);
+
+};
 
 // +++++++++++++++++++++++++ LUFS METER +++++++++++++++++++++++++
 
