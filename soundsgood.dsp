@@ -44,7 +44,7 @@ process =
 
     : gate_bp
     : mono_bp
-    : correlate_meter
+    //: correlate_meter
     : correlate_correct_bp
 
     : (
@@ -60,9 +60,10 @@ process =
              // : brickwall_bp
 
            : brickwall_no_latency
-           : lufs_meter_out
+
           )~(si.bus(2))
     )~(si.bus(2))
+    : lufs_meter_out
 ;
 
 // stereo bypass with si.smoo fading
@@ -205,7 +206,6 @@ eq = hp_eq : tilt_eq : side_eq_b with{
 
       band_shelf(freq1 ,freq2 ,gain) = fi.low_shelf(0-gain,freq1): fi.low_shelf(gain,freq2);
 
-
       freq_low = eq_side_freq - eq_side_freq*eq_side_width : max(50);
       freq_high = eq_side_freq + eq_side_freq*eq_side_width : min(8000);
 
@@ -298,8 +298,8 @@ with {
     bypass = checkbox("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_bypass][1]kneecomp bypass"):si.smoo;
     strength = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_strength][2]kneecomp strength", 0.1, 0, 1, 0.1);
     thresh = target + vslider("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_threshold][unit:dB][3]kneecomp threshold",init_kneecomp_thresh,-12,6,1);
-    att = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_attack][4]kneecomp attack[unit:ms]",40,1,100,1)*0.001;
-    rel = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_release][5]kneecomp release[unit:ms]",200,1,1000,1)*0.001;
+    att = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_attack][unit:ms][4]kneecomp attack",40,1,100,1)*0.001;
+    rel = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_release][unit:ms][5]kneecomp release",200,1,1000,1)*0.001;
     knee = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_knee][6]kneecomp knee",6,0,30,1);
     link = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_link][7]kneecomp link", 0.6, 0, 1, 0.1);
     meter = _<: _,( vbargraph("v:soundsgood/t:expert/h:[5]kneecomp/[unit:dB]",-6,0)) : attach;
@@ -328,7 +328,7 @@ with {
     //post_gain
     post_gain =
         _+
-        (vslider("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_makeup][9]kneecomp makeup[unit:dB]", init_kneecomp_postgain,-10,+10,0.5) :si.smoo);
+        (vslider("v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_makeup][unit:dB][8]kneecomp makeup", init_kneecomp_postgain,-10,+10,0.5) :si.smoo);
 };
 
 
