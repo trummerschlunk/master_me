@@ -58,7 +58,7 @@ process =
            : mscomp8i_bp
              // : kneecomp_bp
 
-           : limiter_bp
+           : limiter_rms_bp
              // : brickwall_bp
 
            : brickwall_no_latency
@@ -316,7 +316,7 @@ with {
     rel = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[5][symbol:kneecomp_release][unit:ms]kneecomp release",200,1,1000,1)*0.001;
     knee = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[6][symbol:kneecomp_knee]kneecomp knee",6,0,30,1);
     link = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[7][symbol:kneecomp_link]kneecomp link", 0.6, 0, 1, 0.1);
-    fffb = vslider ("v:soundsgood/t:expert/h:[5]kneecomp/[8][symbol:kneecomp_fffb]kneecomp ff-fb",0,0,1,0.1);
+    fffb = vslider ("v:soundsgood/t:expert/h:[5]kneecomp/[8][symbol:kneecomp_fffb]kneecomp ff-fb",0.5,0,1,0.1);
     meter = _<: _,( vbargraph("v:soundsgood/t:expert/h:[5]kneecomp/[unit:dB]",-6,0)) : attach;
 
     feedforward_feedback = B,(B<:B,B) : par(i,2,_*fffb), par(i,2,_* (1-fffb)),B : (_,_,_,_:>_,_),_,_;
@@ -352,38 +352,22 @@ with {
 
 
 // LIMITER
-limiter_bp = bp2(checkbox("v:soundsgood/t:expert/h:[7]limiter/[1]limiter bypass[symbol:limiter_bypass]"),limiter);
+limiter_rms_bp = bp2(checkbox("v:soundsgood/t:expert/h:[7]limiter/[1]limiter bypass[symbol:limiter_bypass]"),limiter_rms);
+limiter_rms = co.RMS_FBFFcompressor_N_chan(strength,thresh,att,rel,knee,0,1,fffb,limiter_meter,2) with{
+    strength = vslider("v:soundsgood/t:expert/h:[7]limiter/[2][symbol:limiter_strength]limiter strength", 0.8, 0, 1, 0.1);
+    thresh = target + vslider("v:soundsgood/t:expert/h:[7]limiter/[3][symbol:limiter_threshold][unit:dB]limiter tar-thresh",6,-12,12,1);
+    att = vslider("v:soundsgood/t:expert/h:[7]limiter/[4][symbol:limiter_attack]limiter attack",1,0,100,1)*0.001;
+    rel = vslider("v:soundsgood/t:expert/h:[7]limiter/[5][symbol:limiter_release]limiter release",40,1,400,1)*0.001;
+    knee = vslider("v:soundsgood/t:expert/h:[7]limiter/[6][symbol:limiter_knee][unit:dB]limiter knee",8,0,12,1);
 
-limiter = limiter_lad_N(2,limiter_lad_lookahead, init_limiter_lad_ceil : ba.db2linear, limiter_lad_attack, limiter_lad_hold, limiter_lad_release) : post_gain with{
-
-    N=2;
-
-    limiter_lad_lookahead = 0;
-    limiter_lad_attack = 0.001;
-    limiter_lad_hold = 0.005;
-    limiter_lad_release = 0.02;
-
-    // lookahead limiter (N-channel)
-    limiter_lad_N(N, LD, ceiling, attack, hold, release) =
-        si.bus(N) <: par(i, N, @ (LD * ma.SR)),
-            (scaling <: si.bus(N)) : ro.interleave(N, 2) : par(i, N, *)
-        with {
-            scaling = ceiling / max(amp_profile, ma.EPSILON) : min(1) : limiter_meter;
-            amp_profile = par(i, N, abs) : maxN(N) : ba.peakholder(hold * ma.SR) : att_smooth(attack) : rel_smooth(release);
-            att_smooth(time, in) = si.smooth(ba.tau2pole(time), in);
-            rel_smooth(time, in) = an.peak_envelope(time, in);
-            maxN(1) = _;
-            maxN(2) = max;
-            maxN(N) = max(maxN(N - 1));
-        };
-
+    fffb = vslider ("v:soundsgood/t:expert/h:[7]limiter/[6][symbol:limiter_fffb]limiter fffb",0.5,0,1,0.1);
     // post_gain
     post_gain = par(i,Nch,_ * limiter_postgain) with {
 
     };
 
     limiter_postgain = vslider("v:soundsgood/t:expert/h:[7]limiter/[3]limiter makeup[unit:dB][symbol:limiter_makeup]", init_limiter_postgain,-10,+10,0.5) : ba.db2linear;
-    limiter_meter = _ <: attach(ba.linear2db : abs : vbargraph("v:soundsgood/t:expert/h:[7]limiter/[2][unit:dB][symbol:limiter_gain_reduction]limiter gain reduction",0,12));
+    limiter_meter = _ <: attach(ba.linear2db : vbargraph("v:soundsgood/t:expert/h:[7]limiter/[2][unit:dB][symbol:limiter_gain_reduction]limiter gain reduction",-12,0));
 };
 
 
@@ -421,7 +405,7 @@ brickwall = limiter_lad_N(N, limiter_lad_lookahead, limiter_lad_ceil, limiter_la
 
 // LIMITER NO LATENCY
 brickwall_no_latency =
-    co.FFcompressor_N_chan(1,threshLim,att,rel,knee,0,link,meterLim,2)
+    co.FFcompressor_N_chan(1,threshLim,att,rel,knee,0,link,meter_brickwall,2)
 with {
 
     threshLim = vslider("v:soundsgood/t:expert/h:[8]brickwall/[3]brickwall ceiling[unit:dB][symbol:brickwall_ceiling]",init_brickwall_ceiling,-6,-0,0.1);
@@ -429,7 +413,7 @@ with {
     rel = vslider("v:soundsgood/t:expert/h:[8]brickwall/[4]brickwall release[unit:ms][symbol:brickwall_release]",init_brickwall_release,5,100,1) *0.001;
     knee = 0;
     link = 1;
-           meterLim =
+           meter_brickwall =
                _<: _,( ba.linear2db:vbargraph("v:soundsgood/t:expert/h:[8]brickwall/lim[unit:dB][symbol:brickwall_limit]",-20,0)) : attach;
 
      // The following code is in the libraries in the dev version of faust, but not yet in the latest release:
