@@ -204,14 +204,15 @@ eq = hp_eq : tilt_eq : side_eq_b with{
   // SIDE EQ
   side_eq_b =  ms_enc : _,band_shelf(freq_low,freq_high,eq_side_gain) : ms_dec with{
 
-      band_shelf(freq1 ,freq2 ,gain) = fi.low_shelf(0-gain,freq1): fi.low_shelf(gain,freq2);
+      //band_shelf(freq1 ,freq2 ,gain) = fi.low_shelf(0-gain,freq1): fi.low_shelf(gain,freq2);
+      band_shelf(freq1 ,freq2 ,gain) = fi.svf.ls(freq1,0.7,0-gain): fi.svf.ls(freq2,0.7,gain);
 
       freq_low = eq_side_freq - eq_side_freq*eq_side_width : max(50);
       freq_high = eq_side_freq + eq_side_freq*eq_side_width : min(8000);
 
       eq_side_gain = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[1]eq side gain [unit:db] [symbol:eq_side_gain]",0,0,12,0.5);
       eq_side_freq = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[2]eq side freq [unit:Hz] [scale:log] [symbol:eq_side_freq]", 600,200,5000,1);
-      eq_side_width = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[3]eq side bandwidth [symbol:eq_side_bandwidth]", 0.6,0.1,4,0.1);
+      eq_side_width = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[3]eq side bandwidth [symbol:eq_side_bandwidth]", 1,0.5,4,0.5);
 
   };
 };
