@@ -235,6 +235,7 @@ sc_compressor =
     (
         feedforward_feedback :
 
+
         (ms_enc,ms_enc):
         (((RMS_compression_gain_N_chan_db(strength,thresh,att,rel,knee,0,link,N)),si.bus(N) )
          : ro.interleave(N,2) : par(i,N,(meter : post_gain : ba.db2linear*(1-bypass)+bypass)*_))
@@ -251,6 +252,7 @@ with {
     knee = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[6][symbol:kneecomp_knee]kneecomp knee",6,0,30,1);
     link = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[7][symbol:kneecomp_link]kneecomp link", 0.6, 0, 1, 0.1);
     fffb = vslider ("v:soundsgood/t:expert/h:[5]kneecomp/[8][symbol:kneecomp_fffb]kneecomp ff-fb",0.5,0,1,0.1);
+    dw = vslider ("v:soundsgood/t:expert/h:[5]kneecomp/[9][symbol:kneecomp_drywet]kneecomp dry/wet",0.5,0,1,0.1);
     meter = _<: _,( vbargraph("v:soundsgood/t:expert/h:[5]kneecomp/[unit:dB]",-6,0)) : attach;
 
     feedforward_feedback = B,(B<:B,B) : par(i,2,_*fffb), par(i,2,_* (1-fffb)),B : (_,_,_,_:>_,_),_,_;
@@ -280,7 +282,10 @@ with {
     //post_gain
     post_gain =
         _+
-        (vslider("v:soundsgood/t:expert/h:[5]kneecomp/[9][symbol:kneecomp_makeup][unit:dB]kneecomp makeup", init_kneecomp_postgain,-10,+10,0.5) :si.smoo);
+        (vslider("v:soundsgood/t:expert/h:[5]kneecomp/[10][symbol:kneecomp_makeup][unit:dB]kneecomp makeup", init_kneecomp_postgain,-10,+10,0.5) :si.smoo);
+
+    drywet(x) = _,_ <: _,_,_,_ : _,_,x :_*dw,_*dw,_*(1-dw),_*(1-dw) :> _,_;
+
 };
 
 
