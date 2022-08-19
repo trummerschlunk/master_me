@@ -151,10 +151,12 @@ mono = _*0.5,_*0.5 <: +, +;
 
 
 // LEVELER
-leveler_sc_bp = bp2(checkbox("v:soundsgood/t:expert/h:[3]leveler/[1]leveler bypass"),leveler_sc(target));
 
 
 leveler_sc(target) =
+
+    _,_,_,_ : !,!,_,_ <: _,_,_,_ :      //make ff
+
     ro.crossnn(N)
     : B,(B <: B,B : lk2, + : (calc*(1-bp)+bp) : _ <: B)
         :
