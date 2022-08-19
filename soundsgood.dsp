@@ -39,8 +39,10 @@ target = vslider("v:soundsgood/h:easy/[2]Target[unit:dB][symbol:target]", init_l
 process =
     //tone_generator :
     si.bus(2)
+
     : lufs_meter_in
-    : dc_filter(2)
+    : bp2(checkbox("[symbol:global_bypass]global bypass"),(
+    dc_filter(2)
 
     : gate_bp
     : mono_bp
@@ -63,6 +65,7 @@ process =
 
           )~(si.bus(2))
     )~(si.bus(2))
+    ))
     : lufs_meter_out
 ;
 
@@ -155,7 +158,9 @@ mono = _*0.5,_*0.5 <: +, +;
 
 leveler_sc(target) =
 
-    _,_,_,_ : !,!,_,_ <: _,_,_,_ :      //make ff
+    //_,_,_,_ : !,!,_,_ <: _,_,_,_ :      //make ff
+
+    feedforward_feedback :
 
     ro.crossnn(N)
     : B,(B <: B,B : (lk2 :max(-70)), + : (calc*(1-bp)+bp) : _ <: B)
@@ -182,8 +187,10 @@ with {
     leveler_gate_thresh = vslider("v:soundsgood/t:expert/h:[3]leveler/[5]leveler gate threshold[unit:dB][symbol:leveler_gate_threshold]", init_leveler_gatethreshold,-90,0,1);
     limit_pos = vslider("v:soundsgood/t:expert/h:[3]leveler/[7]leveler max +[symbol:leveler_max_plus]", init_leveler_maxboost, 0, 60, 1);
     limit_neg = vslider("v:soundsgood/t:expert/h:[3]leveler/[8]leveler max -[symbol:leveler_max_minus]", init_leveler_maxcut, 0, 60, 1) : ma.neg;
-
+    fffb = vslider ("v:soundsgood/t:expert/h:[3]leveler/[9][symbol:leveler_fffb]kneecomp ff-fb",0,0,1,0.1);
     lp1p(cf) = si.smooth(ba.tau2pole(1/(2*ma.PI*cf)));
+
+    feedforward_feedback = B,(B<:B,B) : par(i,2,_*fffb), par(i,2,_* (1-fffb)),B : (_,_,_,_:>_,_),_,_;
 };
 
 // EQ with bypass
