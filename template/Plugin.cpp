@@ -170,7 +170,7 @@ protected:
     {
         switch (index)
         {
-        {% for p in active %}case kParameter{{p.meta.symbol|default("" ~ loop.index)}}:
+        {% for p in active %}case kParameter_{{p.meta.symbol|default("" ~ loop.index)}}:
             param.hints = kParameterIsAutomatable
             {% if p.type in ["button"] or p.meta.trigger is defined %}
                 |kParameterIsTrigger
@@ -194,7 +194,7 @@ protected:
             param.ranges.max = {{p.max}};
             break;
         {% endfor %}
-        {% for p in passive %}case kParameter{{p.meta.symbol|default("" ~ (active|length+loop.index))}}:
+        {% for p in passive %}case kParameter_{{p.meta.symbol|default("" ~ (active|length+loop.index))}}:
             param.hints = kParameterIsAutomatable|kParameterIsOutput
             {% if p.type in ["button", "checkbox"] or p.meta.boolean is defined %}
                 |kParameterIsBoolean
@@ -208,7 +208,7 @@ protected:
             ;
             param.name = {{cstr(p.label)}};
             param.unit = {{cstr(p.unit)}};
-            param.symbol = {{cstr(cid(p.meta.symbol|default("lv2_port_" ~ loop.index0)))}};
+            param.symbol = {{cstr(cid(p.meta.symbol|default("lv2_port_" ~ (active|length+loop.index))))}};
             param.shortName = {{cstr(p.meta.abbrev|default(""))}};
             param.ranges.def = {{p.init}};
             param.ranges.min = {{p.min}};
@@ -225,7 +225,7 @@ protected:
     {
         switch (index)
         {
-        {% for p in active + passive %}case kParameter{{p.meta.symbol|default("" ~ loop.index)}}:
+        {% for p in active + passive %}case kParameter_{{p.meta.symbol|default("" ~ loop.index)}}:
             return dsp->{{p.var}};
         {% endfor %}
         default:
@@ -237,7 +237,7 @@ protected:
     {
         switch (index)
         {
-        {% for p in active + passive %}case kParameter{{p.meta.symbol|default("" ~ loop.index)}}:
+        {% for p in active %}case kParameter_{{p.meta.symbol|default("" ~ loop.index)}}:
             dsp->{{p.var}} = value;
             break;
         {% endfor %}

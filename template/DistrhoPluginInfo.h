@@ -31,8 +31,13 @@
 #define DISTRHO_UI_USE_NANOVG          1
 
 enum Parameters {
-    {% for p in active + passive %}kParameter{{p.meta.symbol|default("" ~ loop.index)}},
-    {% endfor %}kParameterCount
+    // inputs
+    {% for p in active %}kParameter_{{p.meta.symbol|default("" ~ loop.index)}},
+    {% endfor %}
+    // outputs
+    {% for p in passive %}kParameter_{{p.meta.symbol|default("" ~ (active|length+loop.index))}},
+    {% endfor %}
+    kParameterCount
 };
 
 enum Programs {
@@ -43,13 +48,21 @@ enum States {
     kStateCount
 };
 
-static const struct { float def, min, max; } kParameterRanges[{{active|length}}] = {
+static const struct { float def, min, max; } kParameterRanges[{{active|length+passive|length}}] = {
+    // inputs
     {% for p in active %}{ {{p.init}}, {{p.min}}, {{p.max}} },
+    {% endfor %}
+    // ouputs
+    {% for p in passive %}{ {{p.init}}, {{p.min}}, {{p.max}} },
     {% endfor %}
 };
 
-static const char* kParameterNames[{{active|length}}] = {
+static const char* kParameterNames[{{active|length+passive|length}}] = {
+    // inputs
     {% for p in active %}{{cstr(p.label)}},
+    {% endfor %}
+    // ouputs
+    {% for p in passive %}{{cstr(p.label)}},
     {% endfor %}
 };
 

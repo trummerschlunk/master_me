@@ -34,22 +34,28 @@ class SoundsGoodUI : public UI,
   QuantumFrameGroup presetGroup;
 
   // easy mode labels
-  QuantumValueMeter16 easyMetering;
+  QuantumValueMeter17 easyMetering;
   QuantumLabel welcomeLabel;
 
-  // expert mode groups (TODO convert to same as below)
-  QuantumGroupWithVerticallyStackedLayout groupMBCompressor;
-  QuantumGroupWithVerticallyStackedLayout groupLimiter;
-  QuantumGroupWithVerticallyStackedLayout groupBrickwall;
-
   // parameters
+  template<class tMainWidget>
   struct ParameterGroup {
-      QuantumGroupWithVerticallyStackedLayout group;
+      QuantumGroupWithVerticallyStackedLayout<tMainWidget> group;
 
+      // constructor with label as main widget
+      explicit ParameterGroup(TopLevelWidget* const parent, const QuantumTheme& theme)
+          : group(parent, theme) {}
+
+      // constructor with switch as main widget
       explicit ParameterGroup(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, const QuantumTheme& theme)
           : group(parent, theme)
       {
-          group.mainSwitch.setCallback(bcb);
+          group.mainWidget.setCallback(bcb);
+      }
+
+      virtual void adjustSize(const QuantumMetrics&)
+      {
+          group.adjustSize();
       }
 
       inline void setupSlider(QuantumValueSliderWithLabel& w, KnobEventHandler::Callback* const cb, const int id, const uint nameOffset)
@@ -58,14 +64,44 @@ class SoundsGoodUI : public UI,
           w.slider.setId(id);
           w.slider.setName(kParameterNames[id]);
           w.slider.setRange(kParameterRanges[id].min, kParameterRanges[id].max);
-          w.slider.setValue(kParameterRanges[id].def);
+          w.slider.setValue(kParameterRanges[id].def, false);
           w.label.setLabel(kParameterNames[id] + nameOffset);
           w.label.setName(String(kParameterNames[id]) + " [label]");
           group.layout.items.push_back(&w);
       }
+
+      inline void setupDualSlider(QuantumDualValueSliderWithCenterLabel&w, KnobEventHandler::Callback* const cb, const int id, const uint idOffset, const uint nameOffset)
+      {
+          w.sliderL.setCallback(cb);
+          w.sliderR.setCallback(cb);
+          w.sliderL.setId(id);
+          w.sliderR.setId(id + idOffset);
+          w.sliderL.setName(kParameterNames[id]);
+          w.sliderR.setName(kParameterNames[id + idOffset]);
+          w.sliderL.setRange(kParameterRanges[id].min, kParameterRanges[id].max);
+          w.sliderL.setRange(kParameterRanges[id + idOffset].min, kParameterRanges[id + idOffset].max);
+          w.sliderL.setValue(kParameterRanges[id].def, false);
+          w.sliderR.setValue(kParameterRanges[id + idOffset].def, false);
+          w.label.setLabel(kParameterNames[id] + nameOffset);
+          w.label.setName(String(kParameterNames[id]) + " [label]");
+          group.layout.items.push_back(&w);
+      }
+
+      inline void setupSwitch(QuantumSwitchWithLayout& w, ButtonEventHandler::Callback* const bcb, const int id, const uint nameOffset)
+      {
+          w.switch_.setCallback(bcb);
+          w.switch_.setId(id);
+          w.switch_.setChecked(kParameterRanges[id].def > 0.5f, false);
+          w.switch_.setLabel(kParameterNames[id] + nameOffset);
+          w.switch_.setName(kParameterNames[id]);
+          group.layout.items.push_back(&w);
+      }
   };
 
-  struct Gate : ParameterGroup {
+  typedef ParameterGroup<QuantumSwitch> ParameterGroupWithBypassSwitch;
+  typedef ParameterGroup<QuantumLabel> ParameterGroupWithoutBypassSwitch;
+
+  struct Gate : ParameterGroupWithBypassSwitch {
       QuantumValueSliderWithLabel threshold;
       QuantumValueSliderWithLabel attack;
       QuantumValueSliderWithLabel hold;
@@ -80,36 +116,57 @@ class SoundsGoodUI : public UI,
             release(parent, theme)
       {
           group.setName("Gate Group");
-          group.mainSwitch.setId(kParametergate_bypass);
-          group.mainSwitch.setLabel("Gate");
-          group.mainSwitch.setName("Gate Switch");
+          group.mainWidget.setId(kParameter_gate_bypass);
+          group.mainWidget.setLabel("Gate");
+          group.mainWidget.setName("Gate Switch");
 
-          setupSlider(threshold, cb, kParametergate_threshold, 5);
-          setupSlider(attack, cb, kParametergate_attack, 5);
-          setupSlider(hold, cb, kParametergate_hold, 5);
-          setupSlider(release, cb, kParametergate_release, 5);
+          setupSlider(threshold, cb, kParameter_gate_threshold, 5);
+          setupSlider(attack, cb, kParameter_gate_attack, 5);
+          setupSlider(hold, cb, kParameter_gate_hold, 5);
+          setupSlider(release, cb, kParameter_gate_release, 5);
+      }
+
+      void adjustSize(const QuantumMetrics& metrics) override
+      {
+          threshold.slider.setSize(metrics.valueSlider);
+          attack.slider.setSize(metrics.valueSlider);
+          hold.slider.setSize(metrics.valueSlider);
+          release.slider.setSize(metrics.valueSlider);
+          ParameterGroup::adjustSize(metrics);
       }
   } gate;
 
-  struct StereoControl : ParameterGroup {
-      // TODO
-      explicit StereoControl(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
-          : ParameterGroup(parent, bcb, theme)
+  struct StereoControl : ParameterGroupWithBypassSwitch {
+      QuantumSwitchWithLayout mono;
+
+      explicit StereoControl(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback*, const QuantumTheme& theme)
+          : ParameterGroup(parent, bcb, theme),
+            mono(parent, theme)
       {
           group.setName("Stereo Control Group");
-          group.mainSwitch.setId(kParametercorrelation_bypass);
-          group.mainSwitch.setLabel("Stereo Control");
-          group.mainSwitch.setName("Stereo Control Switch");
+          group.mainWidget.setId(kParameter_correlation_bypass);
+          group.mainWidget.setLabel("Stereo Control");
+          group.mainWidget.setName("Stereo Control Switch");
+
+          setupSwitch(mono, bcb, kParameter_mono, 0);
+      }
+
+      void adjustSize(const QuantumMetrics& metrics) override
+      {
+          // TODO
+          // mono.switch_.setSize(metrics.label);xxx
+          ParameterGroup::adjustSize(metrics);
       }
   } stereoControl;
 
-  struct Leveler : ParameterGroup {
+  struct Leveler : ParameterGroupWithBypassSwitch {
       QuantumValueSliderWithLabel speed;
       QuantumValueSliderWithLabel max_plus;
       QuantumValueSliderWithLabel max_minus;
       QuantumValueSliderWithLabel threshold;
-      // TODO gate output
-      // TODO gain output
+      // TODO kParameter_leveler_gain
+      // TODO kParameter_leveler_gate
+
       explicit Leveler(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
           : ParameterGroup(parent, bcb, theme),
             speed(parent, theme),
@@ -118,48 +175,65 @@ class SoundsGoodUI : public UI,
             threshold(parent, theme)
       {
           group.setName("Leveler Group");
-          group.mainSwitch.setId(kParameterleveler_bypass);
-          group.mainSwitch.setLabel("Leveler");
-          group.mainSwitch.setName("Leveler Switch");
+          group.mainWidget.setId(kParameter_leveler_bypass);
+          group.mainWidget.setLabel("Leveler");
+          group.mainWidget.setName("Leveler Switch");
 
-          setupSlider(speed, cb, kParameterleveler_speed, 8);
-          setupSlider(max_plus, cb, kParameterleveler_max_plus, 8);
-          setupSlider(max_minus, cb, kParameterleveler_max_minus, 8);
-          setupSlider(threshold, cb, kParameterleveler_gate_threshold, 8);
+          setupSlider(speed, cb, kParameter_leveler_speed, 8);
+          setupSlider(max_plus, cb, kParameter_leveler_max_plus, 8);
+          setupSlider(max_minus, cb, kParameter_leveler_max_minus, 8);
+          setupSlider(threshold, cb, kParameter_leveler_gate_threshold, 8);
+      }
+
+      void adjustSize(const QuantumMetrics& metrics) override
+      {
+          speed.slider.setSize(metrics.valueSlider);
+          max_plus.slider.setSize(metrics.valueSlider);
+          max_minus.slider.setSize(metrics.valueSlider);
+          threshold.slider.setSize(metrics.valueSlider);
+          ParameterGroup::adjustSize(metrics);
       }
   } leveler;
 
-  struct Eq : ParameterGroup {
+  struct Eq : ParameterGroupWithBypassSwitch {
       QuantumValueSliderWithLabel highpass;
       QuantumValueSliderWithLabel tilt_gain;
-      QuantumValueSliderWithLabel tilt_freq;
       QuantumValueSliderWithLabel side_gain;
       QuantumValueSliderWithLabel side_freq;
       QuantumValueSliderWithLabel side_bandwidth;
+
       explicit Eq(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
           : ParameterGroup(parent, bcb, theme),
             highpass(parent, theme),
             tilt_gain(parent, theme),
-            tilt_freq(parent, theme),
             side_gain(parent, theme),
             side_freq(parent, theme),
             side_bandwidth(parent, theme)
       {
           group.setName("EQ Group");
-          group.mainSwitch.setId(kParametereq_bypass);
-          group.mainSwitch.setLabel("EQ");
-          group.mainSwitch.setName("EQ Switch");
+          group.mainWidget.setId(kParameter_eq_bypass);
+          group.mainWidget.setLabel("EQ");
+          group.mainWidget.setName("EQ Switch");
 
-          setupSlider(highpass, cb, kParametereq_highpass_freq, 3);
-          setupSlider(tilt_gain, cb, kParametereq_tilt_gain, 3);
-          setupSlider(tilt_freq, cb, kParametereq_tilt_freq, 3);
-          setupSlider(side_gain, cb, kParametereq_side_gain, 3);
-          setupSlider(side_freq, cb, kParametereq_side_freq, 3);
-          setupSlider(side_bandwidth, cb, kParametereq_side_bandwidth, 3);
+          setupSlider(highpass, cb, kParameter_eq_highpass_freq, 3);
+          setupSlider(tilt_gain, cb, kParameter_eq_tilt_gain, 3);
+          setupSlider(side_gain, cb, kParameter_eq_side_gain, 3);
+          setupSlider(side_freq, cb, kParameter_eq_side_freq, 3);
+          setupSlider(side_bandwidth, cb, kParameter_eq_side_bandwidth, 3);
+      }
+
+      void adjustSize(const QuantumMetrics& metrics) override
+      {
+          highpass.slider.setSize(metrics.valueSlider);
+          tilt_gain.slider.setSize(metrics.valueSlider);
+          side_gain.slider.setSize(metrics.valueSlider);
+          side_freq.slider.setSize(metrics.valueSlider);
+          side_bandwidth.slider.setSize(metrics.valueSlider);
+          ParameterGroup::adjustSize(metrics);
       }
   } eq;
 
-  struct KneeCompressor : ParameterGroup {
+  struct KneeCompressor : ParameterGroupWithBypassSwitch {
       QuantumValueSliderWithLabel strength;
       QuantumValueSliderWithLabel attack;
       QuantumValueSliderWithLabel release;
@@ -179,19 +253,146 @@ class SoundsGoodUI : public UI,
             threshold(parent, theme)
       {
           group.setName("Knee Compressor Group");
-          group.mainSwitch.setId(kParameterkneecomp_bypass);
-          group.mainSwitch.setLabel("Compressor");
-          group.mainSwitch.setName("Compressor Switch");
+          group.mainWidget.setId(kParameter_kneecomp_bypass);
+          group.mainWidget.setLabel("Compressor");
+          group.mainWidget.setName("Compressor Switch");
 
-          setupSlider(strength, cb, kParameterkneecomp_strength, 9);
-          setupSlider(attack, cb, kParameterkneecomp_attack, 9);
-          setupSlider(release, cb, kParameterkneecomp_release, 9);
-          setupSlider(knee, cb, kParameterkneecomp_knee, 9);
-          setupSlider(link, cb, kParameterkneecomp_link, 9);
-          setupSlider(makeup, cb, kParameterkneecomp_makeup, 9);
-          setupSlider(threshold, cb, kParametergate_threshold, 9);
+          setupSlider(strength, cb, kParameter_kneecomp_strength, 9);
+          setupSlider(attack, cb, kParameter_kneecomp_attack, 9);
+          setupSlider(release, cb, kParameter_kneecomp_release, 9);
+          setupSlider(knee, cb, kParameter_kneecomp_knee, 9);
+          setupSlider(link, cb, kParameter_kneecomp_link, 9);
+          setupSlider(makeup, cb, kParameter_kneecomp_makeup, 9);
+          setupSlider(threshold, cb, kParameter_kneecomp_threshold, 9);
+      }
+
+      void adjustSize(const QuantumMetrics& metrics) override
+      {
+          strength.slider.setSize(metrics.valueSlider);
+          attack.slider.setSize(metrics.valueSlider);
+          release.slider.setSize(metrics.valueSlider);
+          knee.slider.setSize(metrics.valueSlider);
+          link.slider.setSize(metrics.valueSlider);
+          makeup.slider.setSize(metrics.valueSlider);
+          threshold.slider.setSize(metrics.valueSlider);
+          ParameterGroup::adjustSize(metrics);
       }
   } kneeComp;
+
+  struct MultiBandCompressor : ParameterGroupWithBypassSwitch {
+      QuantumDualValueSliderWithCenterLabel crossover;
+      QuantumDualValueSliderWithCenterLabel strength;
+      QuantumDualValueSliderWithCenterLabel threshold;
+      QuantumDualValueSliderWithCenterLabel attack;
+      QuantumDualValueSliderWithCenterLabel release;
+      QuantumDualValueSliderWithCenterLabel knee;
+      QuantumDualValueSliderWithCenterLabel link;
+      QuantumValueSliderWithLabel output_gain;
+      // TODO kParameter_52 ... kParameter_69
+
+      explicit MultiBandCompressor(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
+          : ParameterGroup(parent, bcb, theme),
+            crossover(parent, theme),
+            strength(parent, theme),
+            threshold(parent, theme),
+            attack(parent, theme),
+            release(parent, theme),
+            knee(parent, theme),
+            link(parent, theme),
+            output_gain(parent, theme)
+      {
+          group.setName("MultiBand Compressor Group");
+          group.mainWidget.setId(kParameter_mscomp_bypass);
+          group.mainWidget.setLabel("MultiBand Compressor");
+          group.mainWidget.setName("MultiBand Compressor Switch");
+
+          constexpr const uint idOffset = kParameter_mscomp_high_crossover - kParameter_mscomp_low_crossover;
+          static_assert(kParameter_mscomp_high_strength - kParameter_mscomp_low_strength == idOffset, "mscomp param id offset mismatch");
+          static_assert(kParameter_mscomp_high_threshold - kParameter_mscomp_low_threshold == idOffset, "mscomp param id offset mismatch");
+          static_assert(kParameter_mscomp_high_attack - kParameter_mscomp_low_attack == idOffset, "mscomp param id offset mismatch");
+          static_assert(kParameter_mscomp_high_release - kParameter_mscomp_low_release == idOffset, "mscomp param id offset mismatch");
+          static_assert(kParameter_mscomp_high_knee - kParameter_mscomp_low_knee == idOffset, "mscomp param id offset mismatch");
+          static_assert(kParameter_mscomp_high_link - kParameter_mscomp_low_link == idOffset, "mscomp param id offset mismatch");
+
+          setupDualSlider(crossover, cb, kParameter_mscomp_low_crossover, idOffset, 4);
+          setupDualSlider(strength, cb, kParameter_mscomp_low_strength, idOffset, 4);
+          setupDualSlider(threshold, cb, kParameter_mscomp_low_threshold, idOffset, 4);
+          setupDualSlider(attack, cb, kParameter_mscomp_low_attack, idOffset, 4);
+          setupDualSlider(release, cb, kParameter_mscomp_low_release, idOffset, 4);
+          setupDualSlider(knee, cb, kParameter_mscomp_low_knee, idOffset, 4);
+          setupDualSlider(link, cb, kParameter_mscomp_low_link, idOffset, 4);
+          setupSlider(output_gain, cb, kParameter_mscomp_output_gain, 0);
+      }
+
+      void adjustSize(const QuantumMetrics& metrics) override
+      {
+          crossover.sliderL.setSize(metrics.valueSlider);
+          crossover.sliderR.setSize(metrics.valueSlider);
+          strength.sliderL.setSize(metrics.valueSlider);
+          strength.sliderR.setSize(metrics.valueSlider);
+          threshold.sliderL.setSize(metrics.valueSlider);
+          threshold.sliderR.setSize(metrics.valueSlider);
+          attack.sliderL.setSize(metrics.valueSlider);
+          attack.sliderR.setSize(metrics.valueSlider);
+          release.sliderL.setSize(metrics.valueSlider);
+          release.sliderR.setSize(metrics.valueSlider);
+          knee.sliderL.setSize(metrics.valueSlider);
+          knee.sliderR.setSize(metrics.valueSlider);
+          link.sliderL.setSize(metrics.valueSlider);
+          link.sliderR.setSize(metrics.valueSlider);
+          output_gain.slider.setSize(metrics.valueSlider);
+          ParameterGroup::adjustSize(metrics);
+      }
+  } mbCompressor;
+
+  struct Limiter : ParameterGroupWithBypassSwitch {
+      QuantumValueSliderWithLabel makeup;
+      // TODO kParameter_limiter_gain_reduction
+
+      explicit Limiter(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
+          : ParameterGroup(parent, bcb, theme),
+            makeup(parent, theme)
+      {
+          group.setName("Limiter Group");
+          group.mainWidget.setId(kParameter_limiter_bypass);
+          group.mainWidget.setLabel("Limiter");
+          group.mainWidget.setName("Limiter Switch");
+
+          setupSlider(makeup, cb, kParameter_limiter_makeup, 8);
+      }
+
+      void adjustSize(const QuantumMetrics& metrics) override
+      {
+          makeup.slider.setSize(metrics.valueSlider);
+          ParameterGroup::adjustSize(metrics);
+      }
+  } limiter;
+
+  struct Brickwall : ParameterGroupWithoutBypassSwitch {
+      QuantumValueSliderWithLabel ceiling;
+      QuantumValueSliderWithLabel release;
+      // TODO kParameter_brickwall_limit
+
+      explicit Brickwall(TopLevelWidget* const parent, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
+          : ParameterGroup(parent, theme),
+            ceiling(parent, theme),
+            release(parent, theme)
+      {
+          group.setName("Brickwall Group");
+          group.mainWidget.setLabel("Brickwall");
+          group.mainWidget.setName("Brickwall Label");
+
+          setupSlider(ceiling, cb, kParameter_brickwall_ceiling, 10);
+          setupSlider(release, cb, kParameter_brickwall_release, 10);
+      }
+
+      void adjustSize(const QuantumMetrics& metrics) override
+      {
+          ceiling.slider.setSize(metrics.valueSlider);
+          release.slider.setSize(metrics.valueSlider);
+          ParameterGroup::adjustSize(metrics);
+      }
+  } brickwall;
 
   // meters
   QuantumMixerSliderWithLevelMeter inputMeterSlider;
@@ -212,14 +413,14 @@ public:
         presetGroup(this, theme),
         easyMetering(this, theme),
         welcomeLabel(this, theme),
-        groupMBCompressor(this, theme),
-        groupLimiter(this, theme),
-        groupBrickwall(this, theme),
         gate(this, this, this, theme),
         stereoControl(this, this, this, theme),
         leveler(this, this, this, theme),
         eq(this, this, this, theme),
         kneeComp(this, this, this, theme),
+        mbCompressor(this, this, this, theme),
+        limiter(this, this, this, theme),
+        brickwall(this, this, theme),
         inputMeterSlider(this, theme),
         gainMeter(this, theme),
         outputMeter(this, theme)
@@ -270,21 +471,9 @@ public:
     welcomeLabel.setLabel(welcomeMessage);
     welcomeLabel.setName("Welcome Label");
 
-    groupMBCompressor.setName("Multi-Band Compressor Group");
-    groupMBCompressor.mainSwitch.setLabel("Multi-Band Compressor");
-    groupMBCompressor.mainSwitch.setName("Multi-Band Compressor Switch");
-
-    groupLimiter.setName("Limiter Group");
-    groupLimiter.mainSwitch.setLabel("Limiter");
-    groupLimiter.mainSwitch.setName("Limiter Switch");
-
-    groupBrickwall.setName("Brickwall Group");
-    groupBrickwall.mainSwitch.setLabel("Brickwall");
-    groupBrickwall.mainSwitch.setName("Brickwall Switch");
-
     inputMeterSlider.setName("Input Meter with slider");
     inputMeterSlider.slider.setCallback(this);
-    inputMeterSlider.slider.setId(kParametertarget);
+    inputMeterSlider.slider.setId(kParameter_target);
     inputMeterSlider.slider.setRange(-50, 0);
     inputMeterSlider.slider.setValue(0, false);
 
@@ -323,9 +512,9 @@ public:
     leveler.group.hideAll();
     eq.group.hideAll();
     kneeComp.group.hideAll();
-    groupMBCompressor.hideAll();
-    groupLimiter.hideAll();
-    groupBrickwall.hideAll();
+    mbCompressor.group.hideAll();
+    limiter.group.hideAll();
+    brickwall.group.hideAll();
   }
 
   ~SoundsGoodUI() override
@@ -373,9 +562,9 @@ public:
       // 2nd row
       const uint highestOf1stRow = std::max(gate.group.getHeight(), std::max(stereoControl.group.getHeight(), std::max(leveler.group.getHeight(), eq.group.getHeight())));
       kneeComp.group.setAbsolutePos(gate.group.getAbsoluteX(), contentGroup.getAbsoluteY() + borderSize + padding * 3 + highestOf1stRow);
-      groupMBCompressor.setAbsolutePos(kneeComp.group.getAbsoluteX() + kneeComp.group.getWidth() + padding, kneeComp.group.getAbsoluteY());
-      groupLimiter.setAbsolutePos(groupMBCompressor.getAbsoluteX() + groupMBCompressor.getWidth() + padding, kneeComp.group.getAbsoluteY());
-      groupBrickwall.setAbsolutePos(groupLimiter.getAbsoluteX() + groupLimiter.getWidth() + padding, kneeComp.group.getAbsoluteY());
+      mbCompressor.group.setAbsolutePos(kneeComp.group.getAbsoluteX() + kneeComp.group.getWidth() + padding, kneeComp.group.getAbsoluteY());
+      limiter.group.setAbsolutePos(mbCompressor.group.getAbsoluteX() + mbCompressor.group.getWidth() + padding, kneeComp.group.getAbsoluteY());
+      brickwall.group.setAbsolutePos(limiter.group.getAbsoluteX() + limiter.group.getWidth() + padding, kneeComp.group.getAbsoluteY());
 
       uint buttonIndex = 0;
       for (QuantumButton* button : presetButtons)
@@ -399,14 +588,6 @@ public:
 
       const QuantumMetrics metrics(theme);
 
-      // adjust size of individual widgets first
-      kneeComp.strength.slider.setSize(metrics.valueSlider);
-      kneeComp.attack.slider.setSize(metrics.valueSlider);
-      kneeComp.release.slider.setSize(metrics.valueSlider);
-      kneeComp.knee.slider.setSize(metrics.valueSlider);
-      kneeComp.link.slider.setSize(metrics.valueSlider);
-      kneeComp.makeup.slider.setSize(metrics.valueSlider);
-      kneeComp.threshold.slider.setSize(metrics.valueSlider);
       // TODO easy / expert buttons
       // TODO preset buttons
 
@@ -424,14 +605,14 @@ public:
       welcomeLabel.setSize(contentGroup.getWidth() - padding * 2, contentHeight - padding * 2);
       easyMetering.setSize(300 * scaleFactor, contentGroup.getHeight() / 2 - padding);
 
-      gate.group.adjustSize();
-      stereoControl.group.adjustSize();
-      leveler.group.adjustSize();
-      eq.group.adjustSize();
-      kneeComp.group.adjustSize();
-      groupMBCompressor.adjustSize();
-      groupLimiter.adjustSize();
-      groupBrickwall.adjustSize();
+      gate.adjustSize(metrics);
+      stereoControl.adjustSize(metrics);
+      leveler.adjustSize(metrics);
+      eq.adjustSize(metrics);
+      kneeComp.adjustSize(metrics);
+      mbCompressor.adjustSize(metrics);
+      limiter.adjustSize(metrics);
+      brickwall.adjustSize(metrics);
 
       const uint presetButtonWidth = std::floor(double(presetGroup.getWidth() - padding * (2 + presetButtons.size())) / presetButtons.size());
 
@@ -447,118 +628,188 @@ protected:
 
   void parameterChanged(const uint32_t index, const float value) override
   {
-    switch (index) {
-    case kParametergate_bypass:
-      gate.group.mainSwitch.setChecked(value < 0.5f, false);
-      break;
-    case kParametergate_threshold:
-      gate.threshold.slider.setValue(value, false);
-      break;
-    case kParametergate_attack:
-      gate.attack.slider.setValue(value, false);
-      break;
-    case kParametergate_hold:
-      gate.hold.slider.setValue(value, false);
-      break;
-    case kParametergate_release:
-      gate.release.slider.setValue(value, false);
-      break;
-    case kParametercorrelation_bypass:
-      stereoControl.group.mainSwitch.setChecked(value < 0.5f, false);
-      break;
-    case kParameterleveler_bypass:
-      leveler.group.mainSwitch.setChecked(value < 0.5f, false);
-      break;
-    case kParameterleveler_speed:
-      leveler.speed.slider.setValue(value, false);
-      break;
-    case kParameterleveler_gate_threshold:
-      leveler.threshold.slider.setValue(value, false);
-      break;
-    case kParameterleveler_max_plus:
-      leveler.max_plus.slider.setValue(value, false);
-      break;
-    case kParameterleveler_max_minus:
-      leveler.max_minus.slider.setValue(value, false);
-      break;
-    case kParametereq_bypass:
-      eq.group.mainSwitch.setChecked(value < 0.5f, false);
-      break;
-    case kParametereq_highpass_freq:
-      eq.highpass.slider.setValue(value, false);
-      break;
-    case kParametereq_tilt_gain:
-      eq.tilt_gain.slider.setValue(value, false);
-      break;
-    case kParametereq_tilt_freq:
-      eq.tilt_freq.slider.setValue(value, false);
-      break;
-    case kParametereq_side_gain:
-      eq.side_gain.slider.setValue(value, false);
-      break;
-    case kParametereq_side_freq:
-      eq.side_freq.slider.setValue(value, false);
-      break;
-    case kParametereq_side_bandwidth:
-      eq.side_bandwidth.slider.setValue(value, false);
-      break;
-    case kParameterkneecomp_bypass:
-      gate.group.mainSwitch.setChecked(value < 0.5f, false);
-      break;
-    case kParameterkneecomp_strength:
-      kneeComp.strength.slider.setValue(value, false);
-      break;
-    case kParameterkneecomp_attack:
-      kneeComp.attack.slider.setValue(value, false);
-      break;
-    case kParameterkneecomp_release:
-      kneeComp.release.slider.setValue(value, false);
-      break;
-    case kParameterkneecomp_knee:
-      kneeComp.knee.slider.setValue(value, false);
-      break;
-    case kParameterkneecomp_link:
-      kneeComp.link.slider.setValue(value, false);
-      break;
-    case kParameterkneecomp_makeup:
-      kneeComp.makeup.slider.setValue(value, false);
-      break;
-    case kParameterkneecomp_threshold:
-      kneeComp.threshold.slider.setValue(value, false);
-      break;
-    case kParameterlufs_in:
-      if (inputMeterSlider.meter.setNormalizedValue(value))
-        inputMeterSlider.repaint();
-      break;
-    case kParametertarget:
+    switch (static_cast<Parameters>(index))
+    {
+    case kParameter_target:
       if (inputMeterSlider.slider.setValue(value, false))
         inputMeterSlider.repaint();
       break;
-    case kParameterleveler_gain:
+    case kParameter_gate_bypass:
+      gate.group.mainWidget.setChecked(value < 0.5f, false);
+      break;
+    case kParameter_gate_threshold:
+      gate.threshold.slider.setValue(value, false);
+      break;
+    case kParameter_gate_attack:
+      gate.attack.slider.setValue(value, false);
+      break;
+    case kParameter_gate_hold:
+      gate.hold.slider.setValue(value, false);
+      break;
+    case kParameter_gate_release:
+      gate.release.slider.setValue(value, false);
+      break;
+    case kParameter_correlation_bypass:
+      stereoControl.group.mainWidget.setChecked(value < 0.5f, false);
+      break;
+    case kParameter_mono:
+      stereoControl.mono.switch_.setChecked(value > 0.5f, false);
+      break;
+    case kParameter_leveler_bypass:
+      leveler.group.mainWidget.setChecked(value < 0.5f, false);
+      break;
+    case kParameter_leveler_speed:
+      leveler.speed.slider.setValue(value, false);
+      break;
+    case kParameter_leveler_gate_threshold:
+      leveler.threshold.slider.setValue(value, false);
+      break;
+    case kParameter_leveler_max_plus:
+      leveler.max_plus.slider.setValue(value, false);
+      break;
+    case kParameter_leveler_max_minus:
+      leveler.max_minus.slider.setValue(value, false);
+      break;
+    case kParameter_eq_bypass:
+      eq.group.mainWidget.setChecked(value < 0.5f, false);
+      break;
+    case kParameter_eq_highpass_freq:
+      eq.highpass.slider.setValue(value, false);
+      break;
+    case kParameter_eq_tilt_gain:
+      eq.tilt_gain.slider.setValue(value, false);
+      break;
+    case kParameter_eq_side_gain:
+      eq.side_gain.slider.setValue(value, false);
+      break;
+    case kParameter_eq_side_freq:
+      eq.side_freq.slider.setValue(value, false);
+      break;
+    case kParameter_eq_side_bandwidth:
+      eq.side_bandwidth.slider.setValue(value, false);
+      break;
+    case kParameter_kneecomp_bypass:
+      gate.group.mainWidget.setChecked(value < 0.5f, false);
+      break;
+    case kParameter_kneecomp_strength:
+      kneeComp.strength.slider.setValue(value, false);
+      break;
+    case kParameter_kneecomp_attack:
+      kneeComp.attack.slider.setValue(value, false);
+      break;
+    case kParameter_kneecomp_release:
+      kneeComp.release.slider.setValue(value, false);
+      break;
+    case kParameter_kneecomp_knee:
+      kneeComp.knee.slider.setValue(value, false);
+      break;
+    case kParameter_kneecomp_link:
+      kneeComp.link.slider.setValue(value, false);
+      break;
+    case kParameter_kneecomp_makeup:
+      kneeComp.makeup.slider.setValue(value, false);
+      break;
+    case kParameter_kneecomp_threshold:
+      kneeComp.threshold.slider.setValue(value, false);
+      break;
+    case kParameter_mscomp_bypass:
+      mbCompressor.group.mainWidget.setChecked(value < 0.5f, false);
+      break;
+    case kParameter_mscomp_low_crossover:
+      mbCompressor.crossover.sliderL.setValue(value, false);
+      break;
+    case kParameter_mscomp_low_strength:
+      mbCompressor.strength.sliderL.setValue(value, false);
+      break;
+    case kParameter_mscomp_low_threshold:
+      mbCompressor.threshold.sliderL.setValue(value, false);
+      break;
+    case kParameter_mscomp_low_attack:
+      mbCompressor.attack.sliderL.setValue(value, false);
+      break;
+    case kParameter_mscomp_low_release:
+      mbCompressor.release.sliderL.setValue(value, false);
+      break;
+    case kParameter_mscomp_low_knee:
+      mbCompressor.knee.sliderL.setValue(value, false);
+      break;
+    case kParameter_mscomp_low_link:
+      mbCompressor.link.sliderL.setValue(value, false);
+      break;
+    case kParameter_mscomp_high_crossover:
+      mbCompressor.crossover.sliderR.setValue(value, false);
+      break;
+    case kParameter_mscomp_high_strength:
+      mbCompressor.strength.sliderR.setValue(value, false);
+      break;
+    case kParameter_mscomp_high_threshold:
+      mbCompressor.threshold.sliderR.setValue(value, false);
+      break;
+    case kParameter_mscomp_high_attack:
+      mbCompressor.attack.sliderR.setValue(value, false);
+      break;
+    case kParameter_mscomp_high_release:
+      mbCompressor.release.sliderR.setValue(value, false);
+      break;
+    case kParameter_mscomp_high_knee:
+      mbCompressor.knee.sliderR.setValue(value, false);
+      break;
+    case kParameter_mscomp_high_link:
+      mbCompressor.link.sliderR.setValue(value, false);
+      break;
+    case kParameter_mscomp_output_gain:
+      mbCompressor.output_gain.slider.setValue(value, false);
+      break;
+    case kParameter_limiter_bypass:
+      limiter.group.mainWidget.setChecked(value < 0.5f, false);
+      break;
+    case kParameter_limiter_makeup:
+      limiter.makeup.slider.setValue(value, false);
+      break;
+    case kParameter_brickwall_ceiling:
+      brickwall.ceiling.slider.setValue(value, false);
+      break;
+    case kParameter_brickwall_release:
+      brickwall.release.slider.setValue(value, false);
+      break;
+    case kParameter_lufs_in:
+      if (inputMeterSlider.meter.setNormalizedValue(value))
+        inputMeterSlider.repaint();
+      break;
+    case kParameter_leveler_gain:
       gainMeter.setNormalizedValue(value);
       break;
-    case kParameterlufs_out:
+    case kParameter_lufs_out:
       outputMeter.setNormalizedValue(value);
       break;
-    case kParameter52:
-    case kParameter53:
-    case kParameter54:
-    case kParameter55:
-    case kParameter56:
-    case kParameter57:
-    case kParameter58:
-    case kParameter59:
-    case kParameter60:
-    case kParameter61:
-    case kParameter62:
-    case kParameter63:
-    case kParameter64:
-    case kParameter65:
-    case kParameter66:
-    case kParameter67:
-    case kParameter68:
-    case kParameter69:
-      easyMetering.setValue(index - kParameter52, value);
+    case kParameter_leveler_gate:
+      // TODO
+      break;
+    case kParameter_52:
+    case kParameter_53:
+    case kParameter_54:
+    case kParameter_55:
+    case kParameter_56:
+    case kParameter_57:
+    case kParameter_58:
+    case kParameter_59:
+    case kParameter_60:
+    case kParameter_61:
+    case kParameter_62:
+    case kParameter_63:
+    case kParameter_64:
+    case kParameter_65:
+    case kParameter_66:
+    case kParameter_67:
+    case kParameter_68:
+    case kParameter_69:
+      easyMetering.setValue(index - kParameter_52, value);
+      break;
+    case kParameter_limiter_gain_reduction:
+    case kParameter_brickwall_limit:
+      // TODO
+      break;
+    case kParameterCount:
       break;
     }
   }
@@ -627,16 +878,22 @@ protected:
 
           switch (id)
           {
-          case kParametergate_bypass:
-          case kParametercorrelation_bypass:
-          case kParameterleveler_bypass:
-          case kParametereq_bypass:
-          case kParametermscomp_bypass:
-          case kParameterkneecomp_bypass:
-          case kParameterlimiter_bypass:
-          case kParameterbrickwall_bypass:
+          // bypass switches, inverted operation
+          case kParameter_gate_bypass:
+          case kParameter_correlation_bypass:
+          case kParameter_leveler_bypass:
+          case kParameter_eq_bypass:
+          case kParameter_mscomp_bypass:
+          case kParameter_kneecomp_bypass:
+          case kParameter_limiter_bypass:
               editParameter(id, true);
               setParameterValue(id, qswitch->isChecked() ? 0.f : 1.f);
+              editParameter(id, false);
+              break;
+          // regular switches, normal operation
+          case kParameter_mono:
+              editParameter(id, true);
+              setParameterValue(id, qswitch->isChecked() ? 1.f : 0.f);
               editParameter(id, false);
               break;
           }
@@ -657,9 +914,9 @@ protected:
           leveler.group.hideAll();
           eq.group.hideAll();
           kneeComp.group.hideAll();
-          groupMBCompressor.hideAll();
-          groupLimiter.hideAll();
-          groupBrickwall.hideAll();
+          mbCompressor.group.hideAll();
+          limiter.group.hideAll();
+          brickwall.group.hideAll();
       }
       else if (widget == &expertModeButton)
       {
@@ -674,9 +931,9 @@ protected:
           leveler.group.showAll();
           eq.group.showAll();
           kneeComp.group.showAll();
-          groupMBCompressor.showAll();
-          groupLimiter.showAll();
-          groupBrickwall.showAll();
+          mbCompressor.group.showAll();
+          limiter.group.showAll();
+          brickwall.group.showAll();
       }
       else if (std::find(presetButtons.begin(), presetButtons.end(), widget) != presetButtons.end())
       {
@@ -705,7 +962,10 @@ protected:
 
 // -----------------------------------------------------------------------------------------------------------
 
-UI *createUI() { return new SoundsGoodUI(); }
+UI* createUI()
+{
+    return new SoundsGoodUI();
+}
 
 // -----------------------------------------------------------------------------------------------------------
 
