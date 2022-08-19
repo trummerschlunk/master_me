@@ -413,7 +413,7 @@ with {
     knee = 0;
     link = 1;
            meterLim =
-               _<: _,( ba.linear2db:vbargraph("v:soundsgood/t:expert/h:[8]brickwall/lim[unit:dB]",-20,0)) : attach;
+               _<: _,( ba.linear2db:vbargraph("v:soundsgood/t:expert/h:[8]brickwall/lim[unit:dB][symbol:brickwall_limit]",-20,0)) : attach;
 
      // The following code is in the libraries in the dev version of faust, but not yet in the latest release:
      // TODO: use co.FFcompressor_N_chan
