@@ -108,11 +108,11 @@ correlate_meter(x,y) = x,y <: x , attach(y, (corr(t) : meter_correlate_meter )) 
     cov(t, x1, x2) = avg(t, (x1 - avg(t, x1)) * (x2 - avg(t, x2))); // covariance
     corr(t, x1, x2) = cov(t, x1, x2) / max(ma.EPSILON, (sd(t, x1) * sd(t, x2))); // correlation
 
-    meter_correlate_meter = vbargraph("v:soundsgood/t:expert/h:[2]stereotools/correlation meter[symbol:correlation_meter]",-1,1);
+    meter_correlate_meter = vbargraph("v:soundsgood/t:expert/h:[2]stereo tools/correlation meter[symbol:correlation_meter]",-1,1);
 };
 
 // stereo correction based on correlation
-correlate_correct_bp = bp2(checkbox("v:soundsgood/t:expert/h:[2]stereotools/[1][symbol:correlation_bypass]correlate correct bypass"), correlate_correct);
+correlate_correct_bp = bp2(1 - checkbox("v:soundsgood/t:expert/h:[2]stereo tools/[1][symbol:stereo_correct]stereo correct"), correlate_correct);
 correlate_correct(l,r) = out_pos1, out_neg1, out_0, out_pos, out_neg :> _,_ with {
 
     t = .2; // averaging period in seconds
@@ -146,7 +146,7 @@ correlate_correct(l,r) = out_pos1, out_neg1, out_0, out_pos, out_neg :> _,_ with
 };
 
 // Mono Switch
-mono_bp = bp2(1 - checkbox("v:soundsgood/t:expert/h:[2]stereotools/[2][symbol:mono]mono"),mono);
+mono_bp = bp2(1 - checkbox("v:soundsgood/t:expert/h:[2]stereo tools/[2][symbol:mono]mono"),mono);
 mono = _*0.5,_*0.5 <: +, +;
 
 
