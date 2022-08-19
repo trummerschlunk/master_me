@@ -244,14 +244,14 @@ sc_compressor =
 with {
     N = 2;
     B = si.bus(2);
-    bypass = checkbox("v:soundsgood/t:expert/h:[5]kneecomp/[1][symbol:kneecomp_bypass]kneecomp bypass"):si.smoo;
-    strength = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[2][symbol:kneecomp_strength]kneecomp strength", 0.1, 0, 1, 0.1);
-    thresh = target + vslider("v:soundsgood/t:expert/h:[5]kneecomp/[3][symbol:kneecomp_threshold][unit:dB]kneecomp tar-thresh",init_kneecomp_thresh,-12,6,1);
-    att = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[4][symbol:kneecomp_attack][unit:ms]kneecomp attack",40,1,100,1)*0.001;
-    rel = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[5][symbol:kneecomp_release][unit:ms]kneecomp release",200,1,1000,1)*0.001;
-    knee = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[6][symbol:kneecomp_knee]kneecomp knee",6,0,30,1);
-    link = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[7][symbol:kneecomp_link]kneecomp link", 0.6, 0, 1, 0.1);
-    fffb = vslider ("v:soundsgood/t:expert/h:[5]kneecomp/[8][symbol:kneecomp_fffb]kneecomp ff-fb",0.5,0,1,0.1);
+    bypass = checkbox("v:soundsgood/t:expert/h:[5]kneecomp/[0][symbol:kneecomp_bypass]kneecomp bypass"):si.smoo;
+    strength = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[1][symbol:kneecomp_strength]kneecomp strength", 0.1, 0, 1, 0.1);
+    thresh = target + vslider("v:soundsgood/t:expert/h:[5]kneecomp/[2][symbol:kneecomp_threshold][unit:dB]kneecomp tar-thresh",init_kneecomp_thresh,-12,6,1);
+    att = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[3][symbol:kneecomp_attack][unit:ms]kneecomp attack",40,1,100,1)*0.001;
+    rel = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[4][symbol:kneecomp_release][unit:ms]kneecomp release",200,1,1000,1)*0.001;
+    knee = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[5][symbol:kneecomp_knee]kneecomp knee",6,0,30,1);
+    link = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[6][symbol:kneecomp_link]kneecomp link", 0.6, 0, 1, 0.1);
+    fffb = vslider ("v:soundsgood/t:expert/h:[5]kneecomp/[7][symbol:kneecomp_fffb]kneecomp ff-fb",0.5,0,1,0.1);
     dw = vslider ("v:soundsgood/t:expert/h:[5]kneecomp/[9][symbol:kneecomp_drywet]kneecomp dry/wet",0.5,0,1,0.1);
 
     dw_bypass = dw * bypass;
@@ -285,9 +285,9 @@ with {
     //post_gain
     post_gain =
         _+
-        (vslider("v:soundsgood/t:expert/h:[5]kneecomp/[10][symbol:kneecomp_makeup][unit:dB]kneecomp makeup", init_kneecomp_postgain,-10,+10,0.5) :si.smoo);
+        (vslider("v:soundsgood/t:expert/h:[5]kneecomp/[8][symbol:kneecomp_makeup][unit:dB]kneecomp makeup", init_kneecomp_postgain,-10,+10,0.5) :si.smoo);
 
-    
+
 
 };
 
