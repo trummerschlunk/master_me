@@ -252,7 +252,7 @@ with {
     knee = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[5][symbol:kneecomp_knee]kneecomp knee",6,0,30,1);
     link = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[6][symbol:kneecomp_link]kneecomp link", 0.6, 0, 1, 0.1);
     fffb = vslider ("v:soundsgood/t:expert/h:[5]kneecomp/[7][symbol:kneecomp_fffb]kneecomp ff-fb",0.5,0,1,0.1);
-    dw = vslider ("v:soundsgood/t:expert/h:[5]kneecomp/[9][symbol:kneecomp_drywet]kneecomp dry/wet",0.5,0,1,0.1);
+    dw = 1 - vslider ("v:soundsgood/t:expert/h:[5]kneecomp/[9][symbol:kneecomp_drywet]kneecomp dry/wet",100,0,100,1) * 0.01;
 
     dw_bypass = dw * bypass;
 
