@@ -32,7 +32,7 @@ init_brickwall_ceiling = -1;
 init_brickwall_release = 75;
 
 
-target = vslider("v:soundsgood/h:easy/[2]Target[unit:dB][symbol:target]", init_leveler_target,-50,0,1);
+target = vslider("v:soundsgood/h:easy/[3]Target[unit:dB][symbol:target]", init_leveler_target,-50,0,1);
 
 
 // main
@@ -40,14 +40,18 @@ process =
     //tone_generator :
     si.bus(2)
 
-    : lufs_meter_in
-    : bp2(checkbox("[symbol:global_bypass]global bypass"),(
-    dc_filter(2)
 
-    : gate_bp
+    : bp2(checkbox("[symbol:global_bypass]global bypass"),(
+    in_gain
+    : peakmeter_in
+    : lufs_meter_in
+    : dc_blocker_bp
     : mono_bp
+    : phase_invert_L , phase_invert_R
     //: correlate_meter
     : correlate_correct_bp
+
+    : gate_bp
 
     : (
         leveler_sc(target)
@@ -66,7 +70,9 @@ process =
           )~(si.bus(2))
     )~(si.bus(2))
     ))
+
     : lufs_meter_out
+    : peakmeter_out
 ;
 
 // stereo bypass with si.smoo fading
@@ -74,28 +80,57 @@ bp2(sw,pr) =  _,_ <: _,_,pr : (_*sm,_*sm),(_*(1-sm),_*(1-sm)) :> _,_ with {
     sm = sw : si.smoo;
 };
 
-
 // DC FILTER
-dc_filter(N) = par(i,N,fi.dcblockerat(dc_filter_freq))
+dc_blocker_bp = bp2(sw,dc_blocker(2)) with {
+  sw = 1 - checkbox("v:soundsgood/t:expert/h:[1]pre-processing/[4][symbol:dc_blocker]dc blocker");
+};
+
+dc_blocker(N) = par(i,N,fi.dcblockerat(dc_filter_freq))
 with {
   dc_filter_freq = 10.0;
 };
 
+// phase switches
+phase_invert_L = _ <: _,_ : (_ : *(-1)),_ : _*sw,_*(1-sw) :> _ with{
+  sw = checkbox("v:soundsgood/t:expert/h:[1]pre-processing/[2][symbol:phase_l]phase L");
+};
+phase_invert_R = _ <: _,_ : (_ : *(-1)),_ : _*sw,_*(1-sw) :> _ with{
+  sw = checkbox("v:soundsgood/t:expert/h:[1]pre-processing/[3][symbol:phase_r]phase R");
+};
+
+// input gain
+in_gain = par(i,2,(_*g)) with{
+  g = vslider("v:soundsgood/t:expert/h:[1]pre-processing/[1][symbol:in_gain]input gain",0,-100,24,1) : ba.db2linear;
+};
 
 // stereo to m/s encoder
 ms_enc = _*0.5,_*0.5 <: +, -;
 // m/s to stereo decoder
 ms_dec = _,_ <: +, -;
 
+// peak meters
+peakmeter_in = in_meter_l,in_meter_r with {
+  envelop = abs : max(ba.db2linear(-70)) : ba.linear2db : min(10)  : max ~ -(80.0/ma.SR);
+  in_meter_l(x) = attach(x, envelop(x) : vbargraph("v:soundsgood/h:easy/[0][symbol:peakmeter_in_l]in L[unit:dB]", -70, 0));
+  in_meter_r(x) = attach(x, envelop(x) : vbargraph("v:soundsgood/h:easy/[1][symbol:peakmeter_in_r]in R[unit:dB]", -70, 0));
+};
+peakmeter_out = out_meter_l,out_meter_r with {
+  envelop = abs : max(ba.db2linear(-70)) : ba.linear2db : min(10)  : max ~ -(80.0/ma.SR);
+  out_meter_l(x) = attach(x, envelop(x) : vbargraph("v:soundsgood/h:easy/[8][symbol:peakmeter_out_l]out L[unit:dB]", -70, 0));
+  out_meter_r(x) = attach(x, envelop(x) : vbargraph("v:soundsgood/h:easy/[9][symbol:peakmeter_out_r]out R[unit:dB]", -70, 0));
+};
+
+
+
 
 
 // GATE
-gate_bp = bp2(checkbox("v:soundsgood/t:expert/h:[1]gate/[1][symbol:gate_bypass]gate bypass"),gate);
+gate_bp = bp2(checkbox("v:soundsgood/t:expert/h:[2]gate/[1][symbol:gate_bypass]gate bypass"),gate);
 gate = ef.gate_stereo(gate_thresh,gate_att,gate_hold,gate_rel) with{
-  gate_thresh = vslider("v:soundsgood/t:expert/h:[1]gate/[2][unit:dB][symbol:gate_threshold]gate threshold",-90,-90,0,1);
-  gate_att = vslider("v:soundsgood/t:expert/h:[1]gate/[3][symbol:gate_attack]gate attack",0,0,0.1,0.01);
-  gate_hold = vslider("v:soundsgood/t:expert/h:[1]gate/[4][symbol:gate_hold]gate hold",0.1,0,1,0.1);
-  gate_rel = vslider("v:soundsgood/t:expert/h:[1]gate/[5][symbol:gate_release]gate release",0.5,0,5,0.1);
+  gate_thresh = vslider("v:soundsgood/t:expert/h:[2]gate/[2][unit:dB][symbol:gate_threshold]gate threshold",-90,-90,0,1);
+  gate_att = vslider("v:soundsgood/t:expert/h:[2]gate/[3][symbol:gate_attack]gate attack",0,0,0.1,0.01);
+  gate_hold = vslider("v:soundsgood/t:expert/h:[2]gate/[4][symbol:gate_hold]gate hold",0.1,0,1,0.1);
+  gate_rel = vslider("v:soundsgood/t:expert/h:[2]gate/[5][symbol:gate_release]gate release",0.5,0,5,0.1);
 };
 
 // correlation meter
@@ -111,11 +146,11 @@ correlate_meter(x,y) = x,y <: x , attach(y, (corr(t) : meter_correlate_meter )) 
     cov(t, x1, x2) = avg(t, (x1 - avg(t, x1)) * (x2 - avg(t, x2))); // covariance
     corr(t, x1, x2) = cov(t, x1, x2) / max(ma.EPSILON, (sd(t, x1) * sd(t, x2))); // correlation
 
-    meter_correlate_meter = vbargraph("v:soundsgood/t:expert/h:[2]stereo tools/correlation meter[symbol:correlation_meter]",-1,1);
+    meter_correlate_meter = vbargraph("v:soundsgood/t:expert/h:[1]pre-processing/correlation meter[symbol:correlation_meter]",-1,1);
 };
 
 // stereo correction based on correlation
-correlate_correct_bp = bp2(1 - checkbox("v:soundsgood/t:expert/h:[2]stereo tools/[1][symbol:stereo_correct]stereo correct"), correlate_correct);
+correlate_correct_bp = bp2(1 - checkbox("v:soundsgood/t:expert/h:[1]pre-processing/[5][symbol:stereo_correct]stereo correct"), correlate_correct);
 correlate_correct(l,r) = out_pos1, out_neg1, out_0, out_pos, out_neg :> _,_ with {
 
     t = .2; // averaging period in seconds
@@ -149,7 +184,7 @@ correlate_correct(l,r) = out_pos1, out_neg1, out_0, out_pos, out_neg :> _,_ with
 };
 
 // Mono Switch
-mono_bp = bp2(1 - checkbox("v:soundsgood/t:expert/h:[2]stereo tools/[2][symbol:mono]mono"),mono);
+mono_bp = bp2(1 - checkbox("v:soundsgood/t:expert/h:[1]pre-processing/[2][symbol:mono]mono"),mono);
 mono = _*0.5,_*0.5 <: +, +;
 
 
@@ -180,7 +215,7 @@ with {
 
 
     //leveler_meter_lufs = vbargraph("v:soundsgood/h:easy/[1][unit:dB]leveler lufs-s",-70,0);
-    leveler_meter_gain = vbargraph("v:soundsgood/h:easy/[3]Leveler gain[symbol:leveler_gain]",-50,50);
+    leveler_meter_gain = vbargraph("v:soundsgood/h:easy/[4]Leveler gain[symbol:leveler_gain]",-50,50);
     meter_leveler_gate = vbargraph("v:soundsgood/t:expert/h:[3]leveler/[6]leveler gate[symbol:leveler_gate]",0,1);
 
     leveler_speed = vslider("v:soundsgood/t:expert/h:[3]leveler/[4][scale:log]leveler speed[symbol:leveler_speed]", init_leveler_speed, .005, 0.15, .005);
@@ -462,5 +497,5 @@ lk2 = par(i,2,kfilter : zi) :> 4.342944819 * log(max(1e-12)) : -(0.691) with {
     kfilter = ebu.prefilter;
 };
 
-lufs_meter_in(l,r) = l,r <: l, attach(r, (lk2 : vbargraph("v:soundsgood/h:easy/[0][unit:dB][symbol:lufs_in]in lufs-s",-70,0))) : _,_;
-lufs_meter_out(l,r) = l,r <: l, attach(r, (lk2 : vbargraph("v:soundsgood/h:easy/[9][unit:dB][symbol:lufs_out]out lufs-s",-70,0))) : _,_;
+lufs_meter_in(l,r) = l,r <: l, attach(r, (lk2 : vbargraph("v:soundsgood/h:easy/[2][unit:dB][symbol:lufs_in]in lufs-s",-70,0))) : _,_;
+lufs_meter_out(l,r) = l,r <: l, attach(r, (lk2 : vbargraph("v:soundsgood/h:easy/[7][unit:dB][symbol:lufs_out]out lufs-s",-70,0))) : _,_;
