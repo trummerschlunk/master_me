@@ -66,6 +66,15 @@ static const char* kParameterNames[{{active|length+passive|length}}] = {
     {% endfor %}
 };
 
+static const char* kParameterUnits[{{active|length+passive|length}}] = {
+    // inputs
+    {% for p in active %}{{cstr(p.unit)}},
+    {% endfor %}
+    // ouputs
+    {% for p in passive %}{{cstr(p.unit)}},
+    {% endfor %}
+};
+
 // #if has_include("ExtraProperties.h")
 #include "ExtraProperties.h"
 // #endif

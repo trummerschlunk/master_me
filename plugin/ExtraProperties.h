@@ -9,7 +9,6 @@
 #define DISTRHO_UI_USER_RESIZABLE 1
 
 enum ExtraParameters {
-    kExtraParameterBypass = 0,
     kExtraParameterCount
 };
 

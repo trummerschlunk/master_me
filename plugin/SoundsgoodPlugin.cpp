@@ -9,7 +9,7 @@
 // checks to ensure things are still as we expect them to be from faust dsp side
 static_assert(DISTRHO_PLUGIN_NUM_INPUTS == 2, "has 2 audio inputs");
 static_assert(DISTRHO_PLUGIN_NUM_OUTPUTS == 2, "has 2 audio outputs");
-static_assert(kParameter_69 - kParameter_52 == 17, "has 16+1 multiband compressor passive controls");
+static_assert(kParameter_79 - kParameter_62 == 17, "has 16+1 multiband compressor passive controls");
 
 START_NAMESPACE_DISTRHO
 
@@ -17,7 +17,7 @@ START_NAMESPACE_DISTRHO
 
 class SoundsgoodPlugin : public FaustGeneratedPlugin
 {
-    bool isBypassed = false;
+    // bool isBypassed = false;
 
 public:
     SoundsgoodPlugin()
@@ -48,13 +48,13 @@ protected:
 
     void initParameter(const uint32_t index, Parameter& param) override
     {
-        if (index < kParameterCount)
-            return FaustGeneratedPlugin::initParameter(index, param);
-
-        switch (index - kParameterCount)
+        switch (index)
         {
-        case kExtraParameterBypass:
+        case kParameter_global_bypass:
             param.initDesignation(kParameterDesignationBypass);
+            break;
+        default:
+            FaustGeneratedPlugin::initParameter(index, param);
             break;
         }
     }
@@ -76,6 +76,7 @@ protected:
         }
     }
 
+#if 0
    /* -----------------------------------------------------------------------------------------------------------------
     * Internal data */
 
@@ -114,6 +115,7 @@ protected:
         // TODO custom bypass
         dsp->compute(frames, const_cast<float**>(inputs), outputs);
     }
+#endif
 
     // ----------------------------------------------------------------------------------------------------------------
 

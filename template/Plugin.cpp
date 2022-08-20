@@ -185,9 +185,9 @@ protected:
                 |kParameterIsLogarithmic
             {% endif %}
             ;
-            param.name = {{cstr(p.label)}};
-            param.unit = {{cstr(p.unit)}};
-            param.symbol = {{cstr(cid(p.meta.symbol|default(p.label)))}};
+            param.name = kParameterNames[{{loop.index0}}];
+            param.unit = kParameterUnits[{{loop.index0}}];
+            param.symbol = {{cstr(cid(p.meta.symbol|default("lv2_port_" ~ (inputs+outputs+loop.index0))))}};
             param.shortName = {{cstr(p.meta.abbrev|default(""))}};
             param.ranges.def = {{p.init}};
             param.ranges.min = {{p.min}};
@@ -206,9 +206,9 @@ protected:
                 |kParameterIsLogarithmic
             {% endif %}
             ;
-            param.name = {{cstr(p.label)}};
-            param.unit = {{cstr(p.unit)}};
-            param.symbol = {{cstr(cid(p.meta.symbol|default("lv2_port_" ~ (active|length+loop.index))))}};
+            param.name = kParameterNames[{{active|length+loop.index0}}];
+            param.unit = kParameterUnits[{{active|length+loop.index0}}];
+            param.symbol = {{cstr(cid(p.meta.symbol|default("lv2_port_" ~ (inputs+outputs+active|length+loop.index0))))}};
             param.shortName = {{cstr(p.meta.abbrev|default(""))}};
             param.ranges.def = {{p.init}};
             param.ranges.min = {{p.min}};
