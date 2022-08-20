@@ -13,12 +13,174 @@ START_NAMESPACE_DISTRHO
 
 // -----------------------------------------------------------------------------------------------------------
 
+// our custom metrics, making vertical sliders have less height
+struct SoundsGoodMetrics : QuantumMetrics
+{
+    SoundsGoodMetrics(const QuantumTheme& theme) noexcept
+        : QuantumMetrics(theme)
+    {
+        valueMeterVertical.setHeight(valueMeterVertical.getHeight() * 2 / 3);
+    }
+};
+
+// custom layout for input levels and mixer slider
+struct InputMeterGroup : QuantumFrameGroup
+{
+    const QuantumTheme& theme;
+
+    QuantumLevelMeter meterLufs;
+    QuantumMixerSlider slider;
+    QuantumLevelMeter meterGain;
+
+    explicit InputMeterGroup(TopLevelWidget* const parent, const QuantumTheme& t)
+        : QuantumFrameGroup(parent, t),
+          theme(t),
+          meterLufs(parent, t),
+          slider(parent, t),
+          meterGain(parent, t) {}
+
+    void adjustSize(const SoundsGoodMetrics& metrics, const uint height)
+    {
+        meterLufs.setSize(metrics.valueMeterVertical.getWidth(), height);
+        slider.setSize(metrics.valueMeterVertical.getWidth(), height); // TODO mixer slider metric
+        meterGain.setSize(metrics.valueMeterVertical.getWidth(), height);
+        setSize(meterLufs.getWidth() + slider.getWidth() + meterGain.getWidth() + theme.borderSize * 2 + theme.padding * 5,
+                height + theme.borderSize * 2 + theme.padding * 5);
+    }
+
+    void setAbsolutePos(const int x, const int y)
+    {
+        QuantumFrameGroup::setAbsolutePos(x, y);
+        meterLufs.setAbsolutePos(x + theme.borderSize + theme.padding, y + theme.borderSize + theme.padding);
+        slider.setAbsolutePos(meterLufs.getAbsoluteX() + meterLufs.getWidth() + theme.padding, y + theme.borderSize + theme.padding);
+        meterGain.setAbsolutePos(slider.getAbsoluteX() + slider.getWidth() + theme.padding, y + theme.borderSize + theme.padding);
+    }
+};
+
+// custom layout for output levels (single widget for now)
+struct OutputMeterGroup : QuantumFrameGroup
+{
+    const QuantumTheme& theme;
+
+    QuantumLevelMeter meter;
+
+    explicit OutputMeterGroup(TopLevelWidget* const parent, const QuantumTheme& t)
+        : QuantumFrameGroup(parent, t),
+          theme(t),
+          meter(parent, t) {}
+
+    void adjustSize(const SoundsGoodMetrics& metrics, const uint height)
+    {
+        meter.setSize(metrics.valueMeterVertical.getWidth(), height);
+        setSize(meter.getWidth() + theme.borderSize * 2 + theme.padding * 2,
+                height + theme.borderSize * 2 + theme.padding * 5);
+    }
+
+    void setAbsolutePos(const int x, const int y)
+    {
+        QuantumFrameGroup::setAbsolutePos(x, y);
+        meter.setAbsolutePos(x + theme.borderSize + theme.padding, y + theme.borderSize + theme.padding);
+    }
+};
+
+// custom layout for multiband compressor labels
+struct MultiBandCompressorLabels : HorizontalLayout
+{
+    QuantumLabel spacer1;
+    QuantumLabel label1, label2, label3, label4, label5, label6, label7, label8, label9;
+    QuantumLabel spacer2;
+
+    explicit MultiBandCompressorLabels(TopLevelWidget* const parent, const QuantumTheme& theme)
+        : spacer1(parent, theme),
+          label1(parent, theme),
+          label2(parent, theme),
+          label3(parent, theme),
+          label4(parent, theme),
+          label5(parent, theme),
+          label6(parent, theme),
+          label7(parent, theme),
+          label8(parent, theme),
+          label9(parent, theme),
+          spacer2(parent, theme)
+    {
+        label1.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
+        label2.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
+        label3.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
+        label4.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
+        label5.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
+        label6.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
+        label7.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
+        label8.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
+        label9.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
+
+        widgets.push_back({ &spacer1, Expanding });
+        widgets.push_back({ &label1, Fixed });
+        widgets.push_back({ &label2, Fixed });
+        widgets.push_back({ &label3, Fixed });
+        widgets.push_back({ &label4, Fixed });
+        widgets.push_back({ &label5, Fixed });
+        widgets.push_back({ &label6, Fixed });
+        widgets.push_back({ &label7, Fixed });
+        widgets.push_back({ &label8, Fixed });
+        widgets.push_back({ &label9, Fixed });
+        widgets.push_back({ &spacer2, Expanding });
+    }
+};
+
+// custom layout for multiband compressor meters
+struct MultiBandCompressorValueMeters : HorizontalLayout
+{
+    QuantumLabel label;
+    QuantumValueMeter m1, m2, m3, m4, m5, m6, m7, m8, m9;
+    QuantumLabel spacer;
+
+    explicit MultiBandCompressorValueMeters(TopLevelWidget* const parent, const QuantumTheme& theme)
+        : label(parent, theme),
+          m1(parent, theme),
+          m2(parent, theme),
+          m3(parent, theme),
+          m4(parent, theme),
+          m5(parent, theme),
+          m6(parent, theme),
+          m7(parent, theme),
+          m8(parent, theme),
+          m9(parent, theme),
+          spacer(parent, theme)
+    {
+        label.setAlignment(NanoVG::ALIGN_RIGHT|NanoVG::ALIGN_MIDDLE);
+
+        m1.setOrientation(QuantumValueMeter::TopToBottom);
+        m2.setOrientation(QuantumValueMeter::TopToBottom);
+        m3.setOrientation(QuantumValueMeter::TopToBottom);
+        m4.setOrientation(QuantumValueMeter::TopToBottom);
+        m5.setOrientation(QuantumValueMeter::TopToBottom);
+        m6.setOrientation(QuantumValueMeter::TopToBottom);
+        m7.setOrientation(QuantumValueMeter::TopToBottom);
+        m8.setOrientation(QuantumValueMeter::TopToBottom);
+        m9.setOrientation(QuantumValueMeter::TopToBottom);
+
+        widgets.push_back({ &label, Expanding });
+        widgets.push_back({ &m1, Fixed });
+        widgets.push_back({ &m2, Fixed });
+        widgets.push_back({ &m3, Fixed });
+        widgets.push_back({ &m4, Fixed });
+        widgets.push_back({ &m5, Fixed });
+        widgets.push_back({ &m6, Fixed });
+        widgets.push_back({ &m7, Fixed });
+        widgets.push_back({ &m8, Fixed });
+        widgets.push_back({ &m9, Fixed });
+        widgets.push_back({ &spacer, Expanding });
+    }
+};
+
+// -----------------------------------------------------------------------------------------------------------
+
 class SoundsGoodUI : public UI,
                      public ButtonEventHandler::Callback,
                      public KnobEventHandler::Callback
 {
   static const uint kInitialWidth = 1201;
-  static const uint kInitialHeight = 600;
+  static const uint kInitialHeight = 760;
 
   ScopedPointer<InspectorWindow> inspectorWindow;
 
@@ -29,9 +191,9 @@ class SoundsGoodUI : public UI,
   QuantumButton expertModeButton;
 
   // group of widgets
-  QuantumFrameGroup inputGroup;
+  InputMeterGroup inputGroup;
   QuantumFrameGroup contentGroup;
-  QuantumFrameGroup outputGroup;
+  OutputMeterGroup outputGroup;
   QuantumFrameGroup presetGroup;
 
   // easy mode labels
@@ -54,7 +216,7 @@ class SoundsGoodUI : public UI,
           group.mainWidget.setCallback(bcb);
       }
 
-      virtual void adjustSize(const QuantumMetrics&)
+      virtual void adjustSize(const SoundsGoodMetrics&)
       {
           group.adjustSize();
       }
@@ -86,6 +248,19 @@ class SoundsGoodUI : public UI,
           w.sliderR.setUnitLabel(kParameterUnits[id + idOffset]);
           w.sliderL.setValue(kParameterRanges[id].def, false);
           w.sliderR.setValue(kParameterRanges[id + idOffset].def, false);
+          w.label.setLabel(kParameterNames[id] + nameOffset);
+          w.label.setName(String(kParameterNames[id]) + " [label]");
+          group.layout.items.push_back(&w);
+      }
+
+      inline void setupMeter(QuantumValueMeterWithLabel& w, const int id, const uint nameOffset)
+      {
+          w.meter.setId(id);
+          w.meter.setName(kParameterNames[id]);
+          w.meter.setOrientation(QuantumValueMeter::RightToLeft);
+          w.meter.setRange(kParameterRanges[id].min, kParameterRanges[id].max);
+          w.meter.setUnitLabel(kParameterUnits[id]);
+          w.meter.setValue(kParameterRanges[id].def);
           w.label.setLabel(kParameterNames[id] + nameOffset);
           w.label.setName(String(kParameterNames[id]) + " [label]");
           group.layout.items.push_back(&w);
@@ -129,7 +304,7 @@ class SoundsGoodUI : public UI,
           setupSlider(release, cb, kParameter_gate_release, 5);
       }
 
-      void adjustSize(const QuantumMetrics& metrics) override
+      void adjustSize(const SoundsGoodMetrics& metrics) override
       {
           threshold.slider.setSize(metrics.valueSlider);
           attack.slider.setSize(metrics.valueSlider);
@@ -154,7 +329,7 @@ class SoundsGoodUI : public UI,
           setupSwitch(mono, bcb, kParameter_mono, 0);
       }
 
-      void adjustSize(const QuantumMetrics& metrics) override
+      void adjustSize(const SoundsGoodMetrics& metrics) override
       {
           // TODO
           // mono.switch_.setSize(metrics.label);xxx
@@ -168,8 +343,8 @@ class SoundsGoodUI : public UI,
       QuantumValueSliderWithLabel max_minus;
       QuantumValueSliderWithLabel threshold;
       QuantumValueSliderWithLabel fffb;
-      // TODO kParameter_leveler_gain
-      // TODO kParameter_leveler_gate
+      QuantumValueMeterWithLabel gate;
+      // NOTE kParameter_leveler_gain is setup separately
 
       explicit Leveler(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
           : ParameterGroup(parent, bcb, theme),
@@ -177,7 +352,8 @@ class SoundsGoodUI : public UI,
             max_plus(parent, theme),
             max_minus(parent, theme),
             threshold(parent, theme),
-            fffb(parent, theme)
+            fffb(parent, theme),
+            gate(parent, theme)
       {
           group.setName("Leveler Group");
           group.mainWidget.setId(kParameter_leveler_bypass);
@@ -189,15 +365,17 @@ class SoundsGoodUI : public UI,
           setupSlider(max_minus, cb, kParameter_leveler_max_minus, 8);
           setupSlider(threshold, cb, kParameter_leveler_gate_threshold, 8);
           setupSlider(fffb, cb, kParameter_leveler_fffb, 8);
+          setupMeter(gate, kParameter_leveler_gate, 8);
       }
 
-      void adjustSize(const QuantumMetrics& metrics) override
+      void adjustSize(const SoundsGoodMetrics& metrics) override
       {
           speed.slider.setSize(metrics.valueSlider);
           max_plus.slider.setSize(metrics.valueSlider);
           max_minus.slider.setSize(metrics.valueSlider);
           threshold.slider.setSize(metrics.valueSlider);
           fffb.slider.setSize(metrics.valueSlider);
+          gate.meter.setSize(metrics.valueMeterHorizontal);
           ParameterGroup::adjustSize(metrics);
       }
   } leveler;
@@ -229,7 +407,7 @@ class SoundsGoodUI : public UI,
           setupSlider(side_bandwidth, cb, kParameter_eq_side_bandwidth, 3);
       }
 
-      void adjustSize(const QuantumMetrics& metrics) override
+      void adjustSize(const SoundsGoodMetrics& metrics) override
       {
           highpass.slider.setSize(metrics.valueSlider);
           tilt_gain.slider.setSize(metrics.valueSlider);
@@ -279,7 +457,7 @@ class SoundsGoodUI : public UI,
           setupSlider(drywet, cb, kParameter_kneecomp_drywet, 9);
       }
 
-      void adjustSize(const QuantumMetrics& metrics) override
+      void adjustSize(const SoundsGoodMetrics& metrics) override
       {
           strength.slider.setSize(metrics.valueSlider);
           threshold.slider.setSize(metrics.valueSlider);
@@ -302,6 +480,9 @@ class SoundsGoodUI : public UI,
       QuantumDualValueSliderWithCenterLabel release;
       QuantumDualValueSliderWithCenterLabel knee;
       QuantumDualValueSliderWithCenterLabel link;
+      MultiBandCompressorLabels labels;
+      MultiBandCompressorValueMeters metersM;
+      MultiBandCompressorValueMeters metersS;
       QuantumValueSliderWithLabel output_gain;
       // TODO kParameter_62 ... kParameter_79
 
@@ -314,6 +495,9 @@ class SoundsGoodUI : public UI,
             release(parent, theme),
             knee(parent, theme),
             link(parent, theme),
+            labels(parent, theme),
+            metersM(parent, theme),
+            metersS(parent, theme),
             output_gain(parent, theme)
       {
           group.setName("MultiBand Compressor Group");
@@ -336,10 +520,24 @@ class SoundsGoodUI : public UI,
           setupDualSlider(release, cb, kParameter_mscomp_low_release, idOffset, 4);
           setupDualSlider(knee, cb, kParameter_mscomp_low_knee, idOffset, 4);
           setupDualSlider(link, cb, kParameter_mscomp_low_link, idOffset, 4);
+
+          labels.label1.setLabel("1");
+          labels.label2.setLabel("2");
+          labels.label3.setLabel("3");
+          labels.label4.setLabel("4");
+          labels.label5.setLabel("5");
+          labels.label6.setLabel("6");
+          labels.label7.setLabel("7");
+          labels.label8.setLabel("8");
+          labels.label9.setLabel("9");
+          group.layout.items.push_back(&labels);
+
+          setupMeters(metersM, "m", kParameter_62);
+          setupMeters(metersS, "s", kParameter_70);
           setupSlider(output_gain, cb, kParameter_mscomp_output_gain, 0);
       }
 
-      void adjustSize(const QuantumMetrics& metrics) override
+      void adjustSize(const SoundsGoodMetrics& metrics) override
       {
           crossover.sliderL.setSize(metrics.valueSlider);
           crossover.sliderR.setSize(metrics.valueSlider);
@@ -355,8 +553,101 @@ class SoundsGoodUI : public UI,
           knee.sliderR.setSize(metrics.valueSlider);
           link.sliderL.setSize(metrics.valueSlider);
           link.sliderR.setSize(metrics.valueSlider);
+          labels.label1.setSize(metrics.label);
+          labels.label2.setSize(metrics.label);
+          labels.label3.setSize(metrics.label);
+          labels.label4.setSize(metrics.label);
+          labels.label5.setSize(metrics.label);
+          labels.label6.setSize(metrics.label);
+          labels.label7.setSize(metrics.label);
+          labels.label8.setSize(metrics.label);
+          labels.label9.setSize(metrics.label);
+          metersM.m1.setSize(metrics.valueMeterVertical);
+          metersM.m2.setSize(metrics.valueMeterVertical);
+          metersM.m3.setSize(metrics.valueMeterVertical);
+          metersM.m4.setSize(metrics.valueMeterVertical);
+          metersM.m5.setSize(metrics.valueMeterVertical);
+          metersM.m6.setSize(metrics.valueMeterVertical);
+          metersM.m7.setSize(metrics.valueMeterVertical);
+          metersM.m8.setSize(metrics.valueMeterVertical);
+          metersM.m9.setSize(metrics.valueMeterVertical);
+          metersS.m1.setSize(metrics.valueMeterVertical);
+          metersS.m2.setSize(metrics.valueMeterVertical);
+          metersS.m3.setSize(metrics.valueMeterVertical);
+          metersS.m4.setSize(metrics.valueMeterVertical);
+          metersS.m5.setSize(metrics.valueMeterVertical);
+          metersS.m6.setSize(metrics.valueMeterVertical);
+          metersS.m7.setSize(metrics.valueMeterVertical);
+          metersS.m8.setSize(metrics.valueMeterVertical);
+          metersS.m9.setSize(metrics.valueMeterVertical);
           output_gain.slider.setSize(metrics.valueSlider);
           ParameterGroup::adjustSize(metrics);
+      }
+
+      inline void setupMeters(MultiBandCompressorValueMeters& w, const char* const label, const int idStart)
+      {
+          w.m1.setId(idStart + 0);
+          w.m2.setId(idStart + 1);
+          w.m3.setId(idStart + 2);
+          w.m4.setId(idStart + 3);
+          w.m5.setId(idStart + 4);
+          w.m6.setId(idStart + 5);
+          w.m7.setId(idStart + 6);
+          w.m8.setId(idStart + 7);
+          w.m9.setId(idStart + 8);
+
+          w.m1.setName(kParameterNames[idStart + 0]);
+          w.m2.setName(kParameterNames[idStart + 1]);
+          w.m3.setName(kParameterNames[idStart + 2]);
+          w.m4.setName(kParameterNames[idStart + 3]);
+          w.m5.setName(kParameterNames[idStart + 4]);
+          w.m6.setName(kParameterNames[idStart + 5]);
+          w.m7.setName(kParameterNames[idStart + 6]);
+          w.m8.setName(kParameterNames[idStart + 7]);
+          w.m9.setName(kParameterNames[idStart + 8]);
+
+          w.m1.setRange(kParameterRanges[idStart + 0].min,
+                        kParameterRanges[idStart + 0].max);
+          w.m2.setRange(kParameterRanges[idStart + 1].min,
+                        kParameterRanges[idStart + 1].max);
+          w.m3.setRange(kParameterRanges[idStart + 2].min,
+                        kParameterRanges[idStart + 2].max);
+          w.m4.setRange(kParameterRanges[idStart + 3].min,
+                        kParameterRanges[idStart + 3].max);
+          w.m5.setRange(kParameterRanges[idStart + 4].min,
+                        kParameterRanges[idStart + 4].max);
+          w.m6.setRange(kParameterRanges[idStart + 5].min,
+                        kParameterRanges[idStart + 5].max);
+          w.m7.setRange(kParameterRanges[idStart + 6].min,
+                        kParameterRanges[idStart + 6].max);
+          w.m8.setRange(kParameterRanges[idStart + 7].min,
+                        kParameterRanges[idStart + 7].max);
+          w.m9.setRange(kParameterRanges[idStart + 8].min,
+                        kParameterRanges[idStart + 8].max);
+
+          w.m1.setUnitLabel(kParameterUnits[idStart + 0]);
+          w.m2.setUnitLabel(kParameterUnits[idStart + 1]);
+          w.m3.setUnitLabel(kParameterUnits[idStart + 2]);
+          w.m4.setUnitLabel(kParameterUnits[idStart + 3]);
+          w.m5.setUnitLabel(kParameterUnits[idStart + 4]);
+          w.m6.setUnitLabel(kParameterUnits[idStart + 5]);
+          w.m7.setUnitLabel(kParameterUnits[idStart + 6]);
+          w.m8.setUnitLabel(kParameterUnits[idStart + 7]);
+          w.m9.setUnitLabel(kParameterUnits[idStart + 8]);
+
+          w.m1.setValue(kParameterRanges[idStart + 0].def);
+          w.m2.setValue(kParameterRanges[idStart + 1].def);
+          w.m3.setValue(kParameterRanges[idStart + 2].def);
+          w.m4.setValue(kParameterRanges[idStart + 3].def);
+          w.m5.setValue(kParameterRanges[idStart + 4].def);
+          w.m6.setValue(kParameterRanges[idStart + 5].def);
+          w.m7.setValue(kParameterRanges[idStart + 6].def);
+          w.m8.setValue(kParameterRanges[idStart + 7].def);
+          w.m9.setValue(kParameterRanges[idStart + 8].def);
+
+          w.label.setLabel(label);
+          w.label.setName(label);
+          group.layout.items.push_back(&w);
       }
   } mbCompressor;
 
@@ -368,7 +659,7 @@ class SoundsGoodUI : public UI,
       QuantumValueSliderWithLabel fffb;
       QuantumValueSliderWithLabel knee;
       QuantumValueSliderWithLabel makeup;
-      // TODO kParameter_limiter_gain_reduction
+      QuantumValueMeterWithLabel gain_reduction;
 
       explicit Limiter(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
           : ParameterGroup(parent, bcb, theme),
@@ -378,7 +669,8 @@ class SoundsGoodUI : public UI,
             release(parent, theme),
             fffb(parent, theme),
             knee(parent, theme),
-            makeup(parent, theme)
+            makeup(parent, theme),
+            gain_reduction(parent, theme)
       {
           group.setName("Limiter Group");
           group.mainWidget.setId(kParameter_limiter_bypass);
@@ -392,9 +684,10 @@ class SoundsGoodUI : public UI,
           setupSlider(fffb, cb, kParameter_limiter_fffb, 8);
           setupSlider(knee, cb, kParameter_limiter_knee, 8);
           setupSlider(makeup, cb, kParameter_limiter_makeup, 8);
+          setupMeter(gain_reduction, kParameter_limiter_gain_reduction, 8);
       }
 
-      void adjustSize(const QuantumMetrics& metrics) override
+      void adjustSize(const SoundsGoodMetrics& metrics) override
       {
           strength.slider.setSize(metrics.valueSlider);
           threshold.slider.setSize(metrics.valueSlider);
@@ -403,6 +696,7 @@ class SoundsGoodUI : public UI,
           fffb.slider.setSize(metrics.valueSlider);
           knee.slider.setSize(metrics.valueSlider);
           makeup.slider.setSize(metrics.valueSlider);
+          gain_reduction.meter.setSize(metrics.valueMeterHorizontal);
           ParameterGroup::adjustSize(metrics);
       }
   } limiter;
@@ -410,12 +704,13 @@ class SoundsGoodUI : public UI,
   struct Brickwall : ParameterGroupWithoutBypassSwitch {
       QuantumValueSliderWithLabel ceiling;
       QuantumValueSliderWithLabel release;
-      // TODO kParameter_brickwall_limit
+      QuantumValueMeterWithLabel limit;
 
       explicit Brickwall(TopLevelWidget* const parent, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
           : ParameterGroup(parent, theme),
             ceiling(parent, theme),
-            release(parent, theme)
+            release(parent, theme),
+            limit(parent, theme)
       {
           group.setName("Brickwall Group");
           group.mainWidget.setLabel("Brickwall");
@@ -423,20 +718,17 @@ class SoundsGoodUI : public UI,
 
           setupSlider(ceiling, cb, kParameter_brickwall_ceiling, 10);
           setupSlider(release, cb, kParameter_brickwall_release, 10);
+          setupMeter(limit, kParameter_brickwall_limit, 0);
       }
 
-      void adjustSize(const QuantumMetrics& metrics) override
+      void adjustSize(const SoundsGoodMetrics& metrics) override
       {
           ceiling.slider.setSize(metrics.valueSlider);
           release.slider.setSize(metrics.valueSlider);
+          limit.meter.setSize(metrics.valueMeterHorizontal);
           ParameterGroup::adjustSize(metrics);
       }
   } brickwall;
-
-  // meters
-  QuantumMixerSliderWithLevelMeter inputMeterSlider;
-  QuantumLevelMeter gainMeter;
-  QuantumLevelMeter outputMeter;
 
   // preset buttons
   std::vector<QuantumButton*> presetButtons;
@@ -459,10 +751,7 @@ public:
         kneeComp(this, this, this, theme),
         mbCompressor(this, this, this, theme),
         limiter(this, this, this, theme),
-        brickwall(this, this, theme),
-        inputMeterSlider(this, theme),
-        gainMeter(this, theme),
-        outputMeter(this, theme)
+        brickwall(this, this, theme)
   {
     loadSharedResources();
 
@@ -510,15 +799,28 @@ public:
     welcomeLabel.setLabel(welcomeMessage);
     welcomeLabel.setName("Welcome Label");
 
-    inputMeterSlider.setName("Input Meter with slider");
-    inputMeterSlider.slider.setCallback(this);
-    inputMeterSlider.slider.setId(kParameter_target);
-    inputMeterSlider.slider.setRange(-50, 0);
-    inputMeterSlider.slider.setValue(0, false);
+    inputGroup.setName("Input Group");
+    inputGroup.slider.setCallback(this);
+    inputGroup.slider.setId(kParameter_target);
+    inputGroup.slider.setName("Input Group slider");
+    inputGroup.slider.setRange(kParameterRanges[kParameter_target].min, kParameterRanges[kParameter_target].max);
+    inputGroup.slider.setValue(kParameterRanges[kParameter_target].def, false);
 
-    gainMeter.setName("Gain Meter");
+    inputGroup.meterLufs.setId(kParameter_lufs_in);
+    inputGroup.meterLufs.setName("Input Group lufs meter");
+    inputGroup.meterLufs.setRange(kParameterRanges[kParameter_lufs_in].min, kParameterRanges[kParameter_lufs_in].max);
+    inputGroup.meterLufs.setValue(kParameterRanges[kParameter_lufs_in].def);
 
-    outputMeter.setName("Output Meter");
+    inputGroup.meterGain.setId(kParameter_leveler_gain);
+    inputGroup.meterGain.setName("Input Group gain meter");
+    inputGroup.meterGain.setRange(kParameterRanges[kParameter_leveler_gain].min, kParameterRanges[kParameter_leveler_gain].max);
+    inputGroup.meterGain.setValue(kParameterRanges[kParameter_leveler_gain].def);
+
+    outputGroup.setName("Output Group");
+    outputGroup.meter.setId(kParameter_lufs_out);
+    outputGroup.meter.setName("Output Meter");
+    outputGroup.meter.setRange(kParameterRanges[kParameter_lufs_out].min, kParameterRanges[kParameter_lufs_out].max);
+    outputGroup.meter.setValue(kParameterRanges[kParameter_lufs_out].def);
 
     static const struct {
         const char* const label;
@@ -577,18 +879,12 @@ public:
       outputGroup.setAbsolutePos(width - windowPadding - outputGroup.getWidth(), contentY);
       presetGroup.setAbsolutePos(windowPadding, height - windowPadding - presetGroup.getHeight());
 
-      inputMeterSlider.setAbsolutePos(inputGroup.getAbsoluteX() + padding, inputGroup.getAbsoluteY() + padding);
-      inputMeterSlider.meter.setAbsolutePos(inputMeterSlider.getAbsoluteX() + padding, inputMeterSlider.getAbsoluteY() + padding);
-      inputMeterSlider.slider.setAbsolutePos(inputMeterSlider.meter.getAbsoluteX() + inputMeterSlider.meter.getWidth() + padding, inputMeterSlider.getAbsoluteY() + padding);
-      gainMeter.setAbsolutePos(inputMeterSlider.getAbsoluteX() + inputMeterSlider.getWidth() + padding * 3, inputGroup.getAbsoluteY() + padding * 2);
-      outputMeter.setAbsolutePos(outputGroup.getAbsoluteX() + padding * 2, outputGroup.getAbsoluteY() + padding * 2);
-
       const uint inputAreaCenter = inputGroup.getWidth() / 2;
       const uint easyModeButtonOffset = inputAreaCenter - easyModeButton.getWidth() / 2;
       easyModeButton.setAbsolutePos(windowPadding + easyModeButtonOffset, windowPadding);
       expertModeButton.setAbsolutePos(contentGroup.getAbsoluteX() + easyModeButtonOffset, windowPadding);
 
-      welcomeLabel.setAbsolutePos(contentGroup.getAbsoluteX() + padding, contentY - contentGroup.getHeight() / 4); // FIXME
+      welcomeLabel.setAbsolutePos(contentGroup.getAbsoluteX() + borderSize + padding, contentY + borderSize + padding);
       easyMetering.setAbsolutePos(contentGroup.getAbsoluteX() + contentGroup.getWidth() - easyMetering.getWidth() - padding,
                                   contentY + contentGroup.getHeight() - easyMetering.getHeight() - padding);
 
@@ -618,6 +914,7 @@ public:
   {
       const uint padding = theme.padding * scaleFactor;
       const uint buttonHeight = (theme.textHeight + theme.padding * 2) * scaleFactor;
+      const uint borderSize = theme.borderSize * scaleFactor;
       const uint windowPadding = theme.windowPadding * scaleFactor;
       const uint contentY = windowPadding * 2 + buttonHeight;
       const uint presetGroupHeight = (buttonHeight + theme.padding * 4) * scaleFactor;
@@ -625,23 +922,17 @@ public:
       // const uint switchesHeight = (theme.textHeight / 2 + theme.borderSize * 2) * scaleFactor;
       // const uint slidersHeight = (theme.textHeight + theme.padding * 2) * scaleFactor;
 
-      const QuantumMetrics metrics(theme);
+      const SoundsGoodMetrics metrics(theme);
 
       // TODO easy / expert buttons
       // TODO preset buttons
 
-      inputGroup.setSize(130, contentHeight); // FIXME
-      outputGroup.setSize(50, contentHeight); // FIXME
+      inputGroup.adjustSize(metrics, contentHeight);
+      outputGroup.adjustSize(metrics, contentHeight);
       contentGroup.setSize(width - windowPadding * 2 - padding * 4 - inputGroup.getWidth() - outputGroup.getWidth(), contentHeight);
       presetGroup.setSize(width - windowPadding * 2, presetGroupHeight);
 
-      inputMeterSlider.setSize(inputGroup.getWidth() * 2 / 3 - padding * 4, inputGroup.getHeight() - padding * 2);
-      inputMeterSlider.meter.setSize(inputMeterSlider.getWidth() * 2 / 3, inputMeterSlider.getHeight() - padding * 2);
-      inputMeterSlider.slider.setSize(inputMeterSlider.getWidth() / 3, inputMeterSlider.getHeight() - padding * 2);
-      gainMeter.setSize(inputGroup.getWidth() / 3 - padding * 2, inputMeterSlider.getHeight() - padding * 2);
-      outputMeter.setSize(outputGroup.getWidth() - padding * 4, outputGroup.getHeight() - padding * 4);
-
-      welcomeLabel.setSize(contentGroup.getWidth() - padding * 2, contentHeight - padding * 2);
+      welcomeLabel.setSize(contentGroup.getWidth() - borderSize * 2 - padding * 2, contentHeight - borderSize * 2 - padding * 2);
       easyMetering.setSize(300 * scaleFactor, contentGroup.getHeight() / 2 - padding);
 
       gate.adjustSize(metrics);
@@ -674,8 +965,7 @@ protected:
       // TODO
       break;
     case kParameter_target:
-      if (inputMeterSlider.slider.setValue(value, false))
-        inputMeterSlider.repaint();
+      inputGroup.slider.setValue(value, false);
       break;
     case kParameter_gate_bypass:
       gate.group.mainWidget.setChecked(value < 0.5f, false);
@@ -816,22 +1106,22 @@ protected:
       limiter.group.mainWidget.setChecked(value < 0.5f, false);
       break;
     case kParameter_limiter_strength:
-      // TODO
+      limiter.strength.slider.setValue(value, false);
       break;
     case kParameter_limiter_threshold:
-      // TODO
+      limiter.threshold.slider.setValue(value, false);
       break;
     case kParameter_limiter_attack:
-      // TODO
+      limiter.attack.slider.setValue(value, false);
       break;
     case kParameter_limiter_release:
-      // TODO
+      limiter.release.slider.setValue(value, false);
       break;
     case kParameter_limiter_fffb:
-      // TODO
+      limiter.fffb.slider.setValue(value, false);
       break;
     case kParameter_limiter_knee:
-      // TODO
+      limiter.knee.slider.setValue(value, false);
       break;
     case kParameter_limiter_makeup:
       limiter.makeup.slider.setValue(value, false);
@@ -844,31 +1134,85 @@ protected:
       break;
     // outputs
     case kParameter_lufs_in:
-      if (inputMeterSlider.meter.setNormalizedValue(value))
-        inputMeterSlider.repaint();
+      inputGroup.meterLufs.setValue(value);
       break;
     case kParameter_leveler_gain:
-      gainMeter.setNormalizedValue(value);
+      inputGroup.meterGain.setValue(value);
       break;
     case kParameter_lufs_out:
-      outputMeter.setNormalizedValue(value);
+      outputGroup.meter.setValue(value);
       break;
     case kParameter_leveler_gate:
-      // TODO
+      leveler.gate.meter.setValue(value);
       break;
-    case kParameter_62 ... kParameter_79:
-      easyMetering.setValue(index - kParameter_62, value);
+    case kParameter_62:
+      mbCompressor.metersM.m1.setValue(value);
+      break;
+    case kParameter_63:
+      mbCompressor.metersS.m1.setValue(value);
+      break;
+    case kParameter_64:
+      mbCompressor.metersM.m2.setValue(value);
+      break;
+    case kParameter_65:
+      mbCompressor.metersS.m2.setValue(value);
+      break;
+    case kParameter_66:
+      mbCompressor.metersM.m3.setValue(value);
+      break;
+    case kParameter_67:
+      mbCompressor.metersS.m3.setValue(value);
+      break;
+    case kParameter_68:
+      mbCompressor.metersM.m4.setValue(value);
+      break;
+    case kParameter_69:
+      mbCompressor.metersS.m4.setValue(value);
+      break;
+    case kParameter_70:
+      mbCompressor.metersM.m5.setValue(value);
+      break;
+    case kParameter_71:
+      mbCompressor.metersS.m5.setValue(value);
+      break;
+    case kParameter_72:
+      mbCompressor.metersM.m6.setValue(value);
+      break;
+    case kParameter_73:
+      mbCompressor.metersS.m6.setValue(value);
+      break;
+    case kParameter_74:
+      mbCompressor.metersM.m7.setValue(value);
+      break;
+    case kParameter_75:
+      mbCompressor.metersS.m7.setValue(value);
+      break;
+    case kParameter_76:
+      mbCompressor.metersM.m8.setValue(value);
+      break;
+    case kParameter_77:
+      mbCompressor.metersS.m8.setValue(value);
+      break;
+    case kParameter_78:
+      mbCompressor.metersM.m9.setValue(value);
+      break;
+    case kParameter_79:
+      mbCompressor.metersS.m9.setValue(value);
       break;
     case kParameter_limiter_gain_reduction:
-      // TODO
+      limiter.gain_reduction.meter.setValue(value);
       break;
     case kParameter_brickwall_limit:
-      // TODO
+      brickwall.limit.meter.setValue(value);
       break;
     // terminator
     case kParameterCount:
       break;
     }
+
+    // easy meters
+    if (index >= kParameter_62 && index <= kParameter_79)
+      easyMetering.setValue(index - kParameter_62, value);
   }
 
     void stateChanged(const char* key, const char* value) override

@@ -187,11 +187,11 @@ protected:
             ;
             param.name = kParameterNames[{{loop.index0}}];
             param.unit = kParameterUnits[{{loop.index0}}];
-            param.symbol = {{cstr(cid(p.meta.symbol|default("lv2_port_" ~ (inputs+outputs+loop.index0))))}};
+            param.symbol = kParameterSymbols[{{loop.index0}}];
             param.shortName = {{cstr(p.meta.abbrev|default(""))}};
-            param.ranges.def = {{p.init}};
-            param.ranges.min = {{p.min}};
-            param.ranges.max = {{p.max}};
+            param.ranges.def = kParameterRanges[{{loop.index0}}].def;
+            param.ranges.min = kParameterRanges[{{loop.index0}}].min;
+            param.ranges.max = kParameterRanges[{{loop.index0}}].max;
             break;
         {% endfor %}
         {% for p in passive %}case kParameter_{{p.meta.symbol|default("" ~ (active|length+loop.index))}}:
@@ -208,11 +208,11 @@ protected:
             ;
             param.name = kParameterNames[{{active|length+loop.index0}}];
             param.unit = kParameterUnits[{{active|length+loop.index0}}];
-            param.symbol = {{cstr(cid(p.meta.symbol|default("lv2_port_" ~ (inputs+outputs+active|length+loop.index0))))}};
+            param.symbol = kParameterSymbols[{{active|length+loop.index0}}];
             param.shortName = {{cstr(p.meta.abbrev|default(""))}};
-            param.ranges.def = {{p.init}};
-            param.ranges.min = {{p.min}};
-            param.ranges.max = {{p.max}};
+            param.ranges.def = kParameterRanges[{{active|length+loop.index0}}].def;
+            param.ranges.min = kParameterRanges[{{active|length+loop.index0}}].min;
+            param.ranges.max = kParameterRanges[{{active|length+loop.index0}}].max;
             break;
         {% endfor %}
         }
