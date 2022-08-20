@@ -342,7 +342,6 @@ class SoundsGoodUI : public UI,
       QuantumValueSliderWithLabel max_plus;
       QuantumValueSliderWithLabel max_minus;
       QuantumValueSliderWithLabel threshold;
-      QuantumValueSliderWithLabel fffb;
       QuantumValueMeterWithLabel gate;
       // NOTE kParameter_leveler_gain is setup separately
 
@@ -352,7 +351,6 @@ class SoundsGoodUI : public UI,
             max_plus(parent, theme),
             max_minus(parent, theme),
             threshold(parent, theme),
-            fffb(parent, theme),
             gate(parent, theme)
       {
           group.setName("Leveler Group");
@@ -364,7 +362,6 @@ class SoundsGoodUI : public UI,
           setupSlider(max_plus, cb, kParameter_leveler_max_plus, 8);
           setupSlider(max_minus, cb, kParameter_leveler_max_minus, 8);
           setupSlider(threshold, cb, kParameter_leveler_gate_threshold, 8);
-          setupSlider(fffb, cb, kParameter_leveler_fffb, 8);
           setupMeter(gate, kParameter_leveler_gate, 8);
       }
 
@@ -374,7 +371,6 @@ class SoundsGoodUI : public UI,
           max_plus.slider.setSize(metrics.valueSlider);
           max_minus.slider.setSize(metrics.valueSlider);
           threshold.slider.setSize(metrics.valueSlider);
-          fffb.slider.setSize(metrics.valueSlider);
           gate.meter.setSize(metrics.valueMeterHorizontal);
           ParameterGroup::adjustSize(metrics);
       }
@@ -484,7 +480,6 @@ class SoundsGoodUI : public UI,
       MultiBandCompressorValueMeters metersM;
       MultiBandCompressorValueMeters metersS;
       QuantumValueSliderWithLabel output_gain;
-      // TODO kParameter_62 ... kParameter_79
 
       explicit MultiBandCompressor(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
           : ParameterGroup(parent, bcb, theme),
@@ -532,8 +527,8 @@ class SoundsGoodUI : public UI,
           labels.label9.setLabel("9");
           group.layout.items.push_back(&labels);
 
-          setupMeters(metersM, "m", kParameter_62);
-          setupMeters(metersS, "s", kParameter_70);
+          setupMeters(metersM, "m", kParameter_69);
+          setupMeters(metersS, "s", kParameter_78);
           setupSlider(output_gain, cb, kParameter_mscomp_output_gain, 0);
       }
 
@@ -1003,9 +998,6 @@ protected:
     case kParameter_leveler_max_minus:
       leveler.max_minus.slider.setValue(value, false);
       break;
-    case kParameter_leveler_fffb:
-      leveler.fffb.slider.setValue(value, false);
-      break;
     case kParameter_eq_bypass:
       eq.group.mainWidget.setChecked(value < 0.5f, false);
       break;
@@ -1145,58 +1137,58 @@ protected:
     case kParameter_leveler_gate:
       leveler.gate.meter.setValue(value);
       break;
-    case kParameter_62:
+    case kParameter_69:
       mbCompressor.metersM.m1.setValue(value);
       break;
-    case kParameter_63:
+    case kParameter_70:
       mbCompressor.metersS.m1.setValue(value);
       break;
-    case kParameter_64:
+    case kParameter_71:
       mbCompressor.metersM.m2.setValue(value);
       break;
-    case kParameter_65:
+    case kParameter_72:
       mbCompressor.metersS.m2.setValue(value);
       break;
-    case kParameter_66:
+    case kParameter_73:
       mbCompressor.metersM.m3.setValue(value);
       break;
-    case kParameter_67:
+    case kParameter_74:
       mbCompressor.metersS.m3.setValue(value);
       break;
-    case kParameter_68:
+    case kParameter_75:
       mbCompressor.metersM.m4.setValue(value);
       break;
-    case kParameter_69:
+    case kParameter_76:
       mbCompressor.metersS.m4.setValue(value);
       break;
-    case kParameter_70:
+    case kParameter_77:
       mbCompressor.metersM.m5.setValue(value);
       break;
-    case kParameter_71:
+    case kParameter_78:
       mbCompressor.metersS.m5.setValue(value);
       break;
-    case kParameter_72:
+    case kParameter_79:
       mbCompressor.metersM.m6.setValue(value);
       break;
-    case kParameter_73:
+    case kParameter_80:
       mbCompressor.metersS.m6.setValue(value);
       break;
-    case kParameter_74:
+    case kParameter_81:
       mbCompressor.metersM.m7.setValue(value);
       break;
-    case kParameter_75:
+    case kParameter_82:
       mbCompressor.metersS.m7.setValue(value);
       break;
-    case kParameter_76:
+    case kParameter_83:
       mbCompressor.metersM.m8.setValue(value);
       break;
-    case kParameter_77:
+    case kParameter_84:
       mbCompressor.metersS.m8.setValue(value);
       break;
-    case kParameter_78:
+    case kParameter_85:
       mbCompressor.metersM.m9.setValue(value);
       break;
-    case kParameter_79:
+    case kParameter_86:
       mbCompressor.metersS.m9.setValue(value);
       break;
     case kParameter_limiter_gain_reduction:
@@ -1211,8 +1203,8 @@ protected:
     }
 
     // easy meters
-    if (index >= kParameter_62 && index <= kParameter_79)
-      easyMetering.setValue(index - kParameter_62, value);
+    if (index >= kParameter_69 && index <= kParameter_86)
+      easyMetering.setValue(index - kParameter_69, value);
   }
 
     void stateChanged(const char* key, const char* value) override
