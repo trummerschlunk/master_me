@@ -60,6 +60,7 @@ struct InputMeterGroup : QuantumFrame
 
         spacer.setName("Spacer");
 
+        meterLufs.setBackgroundColor(theme.levelMeterAlternativeColor);
         meterLufs.setId(kParameter_lufs_in);
         meterLufs.setName("Lufs");
         meterLufs.setRange(kParameterRanges[kParameter_lufs_in].min, kParameterRanges[kParameter_lufs_in].max);
@@ -83,7 +84,7 @@ struct InputMeterGroup : QuantumFrame
         meterL.setSize(metrics.valueMeterVertical.getWidth(), usableHeight);
         meterR.setSize(metrics.valueMeterVertical.getWidth(), usableHeight);
         spacer.setSize(theme.borderSize + theme.padding * 2, usableHeight);
-        meterLufs.setSize(metrics.valueMeterVertical.getWidth(), usableHeight);
+        meterLufs.setSize(metrics.valueMeterVertical.getWidth()/2, usableHeight);
         slider.setSize(metrics.valueMeterVertical.getWidth(), usableHeight); // TODO mixer slider metric
         meterGain.setSize(metrics.valueMeterVertical.getWidth(), usableHeight);
         setSize(meterL.getWidth() + meterR.getWidth() + meterLufs.getWidth() + spacer.getWidth() + slider.getWidth() + meterGain.getWidth() + theme.borderSize * 3 + theme.padding * 7,
@@ -122,6 +123,7 @@ struct OutputMeterGroup : QuantumFrame
     {
         setName("Outputs");
 
+        meterLufs.setBackgroundColor(theme.levelMeterAlternativeColor);
         meterLufs.setId(kParameter_lufs_out);
         meterLufs.setName("Lufs");
         meterLufs.setRange(kParameterRanges[kParameter_lufs_out].min, kParameterRanges[kParameter_lufs_out].max);
@@ -141,7 +143,7 @@ struct OutputMeterGroup : QuantumFrame
     void adjustSize(const SoundsGoodMetrics& metrics, const uint height)
     {
         const uint usableHeight = height - theme.borderSize * 2 - theme.padding * 2;
-        meterLufs.setSize(metrics.valueMeterVertical.getWidth(), usableHeight);
+        meterLufs.setSize(metrics.valueMeterVertical.getWidth()/2, usableHeight);
         spacer.setSize(theme.borderSize + theme.padding * 2, usableHeight);
         meterL.setSize(metrics.valueMeterVertical.getWidth(), usableHeight);
         meterR.setSize(metrics.valueMeterVertical.getWidth(), usableHeight);

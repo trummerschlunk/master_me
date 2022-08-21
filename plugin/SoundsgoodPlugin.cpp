@@ -76,10 +76,10 @@ protected:
         }
     }
 
-#if 0
    /* -----------------------------------------------------------------------------------------------------------------
     * Internal data */
 
+#if 0
     float getParameterValue(const uint32_t index) const override
     {
         if (index < kParameterCount)
@@ -106,10 +106,16 @@ protected:
             break;
         }
     }
+#endif
+
+    void setState(const char*, const char*) override
+    {
+    }
 
    /* -----------------------------------------------------------------------------------------------------------------
     * Audio/MIDI Processing */
 
+#if 0
     void run(const float** const inputs, float** const outputs, const uint32_t frames) override
     {
         // TODO custom bypass
