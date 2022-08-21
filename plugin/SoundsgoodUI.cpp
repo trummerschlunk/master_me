@@ -187,18 +187,20 @@ class SoundsGoodUI : public UI,
 
   struct Leveler : SoundsgoodParameterGroupWithBypassSwitch {
       QuantumValueSliderWithLabel speed;
+      QuantumValueSliderWithLabel threshold;
       QuantumValueSliderWithLabel max_plus;
       QuantumValueSliderWithLabel max_minus;
-      QuantumValueSliderWithLabel threshold;
+      QuantumLabelWithSeparatorLine separator;
       QuantumValueMeterWithLabel gate;
       // NOTE kParameter_leveler_gain is setup separately
 
       explicit Leveler(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
           : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
             speed(&frame, theme),
+            threshold(&frame, theme),
             max_plus(&frame, theme),
             max_minus(&frame, theme),
-            threshold(&frame, theme),
+            separator(&frame, theme),
             gate(&frame, theme)
       {
           frame.setName("Leveler");
@@ -207,18 +209,20 @@ class SoundsGoodUI : public UI,
           frame.mainWidget.setLabel("Leveler");
 
           setupSlider(speed, cb, kParameter_leveler_speed, 8);
+          setupSlider(threshold, cb, kParameter_leveler_gate_threshold, 8);
           setupSlider(max_plus, cb, kParameter_leveler_max_plus, 8);
           setupSlider(max_minus, cb, kParameter_leveler_max_minus, 8);
-          setupSlider(threshold, cb, kParameter_leveler_gate_threshold, 8);
+          setupSeparatorLine(separator, "Outputs:");
           setupMeter(gate, kParameter_leveler_gate, 8);
       }
 
       void adjustSize(const QuantumMetrics& metrics) override
       {
           speed.slider.setSize(metrics.valueSlider);
+          threshold.slider.setSize(metrics.valueSlider);
           max_plus.slider.setSize(metrics.valueSlider);
           max_minus.slider.setSize(metrics.valueSlider);
-          threshold.slider.setSize(metrics.valueSlider);
+          separator.label.adjustSize();
           gate.meter.setSize(metrics.valueMeterHorizontal);
           SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
@@ -226,7 +230,9 @@ class SoundsGoodUI : public UI,
 
   struct Eq : SoundsgoodParameterGroupWithBypassSwitch {
       QuantumValueSliderWithLabel highpass;
+      QuantumLabelWithSeparatorLine tilt;
       QuantumValueSliderWithLabel tilt_gain;
+      QuantumLabelWithSeparatorLine side;
       QuantumValueSliderWithLabel side_gain;
       QuantumValueSliderWithLabel side_freq;
       QuantumValueSliderWithLabel side_bandwidth;
@@ -234,7 +240,9 @@ class SoundsGoodUI : public UI,
       explicit Eq(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
           : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
             highpass(&frame, theme),
+            tilt(&frame, theme),
             tilt_gain(&frame, theme),
+            side(&frame, theme),
             side_gain(&frame, theme),
             side_freq(&frame, theme),
             side_bandwidth(&frame, theme)
@@ -245,16 +253,20 @@ class SoundsGoodUI : public UI,
           frame.mainWidget.setLabel("EQ");
 
           setupSlider(highpass, cb, kParameter_eq_highpass_freq, 3);
-          setupSlider(tilt_gain, cb, kParameter_eq_tilt_gain, 3);
-          setupSlider(side_gain, cb, kParameter_eq_side_gain, 3);
-          setupSlider(side_freq, cb, kParameter_eq_side_freq, 3);
-          setupSlider(side_bandwidth, cb, kParameter_eq_side_bandwidth, 3);
+          setupSeparatorLine(tilt, "Tilt:");
+          setupSlider(tilt_gain, cb, kParameter_eq_tilt_gain, 8);
+          setupSeparatorLine(side, "Side:");
+          setupSlider(side_gain, cb, kParameter_eq_side_gain, 8);
+          setupSlider(side_freq, cb, kParameter_eq_side_freq, 8);
+          setupSlider(side_bandwidth, cb, kParameter_eq_side_bandwidth, 8);
       }
 
       void adjustSize(const QuantumMetrics& metrics) override
       {
           highpass.slider.setSize(metrics.valueSlider);
+          tilt.label.adjustSize();
           tilt_gain.slider.setSize(metrics.valueSlider);
+          side.label.adjustSize();
           side_gain.slider.setSize(metrics.valueSlider);
           side_freq.slider.setSize(metrics.valueSlider);
           side_bandwidth.slider.setSize(metrics.valueSlider);
@@ -272,6 +284,7 @@ class SoundsGoodUI : public UI,
       QuantumValueSliderWithLabel fffb;
       QuantumValueSliderWithLabel makeup;
       QuantumValueSliderWithLabel drywet;
+      // TODO meters here??
 
       explicit KneeCompressor(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
           : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
@@ -288,7 +301,7 @@ class SoundsGoodUI : public UI,
           frame.setName("Knee Compressor");
           frame.mainWidget.setCallback(bcb);
           frame.mainWidget.setId(kParameter_kneecomp_bypass);
-          frame.mainWidget.setLabel("Compressor");
+          frame.mainWidget.setLabel("Knee Compressor");
 
           setupSlider(strength, cb, kParameter_kneecomp_strength, 9);
           setupSlider(threshold, cb, kParameter_kneecomp_threshold, 9);
@@ -317,6 +330,7 @@ class SoundsGoodUI : public UI,
   } kneeComp;
 
   struct MultiBandCompressor : SoundsgoodParameterGroupWithBypassSwitch {
+      QuantumDualLabelWithCenterSpacer labelsTop;
       QuantumDualValueSliderWithCenterLabel crossover;
       QuantumDualValueSliderWithCenterLabel strength;
       QuantumDualValueSliderWithCenterLabel threshold;
@@ -324,13 +338,14 @@ class SoundsGoodUI : public UI,
       QuantumDualValueSliderWithCenterLabel release;
       QuantumDualValueSliderWithCenterLabel knee;
       QuantumDualValueSliderWithCenterLabel link;
-      MultiBandCompressorLabels labels;
+      MultiBandCompressorLabels labelsMid;
       MultiBandCompressorValueMeters metersM;
       MultiBandCompressorValueMeters metersS;
-      QuantumValueSliderWithLabel output_gain;
+      MultiBandCompressorOutputGainGroup outputGain;
 
       explicit MultiBandCompressor(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
           : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
+            labelsTop(&frame, theme),
             crossover(&frame, theme),
             strength(&frame, theme),
             threshold(&frame, theme),
@@ -338,10 +353,10 @@ class SoundsGoodUI : public UI,
             release(&frame, theme),
             knee(&frame, theme),
             link(&frame, theme),
-            labels(&frame, theme),
+            labelsMid(&frame, theme),
             metersM(&frame, theme),
             metersS(&frame, theme),
-            output_gain(&frame, theme)
+            outputGain(&frame, theme)
       {
           frame.setName("MultiBand Compressor");
           frame.mainWidget.setCallback(bcb);
@@ -356,6 +371,10 @@ class SoundsGoodUI : public UI,
           static_assert(kParameter_mscomp_high_knee - kParameter_mscomp_low_knee == idOffset, "mscomp param id offset mismatch");
           static_assert(kParameter_mscomp_high_link - kParameter_mscomp_low_link == idOffset, "mscomp param id offset mismatch");
 
+          labelsTop.labelL.setLabel("Low");
+          labelsTop.labelR.setLabel("High");
+          items.push_back(&labelsTop);
+
           setupDualSlider(crossover, cb, kParameter_mscomp_low_crossover, idOffset, 4);
           setupDualSlider(strength, cb, kParameter_mscomp_low_strength, idOffset, 4);
           setupDualSlider(threshold, cb, kParameter_mscomp_low_threshold, idOffset, 4);
@@ -364,26 +383,36 @@ class SoundsGoodUI : public UI,
           setupDualSlider(knee, cb, kParameter_mscomp_low_knee, idOffset, 4);
           setupDualSlider(link, cb, kParameter_mscomp_low_link, idOffset, 4);
 
-          labels.label1.setLabel("1");
-          labels.label2.setLabel("2");
-          labels.label3.setLabel("3");
-          labels.label4.setLabel("4");
-          labels.label5.setLabel("5");
-          labels.label6.setLabel("6");
-          labels.label7.setLabel("7");
-          labels.label8.setLabel("8");
-          labels.label9.setLabel("9");
-          metersM.label.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_MIDDLE);
-          metersS.label.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_MIDDLE);
-          items.push_back(&labels);
+          labelsMid.label1.setLabel("1");
+          labelsMid.label2.setLabel("2");
+          labelsMid.label3.setLabel("3");
+          labelsMid.label4.setLabel("4");
+          labelsMid.label5.setLabel("5");
+          labelsMid.label6.setLabel("6");
+          labelsMid.label7.setLabel("7");
+          labelsMid.label8.setLabel("8");
+          labelsMid.label9.setLabel("9");
+          items.push_back(&labelsMid);
 
           setupMeters(metersM, "  m  ", kParameter_69);
           setupMeters(metersS, "  s  ", kParameter_78);
-          setupSlider(output_gain, cb, kParameter_mscomp_output_gain, 0);
+
+          outputGain.slider.setCallback(cb);
+          outputGain.slider.setId(kParameter_mscomp_output_gain);
+          outputGain.slider.setName(kParameterNames[kParameter_mscomp_output_gain]);
+          outputGain.slider.setRange(kParameterRanges[kParameter_mscomp_output_gain].min, kParameterRanges[kParameter_mscomp_output_gain].max);
+          outputGain.slider.setUnitLabel(kParameterUnits[kParameter_mscomp_output_gain]);
+          outputGain.slider.setValue(kParameterRanges[kParameter_mscomp_output_gain].def, false);
+          outputGain.label.setLabel(kParameterNames[kParameter_mscomp_output_gain]);
+          outputGain.label.setName(String(kParameterNames[kParameter_mscomp_output_gain]) + " [label]");
+          items.push_back(&outputGain);
       }
 
       void adjustSize(const QuantumMetrics& metrics) override
       {
+          const Size<uint> labelsTopSize(metrics.valueSlider.getWidth(), theme.textHeight);
+          labelsTop.labelL.setSize(labelsTopSize);
+          labelsTop.labelR.setSize(labelsTopSize);
           crossover.sliderL.setSize(metrics.valueSlider);
           crossover.sliderR.setSize(metrics.valueSlider);
           strength.sliderL.setSize(metrics.valueSlider);
@@ -398,15 +427,16 @@ class SoundsGoodUI : public UI,
           knee.sliderR.setSize(metrics.valueSlider);
           link.sliderL.setSize(metrics.valueSlider);
           link.sliderR.setSize(metrics.valueSlider);
-          labels.label1.setSize(metrics.label);
-          labels.label2.setSize(metrics.label);
-          labels.label3.setSize(metrics.label);
-          labels.label4.setSize(metrics.label);
-          labels.label5.setSize(metrics.label);
-          labels.label6.setSize(metrics.label);
-          labels.label7.setSize(metrics.label);
-          labels.label8.setSize(metrics.label);
-          labels.label9.setSize(metrics.label);
+          const Size<uint> labelsMidSize(metrics.valueMeterVertical.getWidth(), theme.textHeight);
+          labelsMid.label1.setSize(labelsMidSize);
+          labelsMid.label2.setSize(labelsMidSize);
+          labelsMid.label3.setSize(labelsMidSize);
+          labelsMid.label4.setSize(labelsMidSize);
+          labelsMid.label5.setSize(labelsMidSize);
+          labelsMid.label6.setSize(labelsMidSize);
+          labelsMid.label7.setSize(labelsMidSize);
+          labelsMid.label8.setSize(labelsMidSize);
+          labelsMid.label9.setSize(labelsMidSize);
           metersM.label.adjustSize();
           metersS.label.adjustSize();
           metersM.m1.setSize(metrics.valueMeterVertical);
@@ -427,7 +457,8 @@ class SoundsGoodUI : public UI,
           metersS.m7.setSize(metrics.valueMeterVertical);
           metersS.m8.setSize(metrics.valueMeterVertical);
           metersS.m9.setSize(metrics.valueMeterVertical);
-          output_gain.slider.setSize(metrics.valueSlider);
+          outputGain.fixedSpace.setSize(metrics.valueSlider);
+          outputGain.slider.setSize(metrics.valueSlider);
           SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
 
@@ -506,7 +537,8 @@ class SoundsGoodUI : public UI,
       QuantumValueSliderWithLabel fffb;
       QuantumValueSliderWithLabel knee;
       QuantumValueSliderWithLabel makeup;
-      QuantumValueMeterWithLabel gain_reduction;
+      QuantumLabelWithSeparatorLine separator;
+      QuantumValueMeterWithLabel gainReduction;
 
       explicit Limiter(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
           : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
@@ -517,7 +549,8 @@ class SoundsGoodUI : public UI,
             fffb(&frame, theme),
             knee(&frame, theme),
             makeup(&frame, theme),
-            gain_reduction(&frame, theme)
+            separator(&frame, theme),
+            gainReduction(&frame, theme)
       {
           frame.setName("Limiter");
           frame.mainWidget.setCallback(bcb);
@@ -531,7 +564,8 @@ class SoundsGoodUI : public UI,
           setupSlider(fffb, cb, kParameter_limiter_fffb, 8);
           setupSlider(knee, cb, kParameter_limiter_knee, 8);
           setupSlider(makeup, cb, kParameter_limiter_makeup, 8);
-          setupMeter(gain_reduction, kParameter_limiter_gain_reduction, 8);
+          setupSeparatorLine(separator, "Outputs:");
+          setupMeter(gainReduction, kParameter_limiter_gain_reduction, 8);
       }
 
       void adjustSize(const QuantumMetrics& metrics) override
@@ -543,7 +577,8 @@ class SoundsGoodUI : public UI,
           fffb.slider.setSize(metrics.valueSlider);
           knee.slider.setSize(metrics.valueSlider);
           makeup.slider.setSize(metrics.valueSlider);
-          gain_reduction.meter.setSize(metrics.valueMeterHorizontal);
+          separator.label.adjustSize();
+          gainReduction.meter.setSize(metrics.valueMeterHorizontal);
           SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
   } limiter;
@@ -964,7 +999,7 @@ protected:
       mbCompressor.link.sliderR.setValue(value, false);
       break;
     case kParameter_mscomp_output_gain:
-      mbCompressor.output_gain.slider.setValue(value, false);
+      mbCompressor.outputGain.slider.setValue(value, false);
       break;
     case kParameter_limiter_bypass:
       limiter.frame.mainWidget.setChecked(value < 0.5f, false);
@@ -1064,7 +1099,7 @@ protected:
       mbCompressor.metersS.m9.setValue(value);
       break;
     case kParameter_limiter_gain_reduction:
-      limiter.gain_reduction.meter.setValue(value);
+      limiter.gainReduction.meter.setValue(value);
       break;
     case kParameter_brickwall_limit:
       brickwall.limit.meter.setValue(value);

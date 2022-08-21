@@ -54,6 +54,15 @@ struct SoundsgoodParameterGroup : VerticallyStackedHorizontalLayout
                                                           theme.padding);
     }
 
+    inline void setupSeparatorLine(QuantumLabelWithSeparatorLine& w, const char* const label)
+    {
+        w.label.setName(label);
+        w.label.setLabel(label);
+        w.separator1.setName(String(label) + " [separator L]");
+        w.separator2.setName(String(label) + " [separator R]");
+        items.push_back(&w);
+    }
+
     inline void setupSlider(QuantumValueSliderWithLabel& w, KnobEventHandler::Callback* const cb, const int id, const uint nameOffset)
     {
         w.slider.setCallback(cb);
@@ -112,6 +121,8 @@ struct SoundsgoodParameterGroup : VerticallyStackedHorizontalLayout
 
 typedef SoundsgoodParameterGroup<QuantumFrameWithLabel> SoundsgoodParameterGroupWithoutBypassSwitch;
 typedef SoundsgoodParameterGroup<QuantumFrameWithSwitch> SoundsgoodParameterGroupWithBypassSwitch;
+
+// --------------------------------------------------------------------------------------------------------------------
 
 // --------------------------------------------------------------------------------------------------------------------
 

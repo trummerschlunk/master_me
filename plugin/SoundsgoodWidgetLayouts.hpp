@@ -10,6 +10,26 @@
 START_NAMESPACE_DGL
 
 // --------------------------------------------------------------------------------------------------------------------
+// fixed label, expanding separator line
+
+struct QuantumLabelWithSeparatorLine : HorizontalLayout
+{
+    QuantumSeparatorLine separator1;
+    QuantumLabel label;
+    QuantumSeparatorLine separator2;
+
+    explicit QuantumLabelWithSeparatorLine(NanoSubWidget* const parent, const QuantumTheme& theme)
+        : separator1(parent, theme),
+          label(parent, theme),
+          separator2(parent, theme)
+    {
+        widgets.push_back({ &separator1, Expanding });
+        widgets.push_back({ &label, Fixed });
+        widgets.push_back({ &separator2, Expanding });
+    }
+};
+
+// --------------------------------------------------------------------------------------------------------------------
 // fixed meter, expanding label
 
 struct QuantumValueMeterWithLabel : HorizontalLayout
@@ -40,6 +60,29 @@ struct QuantumValueSliderWithLabel : HorizontalLayout
     {
         widgets.push_back({ &slider, Fixed });
         widgets.push_back({ &label, Expanding });
+    }
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+// label on both sides, center expanding spacer
+
+struct QuantumDualLabelWithCenterSpacer : HorizontalLayout
+{
+    QuantumLabel labelL;
+    QuantumSpacer spacer;
+    QuantumLabel labelR;
+
+    explicit QuantumDualLabelWithCenterSpacer(NanoSubWidget* const parent, const QuantumTheme& theme)
+        : labelL(parent, theme),
+          spacer(parent),
+          labelR(parent, theme)
+    {
+        labelL.setAlignment(NanoVG::ALIGN_MIDDLE|NanoVG::ALIGN_CENTER);
+        labelR.setAlignment(NanoVG::ALIGN_MIDDLE|NanoVG::ALIGN_CENTER);
+
+        widgets.push_back({ &labelL, Fixed });
+        widgets.push_back({ &spacer, Expanding });
+        widgets.push_back({ &labelR, Fixed });
     }
 };
 
@@ -80,64 +123,26 @@ struct QuantumSingleSwitch : HorizontalLayout
 };
 
 // --------------------------------------------------------------------------------------------------------------------
-// frame with label on top
+// label on both sides, center expanding spacer
 
-// struct QuantumFrameWithLabel : VerticalLayout
-// {
-//     QuantumLabel label;
-//     QuantumFrame frame;
+struct MultiBandCompressorOutputGainGroup : HorizontalLayout
+{
+    QuantumSpacer fixedSpace;
+    QuantumLabel label;
+    QuantumValueSlider slider;
 
-//     explicit QuantumFrameWithLabel(TopLevelWidget* const parent, const QuantumTheme& theme)
-//         : label(parent, theme),
-//           frame(parent, theme)
-//     {
-//         widgets.push_back({ &label, Fixed });
-//         widgets.push_back({ &frame, Expanding });
-//     }
+    explicit MultiBandCompressorOutputGainGroup(NanoSubWidget* const parent, const QuantumTheme& theme)
+        : fixedSpace(parent),
+          label(parent, theme),
+          slider(parent, theme)
+    {
+        label.setAlignment(NanoVG::ALIGN_MIDDLE|NanoVG::ALIGN_CENTER);
 
-//     void adjustSize(const QuantumTheme& theme, const QuantumMetrics& metrics, const Size<uint>& frameSize)
-//     {
-//         // adjust width ourselves
-//         label.adjustSize();
-//         frame.setWidth(frameSize.getWidth());
-
-//         // set fixed elements height (prefer to use switch widget height, to keep switch vs label height consistent)
-//         label.setHeight(metrics.switch_.getHeight());
-
-//         // now let the layout code do the rest
-//         setSize(metrics.switch_.getHeight() + theme.padding + frameSize.getHeight(), theme.padding);
-//     }
-// };
-
-// --------------------------------------------------------------------------------------------------------------------
-// frame with switch on top
-
-// struct QuantumFrameWithSwitch : VerticalLayout
-// {
-//     QuantumSwitch switch_;
-//     QuantumFrame frame;
-
-//     explicit QuantumFrameWithSwitch(TopLevelWidget* const parent, const QuantumTheme& theme)
-//         : switch_(parent, theme),
-//           frame(parent, theme)
-//     {
-//         widgets.push_back({ &switch_, Fixed });
-//         widgets.push_back({ &frame, Expanding });
-//     }
-
-//     void adjustSize(const QuantumTheme& theme, const QuantumMetrics& metrics, const Size<uint>& frameSize)
-//     {
-//         // adjust width ourselves
-//         switch_.adjustSize();
-//         frame.setWidth(frameSize.getWidth());
-
-//         // set fixed elements height
-//         switch_.setHeight(metrics.switch_.getHeight());
-
-//         // now let the layout code do the rest
-//         setSize(metrics.switch_.getHeight() + theme.padding + frameSize.getHeight(), theme.padding);
-//     }
-// };
+        widgets.push_back({ &fixedSpace, Fixed });
+        widgets.push_back({ &label, Expanding });
+        widgets.push_back({ &slider, Fixed });
+    }
+};
 
 // --------------------------------------------------------------------------------------------------------------------
 // custom layout for multiband compressor labels
@@ -207,7 +212,7 @@ struct MultiBandCompressorValueMeters : HorizontalLayout
           m9(parent, theme),
           spacer(parent)
     {
-        label.setAlignment(NanoVG::ALIGN_RIGHT|NanoVG::ALIGN_MIDDLE);
+        label.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_MIDDLE);
 
         m1.setOrientation(QuantumValueMeter::TopToBottom);
         m2.setOrientation(QuantumValueMeter::TopToBottom);
