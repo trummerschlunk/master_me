@@ -477,13 +477,13 @@ class SoundsGoodUI : public UI,
 
   struct MidSideCompressor : SoundsgoodParameterGroupWithBypassSwitch {
       QuantumDualLabelWithCenterSpacer labelsTop;
-      QuantumDualValueSliderWithCenterLabel crossover;
       QuantumDualValueSliderWithCenterLabel strength;
       QuantumDualValueSliderWithCenterLabel threshold;
       QuantumDualValueSliderWithCenterLabel attack;
       QuantumDualValueSliderWithCenterLabel release;
       QuantumDualValueSliderWithCenterLabel knee;
       QuantumDualValueSliderWithCenterLabel link;
+      QuantumDualValueSliderWithCenterLabel crossover;
       MultiBandCompressorLabels labelsMid;
       MultiBandCompressorValueMeters metersM;
       MultiBandCompressorValueMeters metersS;
@@ -492,13 +492,13 @@ class SoundsGoodUI : public UI,
       explicit MidSideCompressor(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
           : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
             labelsTop(&frame, theme),
-            crossover(&frame, theme),
             strength(&frame, theme),
             threshold(&frame, theme),
             attack(&frame, theme),
             release(&frame, theme),
             knee(&frame, theme),
             link(&frame, theme),
+            crossover(&frame, theme),
             labelsMid(&frame, theme),
             metersM(&frame, theme),
             metersS(&frame, theme),
@@ -521,13 +521,13 @@ class SoundsGoodUI : public UI,
           labelsTop.labelR.setLabel("High");
           items.push_back(&labelsTop);
 
-          setupDualSlider(crossover, cb, kParameter_mscomp_low_crossover, idOffset, 4);
           setupDualSlider(strength, cb, kParameter_mscomp_low_strength, idOffset, 4);
           setupDualSlider(threshold, cb, kParameter_mscomp_low_threshold, idOffset, 4);
           setupDualSlider(attack, cb, kParameter_mscomp_low_attack, idOffset, 4);
           setupDualSlider(release, cb, kParameter_mscomp_low_release, idOffset, 4);
           setupDualSlider(knee, cb, kParameter_mscomp_low_knee, idOffset, 4);
           setupDualSlider(link, cb, kParameter_mscomp_low_link, idOffset, 4);
+          setupDualSlider(crossover, cb, kParameter_mscomp_low_crossover, idOffset, 4);
 
           labelsMid.label1.setLabel("1");
           labelsMid.label2.setLabel("2");
@@ -559,13 +559,13 @@ class SoundsGoodUI : public UI,
           const Size<uint> labelsTopSize(metrics.valueSlider.getWidth(), theme.textHeight);
           labelsTop.labelL.setSize(labelsTopSize);
           labelsTop.labelR.setSize(labelsTopSize);
-          crossover.adjustSize(metrics);
           strength.adjustSize(metrics);
           threshold.adjustSize(metrics);
           attack.adjustSize(metrics);
           release.adjustSize(metrics);
           knee.adjustSize(metrics);
           link.adjustSize(metrics);
+          crossover.adjustSize(metrics);
           const Size<uint> labelsMidSize(metrics.valueMeterVertical.getWidth(), theme.textHeight);
           labelsMid.label1.setSize(labelsMidSize);
           labelsMid.label2.setSize(labelsMidSize);
@@ -857,6 +857,7 @@ class SoundsGoodUI : public UI,
       {
           b.button.setCallback(bcb);
           b.button.setCheckable(true);
+          b.button.setId(10003);
           b.button.setLabel(label);
           b.button.setName(label);
           b.label.setLabel(description);
@@ -911,16 +912,19 @@ public:
     // setup widget properties
     easyModeButton.setCallback(this);
     easyModeButton.setCheckable(true);
+    easyModeButton.setId(10001);
     easyModeButton.setLabel("Easy");
     easyModeButton.setName("Easy Mode Button");
 
     expertModeButton.setCallback(this);
     expertModeButton.setCheckable(true);
+    expertModeButton.setId(10002);
     expertModeButton.setLabel("Expert");
     expertModeButton.setName("Expert Mode Button");
 
     globalEnableButton.setCallback(this);
     globalEnableButton.setCheckable(true);
+    globalEnableButton.setChecked(kParameterRanges[kParameter_global_bypass].def, false);
     globalEnableButton.setId(kParameter_global_bypass);
     globalEnableButton.setLabel("Enable");
     globalEnableButton.setName("Global Enable Button");
@@ -1394,52 +1398,49 @@ protected:
 
   void buttonClicked(SubWidget* const widget, int) override
   {
-      if (const uint id = widget->getId())
+      const uint id = widget->getId();
+
+      QuantumSwitch* const qswitch = reinterpret_cast<QuantumSwitch*>(widget);
+      DISTRHO_SAFE_ASSERT_RETURN(qswitch != nullptr,);
+
+      const bool enabled = qswitch->isChecked();
+
+      switch (id)
       {
-          QuantumSwitch* const qswitch = reinterpret_cast<QuantumSwitch*>(widget);
-          DISTRHO_SAFE_ASSERT_RETURN(qswitch != nullptr,);
-
-          const bool enabled = qswitch->isChecked();
-
-          switch (id)
-          {
-          // bypass switches, inverted operation
-          case kParameter_global_bypass:
-              reportGroupBypassChanged(id, enabled);
-              break;
-          case kParameter_gate_bypass:
-              gate.setEnabledColor(enabled);
-              reportGroupBypassChanged(id, enabled);
-              break;
-          case kParameter_leveler_bypass:
-              leveler.setEnabledColor(enabled);
-              reportGroupBypassChanged(id, enabled);
-              break;
-          case kParameter_eq_bypass:
-              eq.setEnabledColor(enabled);
-              reportGroupBypassChanged(id, enabled);
-              break;
-          case kParameter_kneecomp_bypass:
-              kneeComp.setEnabledColor(enabled);
-              reportGroupBypassChanged(id, enabled);
-              break;
-          case kParameter_mscomp_bypass:
-              msCompressor.setEnabledColor(enabled);
-              reportGroupBypassChanged(id, enabled);
-              break;
-          case kParameter_limiter_bypass:
-              limiter.setEnabledColor(enabled);
-              reportGroupBypassChanged(id, enabled);
-              break;
-          // regular switches, normal operation
-          case kParameter_mono:
-              editParameter(id, true);
-              setParameterValue(id, qswitch->isChecked() ? 1.f : 0.f);
-              editParameter(id, false);
-              break;
-          }
-
-          return;
+      // bypass switches, inverted operation
+      case kParameter_global_bypass:
+          reportGroupBypassChanged(id, enabled);
+          break;
+      case kParameter_gate_bypass:
+          gate.setEnabledColor(enabled);
+          reportGroupBypassChanged(id, enabled);
+          break;
+      case kParameter_leveler_bypass:
+          leveler.setEnabledColor(enabled);
+          reportGroupBypassChanged(id, enabled);
+          break;
+      case kParameter_eq_bypass:
+          eq.setEnabledColor(enabled);
+          reportGroupBypassChanged(id, enabled);
+          break;
+      case kParameter_kneecomp_bypass:
+          kneeComp.setEnabledColor(enabled);
+          reportGroupBypassChanged(id, enabled);
+          break;
+      case kParameter_mscomp_bypass:
+          msCompressor.setEnabledColor(enabled);
+          reportGroupBypassChanged(id, enabled);
+          break;
+      case kParameter_limiter_bypass:
+          limiter.setEnabledColor(enabled);
+          reportGroupBypassChanged(id, enabled);
+          break;
+      // regular switches, normal operation
+      case kParameter_mono:
+          editParameter(id, true);
+          setParameterValue(id, qswitch->isChecked() ? 1.f : 0.f);
+          editParameter(id, false);
+          break;
       }
 
       if (widget == &easyModeButton)
