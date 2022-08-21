@@ -29,32 +29,76 @@ struct InputMeterGroup : QuantumFrame
 {
     const QuantumTheme& theme;
 
+    QuantumLevelMeter meterL;
+    QuantumLevelMeter meterR;
+    QuantumSpacer spacer;
     QuantumLevelMeter meterLufs;
     QuantumMixerSlider slider;
     QuantumLevelMeter meterGain;
 
-    explicit InputMeterGroup(TopLevelWidget* const parent, const QuantumTheme& t)
+    explicit InputMeterGroup(TopLevelWidget* const parent, KnobEventHandler::Callback* const cb, const QuantumTheme& t)
         : QuantumFrame(parent, t),
           theme(t),
-          meterLufs(parent, t),
-          slider(parent, t),
-          meterGain(parent, t) {}
+          meterL(this, t),
+          meterR(this, t),
+          spacer(this),
+          meterLufs(this, t),
+          slider(this, t),
+          meterGain(this, t)
+    {
+        setName("Inputs");
+
+        meterL.setId(kParameter_peakmeter_in_l);
+        meterL.setName("In L");
+        meterL.setRange(kParameterRanges[kParameter_peakmeter_in_l].min, kParameterRanges[kParameter_peakmeter_in_l].max);
+        meterL.setValue(kParameterRanges[kParameter_peakmeter_in_l].def);
+
+        meterR.setId(kParameter_peakmeter_in_r);
+        meterR.setName("In R");
+        meterR.setRange(kParameterRanges[kParameter_peakmeter_in_r].min, kParameterRanges[kParameter_peakmeter_in_r].max);
+        meterR.setValue(kParameterRanges[kParameter_peakmeter_in_r].def);
+
+        spacer.setName("Spacer");
+
+        meterLufs.setId(kParameter_lufs_in);
+        meterLufs.setName("Lufs");
+        meterLufs.setRange(kParameterRanges[kParameter_lufs_in].min, kParameterRanges[kParameter_lufs_in].max);
+        meterLufs.setValue(kParameterRanges[kParameter_lufs_in].def);
+
+        slider.setCallback(cb);
+        slider.setId(kParameter_target);
+        slider.setName("Target");
+        slider.setRange(kParameterRanges[kParameter_target].min, kParameterRanges[kParameter_target].max);
+        slider.setValue(kParameterRanges[kParameter_target].def, false);
+
+        meterGain.setId(kParameter_leveler_gain);
+        meterGain.setName("Leveler gain");
+        meterGain.setRange(kParameterRanges[kParameter_leveler_gain].min, kParameterRanges[kParameter_leveler_gain].max);
+        meterGain.setValue(kParameterRanges[kParameter_leveler_gain].def);
+    }
 
     void adjustSize(const SoundsGoodMetrics& metrics, const uint height)
     {
-        meterLufs.setSize(metrics.valueMeterVertical.getWidth(), height);
-        slider.setSize(metrics.valueMeterVertical.getWidth(), height); // TODO mixer slider metric
-        meterGain.setSize(metrics.valueMeterVertical.getWidth(), height);
-        setSize(meterLufs.getWidth() + slider.getWidth() + meterGain.getWidth() + theme.borderSize * 2 + theme.padding * 5,
-                height + theme.borderSize * 2 + theme.padding * 5);
+        const uint usableHeight = height - theme.borderSize * 2 - theme.padding * 2;
+        meterL.setSize(metrics.valueMeterVertical.getWidth(), usableHeight);
+        meterR.setSize(metrics.valueMeterVertical.getWidth(), usableHeight);
+        spacer.setSize(theme.borderSize + theme.padding * 2, usableHeight);
+        meterLufs.setSize(metrics.valueMeterVertical.getWidth(), usableHeight);
+        slider.setSize(metrics.valueMeterVertical.getWidth(), usableHeight); // TODO mixer slider metric
+        meterGain.setSize(metrics.valueMeterVertical.getWidth(), usableHeight);
+        setSize(meterL.getWidth() + meterR.getWidth() + meterLufs.getWidth() + spacer.getWidth() + slider.getWidth() + meterGain.getWidth() + theme.borderSize * 3 + theme.padding * 7,
+                height);
     }
 
     void setAbsolutePos(const int x, const int y)
     {
         QuantumFrame::setAbsolutePos(x, y);
-        meterLufs.setAbsolutePos(x + theme.borderSize + theme.padding, y + theme.borderSize + theme.padding);
-        slider.setAbsolutePos(meterLufs.getAbsoluteX() + meterLufs.getWidth() + theme.padding, y + theme.borderSize + theme.padding);
-        meterGain.setAbsolutePos(slider.getAbsoluteX() + slider.getWidth() + theme.padding, y + theme.borderSize + theme.padding);
+        meterL.setAbsolutePos(x + theme.borderSize + theme.padding, y + theme.borderSize + theme.padding);
+        meterR.setAbsolutePos(meterL.getAbsoluteX() + meterL.getWidth() + theme.padding, meterL.getAbsoluteY());
+        spacer.setAbsolutePos(meterR.getAbsoluteX() + meterR.getWidth() + theme.padding, meterL.getAbsoluteY());
+        meterLufs.setAbsolutePos(spacer.getAbsoluteX() + spacer.getWidth() + theme.padding, meterL.getAbsoluteY());
+        slider.setAbsolutePos(meterLufs.getAbsoluteX() + meterLufs.getWidth() + theme.padding, meterL.getAbsoluteY());
+        meterGain.setAbsolutePos(slider.getAbsoluteX() + slider.getWidth() + theme.padding, meterL.getAbsoluteY());
     }
 };
 
@@ -63,24 +107,54 @@ struct OutputMeterGroup : QuantumFrame
 {
     const QuantumTheme& theme;
 
-    QuantumLevelMeter meter;
+    QuantumLevelMeter meterLufs;
+    QuantumSpacer spacer;
+    QuantumLevelMeter meterL;
+    QuantumLevelMeter meterR;
 
     explicit OutputMeterGroup(TopLevelWidget* const parent, const QuantumTheme& t)
         : QuantumFrame(parent, t),
           theme(t),
-          meter(parent, t) {}
+          meterLufs(this, t),
+          spacer(this),
+          meterL(this, t),
+          meterR(this, t)
+    {
+        setName("Outputs");
+
+        meterLufs.setId(kParameter_lufs_out);
+        meterLufs.setName("Lufs");
+        meterLufs.setRange(kParameterRanges[kParameter_lufs_out].min, kParameterRanges[kParameter_lufs_out].max);
+        meterLufs.setValue(kParameterRanges[kParameter_lufs_out].def);
+
+        meterL.setId(kParameter_peakmeter_out_l);
+        meterL.setName("Out L");
+        meterL.setRange(kParameterRanges[kParameter_peakmeter_out_l].min, kParameterRanges[kParameter_peakmeter_out_l].max);
+        meterL.setValue(kParameterRanges[kParameter_peakmeter_out_l].def);
+
+        meterR.setId(kParameter_peakmeter_out_r);
+        meterR.setName("Out R");
+        meterR.setRange(kParameterRanges[kParameter_peakmeter_out_r].min, kParameterRanges[kParameter_peakmeter_out_r].max);
+        meterR.setValue(kParameterRanges[kParameter_peakmeter_out_r].def);
+    }
 
     void adjustSize(const SoundsGoodMetrics& metrics, const uint height)
     {
-        meter.setSize(metrics.valueMeterVertical.getWidth(), height);
-        setSize(meter.getWidth() + theme.borderSize * 2 + theme.padding * 2,
-                height + theme.borderSize * 2 + theme.padding * 5);
+        const uint usableHeight = height - theme.borderSize * 2 - theme.padding * 2;
+        meterLufs.setSize(metrics.valueMeterVertical.getWidth(), usableHeight);
+        spacer.setSize(theme.borderSize + theme.padding * 2, usableHeight);
+        meterL.setSize(metrics.valueMeterVertical.getWidth(), usableHeight);
+        meterR.setSize(metrics.valueMeterVertical.getWidth(), usableHeight);
+        setSize(meterLufs.getWidth() + meterL.getWidth() + meterR.getWidth() + theme.borderSize * 3 + theme.padding * 7, height);
     }
 
     void setAbsolutePos(const int x, const int y)
     {
         QuantumFrame::setAbsolutePos(x, y);
-        meter.setAbsolutePos(x + theme.borderSize + theme.padding, y + theme.borderSize + theme.padding);
+        meterLufs.setAbsolutePos(x + theme.borderSize + theme.padding, y + theme.borderSize + theme.padding);
+        spacer.setAbsolutePos(meterLufs.getAbsoluteX() + meterLufs.getWidth() + theme.padding, meterL.getAbsoluteY());
+        meterL.setAbsolutePos(spacer.getAbsoluteX() + spacer.getWidth() + theme.padding, meterLufs.getAbsoluteY());
+        meterR.setAbsolutePos(meterL.getAbsoluteX() + meterL.getWidth() + theme.padding, meterLufs.getAbsoluteY());
     }
 };
 
@@ -90,8 +164,8 @@ class SoundsGoodUI : public UI,
                      public ButtonEventHandler::Callback,
                      public KnobEventHandler::Callback
 {
-  static const uint kInitialWidth = 1201;
-  static const uint kInitialHeight = 760;
+  static const uint kInitialWidth = 1200;
+  static const uint kInitialHeight = 770;
 
   ScopedPointer<InspectorWindow> inspectorWindow;
 
@@ -101,14 +175,16 @@ class SoundsGoodUI : public UI,
   QuantumButton easyModeButton;
   QuantumButton expertModeButton;
 
+  // global bypass
+  QuantumButton globalEnableButton;
+
   // group of widgets
   InputMeterGroup inputGroup;
   QuantumFrame contentGroup;
   OutputMeterGroup outputGroup;
-  QuantumFrame presetGroup;
 
   // easy mode labels
-  QuantumValueMeter17 easyMetering;
+  QuantumValueMeter18 easyMetering;
   QuantumLabel welcomeLabel;
 
   struct PreProcessing : SoundsgoodParameterGroupWithoutBypassSwitch {
@@ -330,7 +406,6 @@ class SoundsGoodUI : public UI,
       QuantumValueSliderWithLabel fffb;
       QuantumValueSliderWithLabel makeup;
       QuantumValueSliderWithLabel drywet;
-      // TODO meters here??
 
       explicit KneeCompressor(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
           : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
@@ -754,18 +829,75 @@ class SoundsGoodUI : public UI,
       &brickwall.frame,
   };
 
-  // preset buttons
-  std::vector<QuantumButton*> presetButtons;
+  struct PresetButtons : SoundsgoodPresetGroup {
+      QuantumButtonWithDescription b1, b2, b3, b4, b5;
+      std::vector<QuantumButton*> buttonList = {
+          &b1.button,
+          &b2.button,
+          &b3.button,
+          &b4.button,
+          &b5.button,
+      };
+
+      PresetButtons(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, const QuantumTheme& theme)
+          : SoundsgoodPresetGroup(parent, theme),
+            b1(&frame, theme),
+            b2(&frame, theme),
+            b3(&frame, theme),
+            b4(&frame, theme),
+            b5(&frame, theme)
+      {
+          frame.setName("Easy Presets");
+          frame.mainWidget.setLabel("Easy Presets");
+          setupButton(b1, bcb, "Speech Mild", "Use this for regular speech");
+          setupButton(b2, bcb, "Speech Medium", "Use this for regular speech");
+          setupButton(b3, bcb, "Speech Heavy", "Use this for loud speech");
+          setupButton(b4, bcb, "Music Mild", "For regular music");
+          setupButton(b5, bcb, "Music Heavy", "For heavy, loud music");
+      }
+
+      void adjustSize(const QuantumMetrics& metrics)
+      {
+          b1.button.adjustSize();
+          b1.label.adjustSize();
+          b2.button.adjustSize();
+          b2.label.adjustSize();
+          b3.button.adjustSize();
+          b3.label.adjustSize();
+          b4.button.adjustSize();
+          b4.label.adjustSize();
+          b5.button.adjustSize();
+          b5.label.adjustSize();
+          const uint normalWidth = std::max(b1.button.getWidth(), std::max(b2.button.getWidth(), std::max(b3.button.getWidth(), std::max(b4.button.getWidth(), b5.button.getWidth()))));
+          b1.button.setWidth(normalWidth);
+          b2.button.setWidth(normalWidth);
+          b3.button.setWidth(normalWidth);
+          b4.button.setWidth(normalWidth);
+          b5.button.setWidth(normalWidth);
+          SoundsgoodPresetGroup::adjustSize(metrics);
+      }
+
+      inline void setupButton(QuantumButtonWithDescription& b, ButtonEventHandler::Callback* const bcb, const char* const label, const char* const description)
+      {
+          b.button.setCallback(bcb);
+          b.button.setCheckable(true);
+          b.button.setLabel(label);
+          b.button.setName(label);
+          b.label.setLabel(description);
+          b.label.setName(String(label) + " [description]");
+          items.push_back(&b);
+      }
+  } presetButtons;
 
 public:
   SoundsGoodUI()
       : UI(kInitialWidth, kInitialHeight),
         easyModeButton(this, theme),
         expertModeButton(this, theme),
-        inputGroup(this, theme),
+        globalEnableButton(this, theme),
+        inputGroup(this, this, theme),
         contentGroup(this, theme),
         outputGroup(this, theme),
-        presetGroup(this, theme),
         easyMetering(this, theme),
         welcomeLabel(this, theme),
         preProcessing(this, this, this, theme),
@@ -775,7 +907,8 @@ public:
         kneeComp(this, this, this, theme),
         msCompressor(this, this, this, theme),
         limiter(this, this, this, theme),
-        brickwall(this, this, theme)
+        brickwall(this, this, theme),
+        presetButtons(this, this, theme)
   {
     loadSharedResources();
 
@@ -785,6 +918,13 @@ public:
     {
         setSize(kInitialWidth * scaleFactor, kInitialHeight * scaleFactor);
         setGeometryConstraints(kInitialWidth * scaleFactor / 2, kInitialHeight * scaleFactor / 2, false);
+
+        theme.borderSize *= scaleFactor;
+        theme.padding *= scaleFactor;
+        theme.fontSize *= scaleFactor;
+        theme.textHeight *= scaleFactor;
+        theme.widgetLineSize *= scaleFactor;
+        theme.windowPadding *= scaleFactor;
     }
     else
     {
@@ -802,75 +942,38 @@ public:
     expertModeButton.setLabel("Expert");
     expertModeButton.setName("Expert Mode Button");
 
+    globalEnableButton.setCallback(this);
+    globalEnableButton.setCheckable(true);
+    globalEnableButton.setId(kParameter_global_bypass);
+    globalEnableButton.setLabel("Enable");
+    globalEnableButton.setName("Global Enable Button");
+
     inputGroup.setName("Input Group");
     contentGroup.setName("Content Group");
     outputGroup.setName("Output Group");
-    presetGroup.setName("Preset Group");
 
     easyMetering.setName("Easy metering for testing");
 
     static const char* const welcomeMessage = ""
         "Hi there,\n"
         "\n"
-        "soundsgood is an automatic mastering plugin for live-streamers, podcasters and alike.\n"
+        "soundsgood is an automatic mastering plugin for live-streamers,\n"
+        "podcasters and alike.\n"
         "\n"
         "You are currently in \"easy\" mode.\n"
-        "Select a preset below, set your desired target loudness and you're good to go.\n"
+        "Select a preset, set your desired target loudness and you're good to go.\n"
         "\n"
         "Hit \"expert\" above to see and tweak what is under the hood.\n"
         "\n"
         "Happy streaming!\n";
     welcomeLabel.setLabel(welcomeMessage);
     welcomeLabel.setName("Welcome Label");
-
-    inputGroup.setName("Input Group");
-    inputGroup.slider.setCallback(this);
-    inputGroup.slider.setId(kParameter_target);
-    inputGroup.slider.setName("Input Group slider");
-    inputGroup.slider.setRange(kParameterRanges[kParameter_target].min, kParameterRanges[kParameter_target].max);
-    inputGroup.slider.setValue(kParameterRanges[kParameter_target].def, false);
-
-    inputGroup.meterLufs.setId(kParameter_lufs_in);
-    inputGroup.meterLufs.setName("Input Group lufs meter");
-    inputGroup.meterLufs.setRange(kParameterRanges[kParameter_lufs_in].min, kParameterRanges[kParameter_lufs_in].max);
-    inputGroup.meterLufs.setValue(kParameterRanges[kParameter_lufs_in].def);
-
-    inputGroup.meterGain.setId(kParameter_leveler_gain);
-    inputGroup.meterGain.setName("Input Group gain meter");
-    inputGroup.meterGain.setRange(kParameterRanges[kParameter_leveler_gain].min, kParameterRanges[kParameter_leveler_gain].max);
-    inputGroup.meterGain.setValue(kParameterRanges[kParameter_leveler_gain].def);
-
-    outputGroup.setName("Output Group");
-    outputGroup.meter.setId(kParameter_lufs_out);
-    outputGroup.meter.setName("Output Meter");
-    outputGroup.meter.setRange(kParameterRanges[kParameter_lufs_out].min, kParameterRanges[kParameter_lufs_out].max);
-    outputGroup.meter.setValue(kParameterRanges[kParameter_lufs_out].def);
-
-    static const struct {
-        const char* const label;
-        const int presetId;
-    } presetButtonsInfo[] = {
-        { "Speech Mild", 0 },
-        { "Speech Medium", 1 },
-        { "Speech Heavy", 2 },
-        { "Music Mild", 3 },
-        { "Music Heavy", 4 },
-    };
-
-    for (auto presetInfo : presetButtonsInfo)
-    {
-        QuantumButton* const button = new QuantumButton(this, theme);
-        button->setCallback(this);
-        button->setCheckable(true);
-        button->setLabel(presetInfo.label);
-        button->setName(presetInfo.label);
-        presetButtons.push_back(button);
-    }
+    welcomeLabel.setAlignment(NanoVG::ALIGN_TOP|NanoVG::ALIGN_LEFT);
 
     // initial resize and reposition
     resizeWidgets(scaleFactor, getWidth(), getHeight());
 
-    // load initial state
+    // load initial state, easy mode is default
     easyModeButton.setChecked(true, false);
 
     for (NanoSubWidget* w : parameterGroups)
@@ -879,8 +982,6 @@ public:
 
   ~SoundsGoodUI() override
   {
-      for (QuantumButton* button : presetButtons)
-          delete button;
   }
 
   void repositionWidgets(const double scaleFactor)
@@ -888,7 +989,6 @@ public:
       const SoundsGoodMetrics metrics(theme);
 
       const uint width = getWidth();
-      const uint height = getHeight();
       const uint borderSize = theme.borderSize * scaleFactor;
       const uint padding = theme.padding * scaleFactor;
       const uint windowPadding = theme.windowPadding * scaleFactor;
@@ -897,12 +997,15 @@ public:
       inputGroup.setAbsolutePos(windowPadding, startY);
       contentGroup.setAbsolutePos(windowPadding + inputGroup.getWidth() + padding * 2, startY);
       outputGroup.setAbsolutePos(width - windowPadding - outputGroup.getWidth(), startY);
-      presetGroup.setAbsolutePos(windowPadding, height - windowPadding - presetGroup.getHeight());
+
+      presetButtons.setAbsolutePos(contentGroup.getAbsoluteX() + contentGroup.getWidth() - presetButtons.frame.getWidth() - borderSize - padding,
+                                   contentGroup.getAbsoluteY() + borderSize + padding);
 
       const uint inputAreaCenter = inputGroup.getWidth() / 2;
       const uint easyModeButtonOffset = inputAreaCenter - easyModeButton.getWidth() / 2;
       easyModeButton.setAbsolutePos(windowPadding + easyModeButtonOffset, windowPadding);
       expertModeButton.setAbsolutePos(contentGroup.getAbsoluteX() + easyModeButtonOffset, windowPadding);
+      globalEnableButton.setAbsolutePos(outputGroup.getAbsoluteX() - globalEnableButton.getWidth() * 2 - padding - easyModeButtonOffset, windowPadding);
 
       welcomeLabel.setAbsolutePos(contentGroup.getAbsoluteX() + borderSize + padding, startY + borderSize + padding);
       easyMetering.setAbsolutePos(contentGroup.getAbsoluteX() + contentGroup.getWidth() - easyMetering.getWidth() - padding,
@@ -922,14 +1025,6 @@ public:
       msCompressor.setAbsolutePos(kneeComp.frame.getAbsoluteX() + kneeComp.frame.getWidth() + padding, row2y);
       limiter.setAbsolutePos(msCompressor.frame.getAbsoluteX() + msCompressor.frame.getWidth() + padding, row2y);
       brickwall.setAbsolutePos(limiter.frame.getAbsoluteX() + limiter.frame.getWidth() + padding, row2y);
-
-      uint buttonIndex = 0;
-      for (QuantumButton* button : presetButtons)
-      {
-          button->setAbsolutePos(presetGroup.getAbsoluteX() + padding * 2 + (button->getWidth() + padding) * buttonIndex,
-                                 presetGroup.getAbsoluteY() + padding * 2);
-          ++buttonIndex;
-      }
   }
 
   void resizeWidgets(const double scaleFactor, const uint width, const uint height)
@@ -937,25 +1032,23 @@ public:
       const SoundsGoodMetrics metrics(theme);
 
       const uint padding = theme.padding * scaleFactor;
-      const uint buttonHeight = (theme.textHeight + theme.padding * 2) * scaleFactor;
       const uint borderSize = theme.borderSize * scaleFactor;
       const uint windowPadding = theme.windowPadding * scaleFactor;
-      const uint contentY = windowPadding * 2 + buttonHeight;
-      const uint presetGroupHeight = (buttonHeight + theme.padding * 4) * scaleFactor;
-      const uint contentHeight = height - windowPadding - contentY - presetGroupHeight - padding * 2;
-      // const uint switchesHeight = (theme.textHeight / 2 + theme.borderSize * 2) * scaleFactor;
-      // const uint slidersHeight = (theme.textHeight + theme.padding * 2) * scaleFactor;
+      const uint startY = windowPadding * 2 + metrics.button.getHeight();
+      const uint contentHeight = height - startY - windowPadding;
 
-      // TODO easy / expert buttons
-      // TODO preset buttons
+      easyModeButton.adjustSize();
+      expertModeButton.adjustSize();
+      globalEnableButton.adjustSize();
 
       inputGroup.adjustSize(metrics, contentHeight);
       outputGroup.adjustSize(metrics, contentHeight);
       contentGroup.setSize(width - windowPadding * 2 - padding * 4 - inputGroup.getWidth() - outputGroup.getWidth(), contentHeight);
-      presetGroup.setSize(width - windowPadding * 2, presetGroupHeight);
 
       welcomeLabel.setSize(contentGroup.getWidth() - borderSize * 2 - padding * 2, contentHeight - borderSize * 2 - padding * 2);
       easyMetering.setSize(300 * scaleFactor, contentGroup.getHeight() / 2 - padding);
+
+      presetButtons.adjustSize(metrics);
 
       preProcessing.adjustSize(metrics);
       gate.adjustSize(metrics);
@@ -965,11 +1058,6 @@ public:
       msCompressor.adjustSize(metrics);
       limiter.adjustSize(metrics);
       brickwall.adjustSize(metrics);
-
-      const uint presetButtonWidth = std::floor(double(presetGroup.getWidth() - padding * (2 + presetButtons.size())) / presetButtons.size());
-
-      for (QuantumButton* button : presetButtons)
-          button->setSize(presetButtonWidth, buttonHeight);
 
       repositionWidgets(scaleFactor);
   }
@@ -984,7 +1072,7 @@ protected:
     {
     // inputs
     case kParameter_global_bypass:
-      // TODO
+      globalEnableButton.setChecked(value < 0.5f, false);
       break;
     case kParameter_target:
       inputGroup.slider.setValue(value, false);
@@ -1170,6 +1258,12 @@ protected:
       brickwall.release.slider.setValue(value, false);
       break;
     // outputs
+    case kParameter_peakmeter_in_l:
+      inputGroup.meterL.setValue(value);
+      break;
+    case kParameter_peakmeter_in_r:
+      inputGroup.meterR.setValue(value);
+      break;
     case kParameter_lufs_in:
       inputGroup.meterLufs.setValue(value);
       break;
@@ -1177,7 +1271,13 @@ protected:
       inputGroup.meterGain.setValue(value);
       break;
     case kParameter_lufs_out:
-      outputGroup.meter.setValue(value);
+      outputGroup.meterLufs.setValue(value);
+      break;
+    case kParameter_peakmeter_out_l:
+      outputGroup.meterL.setValue(value);
+      break;
+    case kParameter_peakmeter_out_r:
+      outputGroup.meterR.setValue(value);
       break;
     case kParameter_leveler_gate:
       leveler.gate.meter.setValue(value);
@@ -1326,6 +1426,9 @@ protected:
           switch (id)
           {
           // bypass switches, inverted operation
+          case kParameter_global_bypass:
+              reportGroupBypassChanged(id, enabled);
+              break;
           case kParameter_gate_bypass:
               gate.setEnabledColor(enabled);
               reportGroupBypassChanged(id, enabled);
@@ -1368,6 +1471,7 @@ protected:
 
           easyMetering.show();
           welcomeLabel.show();
+          presetButtons.frame.show();
 
           for (NanoSubWidget* w : parameterGroups)
               w->hide();
@@ -1379,13 +1483,14 @@ protected:
 
           easyMetering.hide();
           welcomeLabel.hide();
+          presetButtons.frame.hide();
 
           for (NanoSubWidget* w : parameterGroups)
               w->show();
       }
-      else if (std::find(presetButtons.begin(), presetButtons.end(), widget) != presetButtons.end())
+      else if (std::find(presetButtons.buttonList.begin(), presetButtons.buttonList.end(), widget) != presetButtons.buttonList.end())
       {
-          for (QuantumButton* button : presetButtons)
+          for (QuantumButton* button : presetButtons.buttonList)
               button->setChecked(button == widget, false);
       }
   }

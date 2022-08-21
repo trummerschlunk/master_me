@@ -124,6 +124,39 @@ typedef SoundsgoodParameterGroup<QuantumFrameWithSwitch> SoundsgoodParameterGrou
 
 // --------------------------------------------------------------------------------------------------------------------
 
+struct SoundsgoodPresetGroup : VerticallyStackedHorizontalLayout
+{
+    const QuantumTheme& theme;
+    QuantumFrameWithLabel frame;
+
+    explicit SoundsgoodPresetGroup(TopLevelWidget* const parent, const QuantumTheme& t)
+        : theme(t),
+          frame(parent, t) {}
+
+    virtual void adjustSize(const QuantumMetrics& metrics)
+    {
+        // adjust size of frame contents
+        Size<uint> frameSize = VerticallyStackedHorizontalLayout::adjustSize(theme.padding);
+        frameSize += metrics.frame;
+
+        // adjust frame extra widget
+        frame.adjustMainWidgetSize();
+
+        // adjust size now
+        frame.setSize(frameSize.getWidth(), frameSize.getHeight() + frame.getOffset() + theme.padding);
+    }
+
+    void setAbsolutePos(const int x, const int y)
+    {
+        // move frame
+        frame.setAbsolutePos(x, y);
+        // move children
+        VerticallyStackedHorizontalLayout::setAbsolutePos(frame.getAbsoluteX() + theme.borderSize + theme.padding,
+                                                          frame.getAbsoluteY() + frame.getOffset() + theme.borderSize + theme.padding,
+                                                          theme.padding);
+    }
+};
+
 // --------------------------------------------------------------------------------------------------------------------
 
 END_NAMESPACE_DGL
