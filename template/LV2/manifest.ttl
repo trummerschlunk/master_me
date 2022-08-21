@@ -10,6 +10,6 @@
 {% if uitype is defined %}
 <{{lv2uri}}#DPF_UI>
     a ui:{{uitype}}UI ;
-    ui:binary <{{binary_name}}_ui.dylib> ;
+    ui:binary <{{binary_name}}_ui{{libext}}> ;
     rdfs:seeAlso <ui.ttl> .
 {% endif %}
