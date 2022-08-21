@@ -166,8 +166,8 @@ class SoundsGoodUI : public UI,
                      public ButtonEventHandler::Callback,
                      public KnobEventHandler::Callback
 {
-  static const uint kInitialWidth = 1200;
-  static const uint kInitialHeight = 770;
+  static const uint kInitialWidth = 1000;
+  static const uint kInitialHeight = 600;
 
   ScopedPointer<InspectorWindow> inspectorWindow;
 
@@ -219,12 +219,12 @@ class SoundsGoodUI : public UI,
 
       void adjustSize(const QuantumMetrics& metrics) override
       {
-          inputGain.slider.setSize(metrics.valueSlider);
-          mono.switch_.adjustSize();
-          phaseL.switch_.adjustSize();
-          phaseR.switch_.adjustSize();
-          dcBlocker.switch_.adjustSize();
-          stereoCorrect.switch_.adjustSize();
+          inputGain.adjustSize(metrics);
+          mono.adjustSize();
+          phaseL.adjustSize();
+          phaseR.adjustSize();
+          dcBlocker.adjustSize();
+          stereoCorrect.adjustSize();
           SoundsgoodParameterGroupWithoutBypassSwitch::adjustSize(metrics);
       }
   } preProcessing;
@@ -255,10 +255,10 @@ class SoundsGoodUI : public UI,
 
       void adjustSize(const QuantumMetrics& metrics) override
       {
-          threshold.slider.setSize(metrics.valueSlider);
-          attack.slider.setSize(metrics.valueSlider);
-          hold.slider.setSize(metrics.valueSlider);
-          release.slider.setSize(metrics.valueSlider);
+          threshold.adjustSize(metrics);
+          attack.adjustSize(metrics);
+          hold.adjustSize(metrics);
+          release.adjustSize(metrics);
           SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
 
@@ -309,12 +309,12 @@ class SoundsGoodUI : public UI,
 
       void adjustSize(const QuantumMetrics& metrics) override
       {
-          speed.slider.setSize(metrics.valueSlider);
-          threshold.slider.setSize(metrics.valueSlider);
-          max_plus.slider.setSize(metrics.valueSlider);
-          max_minus.slider.setSize(metrics.valueSlider);
-          separator.label.adjustSize();
-          gate.meter.setSize(metrics.valueMeterHorizontal);
+          speed.adjustSize(metrics);
+          threshold.adjustSize(metrics);
+          max_plus.adjustSize(metrics);
+          max_minus.adjustSize(metrics);
+          separator.adjustSize(metrics);
+          gate.adjustSize(metrics);
           SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
 
@@ -370,13 +370,13 @@ class SoundsGoodUI : public UI,
 
       void adjustSize(const QuantumMetrics& metrics) override
       {
-          highpass.slider.setSize(metrics.valueSlider);
-          tilt.label.adjustSize();
-          tilt_gain.slider.setSize(metrics.valueSlider);
-          side.label.adjustSize();
-          side_gain.slider.setSize(metrics.valueSlider);
-          side_freq.slider.setSize(metrics.valueSlider);
-          side_bandwidth.slider.setSize(metrics.valueSlider);
+          highpass.adjustSize(metrics);
+          tilt.adjustSize(metrics);
+          tilt_gain.adjustSize(metrics);
+          side.adjustSize(metrics);
+          side_gain.adjustSize(metrics);
+          side_freq.adjustSize(metrics);
+          side_bandwidth.adjustSize(metrics);
           SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
 
@@ -439,15 +439,15 @@ class SoundsGoodUI : public UI,
 
       void adjustSize(const QuantumMetrics& metrics) override
       {
-          strength.slider.setSize(metrics.valueSlider);
-          threshold.slider.setSize(metrics.valueSlider);
-          attack.slider.setSize(metrics.valueSlider);
-          release.slider.setSize(metrics.valueSlider);
-          knee.slider.setSize(metrics.valueSlider);
-          link.slider.setSize(metrics.valueSlider);
-          fffb.slider.setSize(metrics.valueSlider);
-          makeup.slider.setSize(metrics.valueSlider);
-          drywet.slider.setSize(metrics.valueSlider);
+          strength.adjustSize(metrics);
+          threshold.adjustSize(metrics);
+          attack.adjustSize(metrics);
+          release.adjustSize(metrics);
+          knee.adjustSize(metrics);
+          link.adjustSize(metrics);
+          fffb.adjustSize(metrics);
+          makeup.adjustSize(metrics);
+          drywet.adjustSize(metrics);
           SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
 
@@ -559,20 +559,13 @@ class SoundsGoodUI : public UI,
           const Size<uint> labelsTopSize(metrics.valueSlider.getWidth(), theme.textHeight);
           labelsTop.labelL.setSize(labelsTopSize);
           labelsTop.labelR.setSize(labelsTopSize);
-          crossover.sliderL.setSize(metrics.valueSlider);
-          crossover.sliderR.setSize(metrics.valueSlider);
-          strength.sliderL.setSize(metrics.valueSlider);
-          strength.sliderR.setSize(metrics.valueSlider);
-          threshold.sliderL.setSize(metrics.valueSlider);
-          threshold.sliderR.setSize(metrics.valueSlider);
-          attack.sliderL.setSize(metrics.valueSlider);
-          attack.sliderR.setSize(metrics.valueSlider);
-          release.sliderL.setSize(metrics.valueSlider);
-          release.sliderR.setSize(metrics.valueSlider);
-          knee.sliderL.setSize(metrics.valueSlider);
-          knee.sliderR.setSize(metrics.valueSlider);
-          link.sliderL.setSize(metrics.valueSlider);
-          link.sliderR.setSize(metrics.valueSlider);
+          crossover.adjustSize(metrics);
+          strength.adjustSize(metrics);
+          threshold.adjustSize(metrics);
+          attack.adjustSize(metrics);
+          release.adjustSize(metrics);
+          knee.adjustSize(metrics);
+          link.adjustSize(metrics);
           const Size<uint> labelsMidSize(metrics.valueMeterVertical.getWidth(), theme.textHeight);
           labelsMid.label1.setSize(labelsMidSize);
           labelsMid.label2.setSize(labelsMidSize);
@@ -583,28 +576,9 @@ class SoundsGoodUI : public UI,
           labelsMid.label7.setSize(labelsMidSize);
           labelsMid.label8.setSize(labelsMidSize);
           labelsMid.label9.setSize(labelsMidSize);
-          metersM.label.adjustSize();
-          metersS.label.adjustSize();
-          metersM.m1.setSize(metrics.valueMeterVertical);
-          metersM.m2.setSize(metrics.valueMeterVertical);
-          metersM.m3.setSize(metrics.valueMeterVertical);
-          metersM.m4.setSize(metrics.valueMeterVertical);
-          metersM.m5.setSize(metrics.valueMeterVertical);
-          metersM.m6.setSize(metrics.valueMeterVertical);
-          metersM.m7.setSize(metrics.valueMeterVertical);
-          metersM.m8.setSize(metrics.valueMeterVertical);
-          metersM.m9.setSize(metrics.valueMeterVertical);
-          metersS.m1.setSize(metrics.valueMeterVertical);
-          metersS.m2.setSize(metrics.valueMeterVertical);
-          metersS.m3.setSize(metrics.valueMeterVertical);
-          metersS.m4.setSize(metrics.valueMeterVertical);
-          metersS.m5.setSize(metrics.valueMeterVertical);
-          metersS.m6.setSize(metrics.valueMeterVertical);
-          metersS.m7.setSize(metrics.valueMeterVertical);
-          metersS.m8.setSize(metrics.valueMeterVertical);
-          metersS.m9.setSize(metrics.valueMeterVertical);
-          outputGain.fixedSpace.setSize(metrics.valueSlider);
-          outputGain.slider.setSize(metrics.valueSlider);
+          metersM.adjustSize(metrics);
+          metersS.adjustSize(metrics);
+          outputGain.adjustSize(metrics);
           SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
 
@@ -757,15 +731,15 @@ class SoundsGoodUI : public UI,
 
       void adjustSize(const QuantumMetrics& metrics) override
       {
-          strength.slider.setSize(metrics.valueSlider);
-          threshold.slider.setSize(metrics.valueSlider);
-          attack.slider.setSize(metrics.valueSlider);
-          release.slider.setSize(metrics.valueSlider);
-          fffb.slider.setSize(metrics.valueSlider);
-          knee.slider.setSize(metrics.valueSlider);
-          makeup.slider.setSize(metrics.valueSlider);
-          separator.label.adjustSize();
-          gainReduction.meter.setSize(metrics.valueMeterHorizontal);
+          strength.adjustSize(metrics);
+          threshold.adjustSize(metrics);
+          attack.adjustSize(metrics);
+          release.adjustSize(metrics);
+          fffb.adjustSize(metrics);
+          knee.adjustSize(metrics);
+          makeup.adjustSize(metrics);
+          separator.adjustSize(metrics);
+          gainReduction.adjustSize(metrics);
           SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
 
@@ -813,9 +787,9 @@ class SoundsGoodUI : public UI,
 
       void adjustSize(const QuantumMetrics& metrics) override
       {
-          ceiling.slider.setSize(metrics.valueSlider);
-          release.slider.setSize(metrics.valueSlider);
-          limit.meter.setSize(metrics.valueMeterHorizontal);
+          ceiling.adjustSize(metrics);
+          release.adjustSize(metrics);
+          limit.adjustSize(metrics);
           SoundsgoodParameterGroupWithoutBypassSwitch::adjustSize(metrics);
       }
   } brickwall;
@@ -927,6 +901,7 @@ public:
         theme.textHeight *= scaleFactor;
         theme.widgetLineSize *= scaleFactor;
         theme.windowPadding *= scaleFactor;
+        theme.textPixelRatioWidthCompensation = static_cast<uint>(scaleFactor - 1.0 + 0.25);
     }
     else
     {
@@ -1373,8 +1348,7 @@ protected:
 
   void onNanoDisplay() override
   {
-      const double scaleFactor = getScaleFactor();
-      const uint windowPadding = theme.windowPadding * scaleFactor;
+      const uint windowPadding = theme.windowPadding;
 
       beginPath();
       rect(0, 0, getWidth(), getHeight());
@@ -1382,9 +1356,11 @@ protected:
       fill();
 
       fillColor(theme.textLightColor);
-      fontSize(theme.fontSize * 2 * scaleFactor);
-      textAlign(ALIGN_RIGHT|ALIGN_TOP);
-      text(getWidth() - windowPadding - theme.padding * scaleFactor, windowPadding, "soundsgood", nullptr);
+      fontSize(theme.fontSize * 2);
+      textAlign(ALIGN_RIGHT|ALIGN_MIDDLE);
+      text(getWidth() - windowPadding - theme.padding,
+           globalEnableButton.getAbsoluteY() + globalEnableButton.getHeight() / 2,
+           "soundsgood", nullptr);
   }
 
   bool onMouse(const MouseEvent &ev) override {

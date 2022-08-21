@@ -24,6 +24,12 @@ struct QuantumButtonWithDescription : HorizontalLayout
         widgets.push_back({ &button, Fixed });
         widgets.push_back({ &label, Expanding });
     }
+
+    void adjustSize()
+    {
+        button.adjustSize();
+        label.adjustSize();
+    }
 };
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -44,6 +50,12 @@ struct QuantumLabelWithSeparatorLine : HorizontalLayout
         widgets.push_back({ &label, Fixed });
         widgets.push_back({ &separator2, Expanding });
     }
+
+    void adjustSize(const QuantumMetrics& metrics)
+    {
+        separator1.setSize(metrics.separator);
+        label.adjustSize();
+    }
 };
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -61,6 +73,12 @@ struct QuantumValueMeterWithLabel : HorizontalLayout
         widgets.push_back({ &meter, Fixed });
         widgets.push_back({ &label, Expanding });
     }
+
+    void adjustSize(const QuantumMetrics& metrics)
+    {
+        meter.setSize(metrics.valueMeterHorizontal);
+        label.adjustSize();
+    }
 };
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -77,6 +95,12 @@ struct QuantumValueSliderWithLabel : HorizontalLayout
     {
         widgets.push_back({ &slider, Fixed });
         widgets.push_back({ &label, Expanding });
+    }
+
+    void adjustSize(const QuantumMetrics& metrics)
+    {
+        slider.setSize(metrics.valueSlider);
+        label.adjustSize();
     }
 };
 
@@ -101,6 +125,12 @@ struct QuantumDualLabelWithCenterSpacer : HorizontalLayout
         widgets.push_back({ &spacer, Expanding });
         widgets.push_back({ &labelR, Fixed });
     }
+
+    void adjustSize()
+    {
+        labelL.adjustSize();
+        labelR.adjustSize();
+    }
 };
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -123,6 +153,13 @@ struct QuantumDualValueSliderWithCenterLabel : HorizontalLayout
         widgets.push_back({ &label, Expanding });
         widgets.push_back({ &sliderR, Fixed });
     }
+
+    void adjustSize(const QuantumMetrics& metrics)
+    {
+        sliderL.setSize(metrics.valueSlider);
+        label.adjustSize();
+        sliderR.setSize(metrics.valueSlider);
+    }
 };
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -136,6 +173,11 @@ struct QuantumSingleSwitch : HorizontalLayout
         : switch_(parent, theme)
     {
         widgets.push_back({ &switch_, Expanding });
+    }
+
+    void adjustSize()
+    {
+        switch_.adjustSize();
     }
 };
 
@@ -158,6 +200,13 @@ struct MultiBandCompressorOutputGainGroup : HorizontalLayout
         widgets.push_back({ &fixedSpace, Fixed });
         widgets.push_back({ &label, Expanding });
         widgets.push_back({ &slider, Fixed });
+    }
+
+    void adjustSize(const QuantumMetrics& metrics)
+    {
+        fixedSpace.setSize(metrics.valueSlider);
+        label.adjustSize();
+        slider.setSize(metrics.valueSlider);
     }
 };
 
@@ -204,6 +253,19 @@ struct MultiBandCompressorLabels : HorizontalLayout
         widgets.push_back({ &label8, Fixed });
         widgets.push_back({ &label9, Fixed });
         widgets.push_back({ &spacer2, Expanding });
+    }
+
+    void adjustSize()
+    {
+        label1.adjustSize();
+        label2.adjustSize();
+        label3.adjustSize();
+        label4.adjustSize();
+        label5.adjustSize();
+        label6.adjustSize();
+        label7.adjustSize();
+        label8.adjustSize();
+        label9.adjustSize();
     }
 };
 
@@ -252,6 +314,20 @@ struct MultiBandCompressorValueMeters : HorizontalLayout
         widgets.push_back({ &m8, Fixed });
         widgets.push_back({ &m9, Fixed });
         widgets.push_back({ &spacer, Expanding });
+    }
+
+    void adjustSize(const QuantumMetrics& metrics)
+    {
+        label.adjustSize();
+        m1.setSize(metrics.valueMeterVertical);
+        m2.setSize(metrics.valueMeterVertical);
+        m3.setSize(metrics.valueMeterVertical);
+        m4.setSize(metrics.valueMeterVertical);
+        m5.setSize(metrics.valueMeterVertical);
+        m6.setSize(metrics.valueMeterVertical);
+        m7.setSize(metrics.valueMeterVertical);
+        m8.setSize(metrics.valueMeterVertical);
+        m9.setSize(metrics.valueMeterVertical);
     }
 };
 
