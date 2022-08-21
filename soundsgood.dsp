@@ -222,7 +222,7 @@ with {
     leveler_gate_thresh = vslider("v:soundsgood/t:expert/h:[3]leveler/[5]leveler gate threshold[unit:dB][symbol:leveler_gate_threshold]", init_leveler_gatethreshold,-90,0,1);
     limit_pos = vslider("v:soundsgood/t:expert/h:[3]leveler/[7]leveler max +[symbol:leveler_max_plus]", init_leveler_maxboost, 0, 60, 1);
     limit_neg = vslider("v:soundsgood/t:expert/h:[3]leveler/[8]leveler max -[symbol:leveler_max_minus]", init_leveler_maxcut, 0, 60, 1) : ma.neg;
-    fffb = 0; //vslider ("v:soundsgood/t:expert/h:[3]leveler/[9][symbol:leveler_fffb]kneecomp ff-fb",0,0,1,0.1);
+    fffb = 0; //vslider ("v:soundsgood/t:expert/h:[3]leveler/[9][symbol:leveler_fffb]leveler ff-fb",0,0,1,0.1);
     lp1p(cf) = si.smooth(ba.tau2pole(1/(2*ma.PI*cf)));
 
     feedforward_feedback = B,(B<:B,B) : par(i,2,_*fffb), par(i,2,_* (1-fffb)),B : (_,_,_,_:>_,_),_,_;
@@ -405,7 +405,7 @@ limiter_rms = co.RMS_FBFFcompressor_N_chan(strength,thresh,att,rel,knee,0,1,fffb
     rel = vslider("v:soundsgood/t:expert/h:[7]limiter/[5][symbol:limiter_release]limiter release",40,1,400,1)*0.001;
     knee = vslider("v:soundsgood/t:expert/h:[7]limiter/[6][symbol:limiter_knee][unit:dB]limiter knee",8,0,12,1);
 
-    fffb = vslider ("v:soundsgood/t:expert/h:[7]limiter/[6][symbol:limiter_fffb]limiter fffb",0.5,0,1,0.1);
+    fffb = vslider ("v:soundsgood/t:expert/h:[7]limiter/[6][symbol:limiter_fffb]limiter ff-fb",0.5,0,1,0.1);
     // post_gain
     post_gain = par(i,Nch,_ * limiter_postgain) with {
 
