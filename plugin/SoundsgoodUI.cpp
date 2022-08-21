@@ -183,6 +183,19 @@ class SoundsGoodUI : public UI,
           release.slider.setSize(metrics.valueSlider);
           SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
+
+      void setEnabledColor(const bool enabled)
+      {
+          const Color color = enabled ? theme.textLightColor : theme.textDarkColor;
+          threshold.label.setLabelColor(color);
+          threshold.slider.setTextColor(color);
+          attack.label.setLabelColor(color);
+          attack.slider.setTextColor(color);
+          hold.label.setLabelColor(color);
+          hold.slider.setTextColor(color);
+          release.label.setLabelColor(color);
+          release.slider.setTextColor(color);
+      }
   } gate;
 
   struct Leveler : SoundsgoodParameterGroupWithBypassSwitch {
@@ -225,6 +238,22 @@ class SoundsGoodUI : public UI,
           separator.label.adjustSize();
           gate.meter.setSize(metrics.valueMeterHorizontal);
           SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
+      }
+
+      void setEnabledColor(const bool enabled)
+      {
+          const Color color = enabled ? theme.textLightColor : theme.textDarkColor;
+          speed.label.setLabelColor(color);
+          speed.slider.setTextColor(color);
+          threshold.label.setLabelColor(color);
+          threshold.slider.setTextColor(color);
+          max_plus.label.setLabelColor(color);
+          max_plus.slider.setTextColor(color);
+          max_minus.label.setLabelColor(color);
+          max_minus.slider.setTextColor(color);
+          separator.label.setLabelColor(color);
+          gate.label.setLabelColor(color);
+          gate.meter.setTextColor(color);
       }
   } leveler;
 
@@ -271,6 +300,23 @@ class SoundsGoodUI : public UI,
           side_freq.slider.setSize(metrics.valueSlider);
           side_bandwidth.slider.setSize(metrics.valueSlider);
           SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
+      }
+
+      void setEnabledColor(const bool enabled)
+      {
+          const Color color = enabled ? theme.textLightColor : theme.textDarkColor;
+          highpass.label.setLabelColor(color);
+          highpass.slider.setTextColor(color);
+          tilt.label.setLabelColor(color);
+          tilt_gain.label.setLabelColor(color);
+          tilt_gain.slider.setTextColor(color);
+          side.label.setLabelColor(color);
+          side_gain.label.setLabelColor(color);
+          side_gain.slider.setTextColor(color);
+          side_freq.label.setLabelColor(color);
+          side_freq.slider.setTextColor(color);
+          side_bandwidth.label.setLabelColor(color);
+          side_bandwidth.slider.setTextColor(color);
       }
   } eq;
 
@@ -327,9 +373,32 @@ class SoundsGoodUI : public UI,
           drywet.slider.setSize(metrics.valueSlider);
           SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
+
+      void setEnabledColor(const bool enabled)
+      {
+          const Color color = enabled ? theme.textLightColor : theme.textDarkColor;
+          strength.label.setLabelColor(color);
+          strength.slider.setTextColor(color);
+          threshold.label.setLabelColor(color);
+          threshold.slider.setTextColor(color);
+          attack.label.setLabelColor(color);
+          attack.slider.setTextColor(color);
+          release.label.setLabelColor(color);
+          release.slider.setTextColor(color);
+          knee.label.setLabelColor(color);
+          knee.slider.setTextColor(color);
+          link.label.setLabelColor(color);
+          link.slider.setTextColor(color);
+          fffb.label.setLabelColor(color);
+          fffb.slider.setTextColor(color);
+          makeup.label.setLabelColor(color);
+          makeup.slider.setTextColor(color);
+          drywet.label.setLabelColor(color);
+          drywet.slider.setTextColor(color);
+      }
   } kneeComp;
 
-  struct MultiBandCompressor : SoundsgoodParameterGroupWithBypassSwitch {
+  struct MidSideCompressor : SoundsgoodParameterGroupWithBypassSwitch {
       QuantumDualLabelWithCenterSpacer labelsTop;
       QuantumDualValueSliderWithCenterLabel crossover;
       QuantumDualValueSliderWithCenterLabel strength;
@@ -343,7 +412,7 @@ class SoundsGoodUI : public UI,
       MultiBandCompressorValueMeters metersS;
       MultiBandCompressorOutputGainGroup outputGain;
 
-      explicit MultiBandCompressor(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
+      explicit MidSideCompressor(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
           : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
             labelsTop(&frame, theme),
             crossover(&frame, theme),
@@ -358,10 +427,10 @@ class SoundsGoodUI : public UI,
             metersS(&frame, theme),
             outputGain(&frame, theme)
       {
-          frame.setName("MultiBand Compressor");
+          frame.setName("MidSide Compressor");
           frame.mainWidget.setCallback(bcb);
           frame.mainWidget.setId(kParameter_mscomp_bypass);
-          frame.mainWidget.setLabel("MultiBand Compressor");
+          frame.mainWidget.setLabel("MidSide Compressor");
 
           constexpr const uint idOffset = kParameter_mscomp_high_crossover - kParameter_mscomp_low_crossover;
           static_assert(kParameter_mscomp_high_strength - kParameter_mscomp_low_strength == idOffset, "mscomp param id offset mismatch");
@@ -462,6 +531,47 @@ class SoundsGoodUI : public UI,
           SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
 
+      void setEnabledColor(const bool enabled)
+      {
+          const Color color = enabled ? theme.textLightColor : theme.textDarkColor;
+          labelsTop.labelL.setLabelColor(color);
+          labelsTop.labelR.setLabelColor(color);
+          crossover.label.setLabelColor(color);
+          crossover.sliderL.setTextColor(color);
+          crossover.sliderR.setTextColor(color);
+          strength.label.setLabelColor(color);
+          strength.sliderL.setTextColor(color);
+          strength.sliderR.setTextColor(color);
+          threshold.label.setLabelColor(color);
+          threshold.sliderL.setTextColor(color);
+          threshold.sliderR.setTextColor(color);
+          attack.label.setLabelColor(color);
+          attack.sliderL.setTextColor(color);
+          attack.sliderR.setTextColor(color);
+          release.label.setLabelColor(color);
+          release.sliderL.setTextColor(color);
+          release.sliderR.setTextColor(color);
+          knee.label.setLabelColor(color);
+          knee.sliderL.setTextColor(color);
+          knee.sliderR.setTextColor(color);
+          link.label.setLabelColor(color);
+          link.sliderL.setTextColor(color);
+          link.sliderR.setTextColor(color);
+          labelsMid.label1.setLabelColor(color);
+          labelsMid.label2.setLabelColor(color);
+          labelsMid.label3.setLabelColor(color);
+          labelsMid.label4.setLabelColor(color);
+          labelsMid.label5.setLabelColor(color);
+          labelsMid.label6.setLabelColor(color);
+          labelsMid.label7.setLabelColor(color);
+          labelsMid.label8.setLabelColor(color);
+          labelsMid.label9.setLabelColor(color);
+          metersM.label.setLabelColor(color);
+          metersS.label.setLabelColor(color);
+          outputGain.label.setLabelColor(color);
+          outputGain.slider.setTextColor(color);
+      }
+
       inline void setupMeters(MultiBandCompressorValueMeters& w, const char* const label, const int idStart)
       {
           w.m1.setId(idStart + 0);
@@ -527,7 +637,7 @@ class SoundsGoodUI : public UI,
           w.label.setName(label);
           items.push_back(&w);
       }
-  } mbCompressor;
+  } msCompressor;
 
   struct Limiter : SoundsgoodParameterGroupWithBypassSwitch {
       QuantumValueSliderWithLabel strength;
@@ -581,6 +691,28 @@ class SoundsGoodUI : public UI,
           gainReduction.meter.setSize(metrics.valueMeterHorizontal);
           SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
+
+      void setEnabledColor(const bool enabled)
+      {
+          const Color color = enabled ? theme.textLightColor : theme.textDarkColor;
+          strength.label.setLabelColor(color);
+          strength.slider.setTextColor(color);
+          threshold.label.setLabelColor(color);
+          threshold.slider.setTextColor(color);
+          attack.label.setLabelColor(color);
+          attack.slider.setTextColor(color);
+          release.label.setLabelColor(color);
+          release.slider.setTextColor(color);
+          fffb.label.setLabelColor(color);
+          fffb.slider.setTextColor(color);
+          knee.label.setLabelColor(color);
+          knee.slider.setTextColor(color);
+          makeup.label.setLabelColor(color);
+          makeup.slider.setTextColor(color);
+          separator.label.setLabelColor(color);
+          gainReduction.label.setLabelColor(color);
+          gainReduction.meter.setTextColor(color);
+      }
   } limiter;
 
   struct Brickwall : SoundsgoodParameterGroupWithoutBypassSwitch {
@@ -617,7 +749,7 @@ class SoundsGoodUI : public UI,
       &leveler.frame,
       &eq.frame,
       &kneeComp.frame,
-      &mbCompressor.frame,
+      &msCompressor.frame,
       &limiter.frame,
       &brickwall.frame,
   };
@@ -641,7 +773,7 @@ public:
         leveler(this, this, this, theme),
         eq(this, this, this, theme),
         kneeComp(this, this, this, theme),
-        mbCompressor(this, this, this, theme),
+        msCompressor(this, this, this, theme),
         limiter(this, this, this, theme),
         brickwall(this, this, theme)
   {
@@ -787,8 +919,8 @@ public:
       const uint highestOf1stRow = std::max(preProcessing.frame.getHeight(), std::max(gate.frame.getHeight(), std::max(leveler.frame.getHeight(), eq.frame.getHeight())));
       const uint row2y = contentGroup.getAbsoluteY() + borderSize + padding * 3 + highestOf1stRow;
       kneeComp.setAbsolutePos(preProcessing.frame.getAbsoluteX(), row2y);
-      mbCompressor.setAbsolutePos(kneeComp.frame.getAbsoluteX() + kneeComp.frame.getWidth() + padding, row2y);
-      limiter.setAbsolutePos(mbCompressor.frame.getAbsoluteX() + mbCompressor.frame.getWidth() + padding, row2y);
+      msCompressor.setAbsolutePos(kneeComp.frame.getAbsoluteX() + kneeComp.frame.getWidth() + padding, row2y);
+      limiter.setAbsolutePos(msCompressor.frame.getAbsoluteX() + msCompressor.frame.getWidth() + padding, row2y);
       brickwall.setAbsolutePos(limiter.frame.getAbsoluteX() + limiter.frame.getWidth() + padding, row2y);
 
       uint buttonIndex = 0;
@@ -830,7 +962,7 @@ public:
       leveler.adjustSize(metrics);
       eq.adjustSize(metrics);
       kneeComp.adjustSize(metrics);
-      mbCompressor.adjustSize(metrics);
+      msCompressor.adjustSize(metrics);
       limiter.adjustSize(metrics);
       brickwall.adjustSize(metrics);
 
@@ -877,6 +1009,7 @@ protected:
       break;
     case kParameter_gate_bypass:
       gate.frame.mainWidget.setChecked(value < 0.5f, false);
+      gate.setEnabledColor(value < 0.5f);
       break;
     case kParameter_gate_threshold:
       gate.threshold.slider.setValue(value, false);
@@ -892,6 +1025,7 @@ protected:
       break;
     case kParameter_leveler_bypass:
       leveler.frame.mainWidget.setChecked(value < 0.5f, false);
+      leveler.setEnabledColor(value < 0.5f);
       break;
     case kParameter_leveler_speed:
       leveler.speed.slider.setValue(value, false);
@@ -907,6 +1041,7 @@ protected:
       break;
     case kParameter_eq_bypass:
       eq.frame.mainWidget.setChecked(value < 0.5f, false);
+      eq.setEnabledColor(value < 0.5f);
       break;
     case kParameter_eq_highpass_freq:
       eq.highpass.slider.setValue(value, false);
@@ -924,7 +1059,8 @@ protected:
       eq.side_bandwidth.slider.setValue(value, false);
       break;
     case kParameter_kneecomp_bypass:
-      gate.frame.mainWidget.setChecked(value < 0.5f, false);
+      kneeComp.frame.mainWidget.setChecked(value < 0.5f, false);
+      kneeComp.setEnabledColor(value < 0.5f);
       break;
     case kParameter_kneecomp_strength:
       kneeComp.strength.slider.setValue(value, false);
@@ -954,55 +1090,57 @@ protected:
       kneeComp.drywet.slider.setValue(value, false);
       break;
     case kParameter_mscomp_bypass:
-      mbCompressor.frame.mainWidget.setChecked(value < 0.5f, false);
+      msCompressor.frame.mainWidget.setChecked(value < 0.5f, false);
+      msCompressor.setEnabledColor(value < 0.5f);
       break;
     case kParameter_mscomp_low_crossover:
-      mbCompressor.crossover.sliderL.setValue(value, false);
+      msCompressor.crossover.sliderL.setValue(value, false);
       break;
     case kParameter_mscomp_low_strength:
-      mbCompressor.strength.sliderL.setValue(value, false);
+      msCompressor.strength.sliderL.setValue(value, false);
       break;
     case kParameter_mscomp_low_threshold:
-      mbCompressor.threshold.sliderL.setValue(value, false);
+      msCompressor.threshold.sliderL.setValue(value, false);
       break;
     case kParameter_mscomp_low_attack:
-      mbCompressor.attack.sliderL.setValue(value, false);
+      msCompressor.attack.sliderL.setValue(value, false);
       break;
     case kParameter_mscomp_low_release:
-      mbCompressor.release.sliderL.setValue(value, false);
+      msCompressor.release.sliderL.setValue(value, false);
       break;
     case kParameter_mscomp_low_knee:
-      mbCompressor.knee.sliderL.setValue(value, false);
+      msCompressor.knee.sliderL.setValue(value, false);
       break;
     case kParameter_mscomp_low_link:
-      mbCompressor.link.sliderL.setValue(value, false);
+      msCompressor.link.sliderL.setValue(value, false);
       break;
     case kParameter_mscomp_high_crossover:
-      mbCompressor.crossover.sliderR.setValue(value, false);
+      msCompressor.crossover.sliderR.setValue(value, false);
       break;
     case kParameter_mscomp_high_strength:
-      mbCompressor.strength.sliderR.setValue(value, false);
+      msCompressor.strength.sliderR.setValue(value, false);
       break;
     case kParameter_mscomp_high_threshold:
-      mbCompressor.threshold.sliderR.setValue(value, false);
+      msCompressor.threshold.sliderR.setValue(value, false);
       break;
     case kParameter_mscomp_high_attack:
-      mbCompressor.attack.sliderR.setValue(value, false);
+      msCompressor.attack.sliderR.setValue(value, false);
       break;
     case kParameter_mscomp_high_release:
-      mbCompressor.release.sliderR.setValue(value, false);
+      msCompressor.release.sliderR.setValue(value, false);
       break;
     case kParameter_mscomp_high_knee:
-      mbCompressor.knee.sliderR.setValue(value, false);
+      msCompressor.knee.sliderR.setValue(value, false);
       break;
     case kParameter_mscomp_high_link:
-      mbCompressor.link.sliderR.setValue(value, false);
+      msCompressor.link.sliderR.setValue(value, false);
       break;
     case kParameter_mscomp_output_gain:
-      mbCompressor.outputGain.slider.setValue(value, false);
+      msCompressor.outputGain.slider.setValue(value, false);
       break;
     case kParameter_limiter_bypass:
       limiter.frame.mainWidget.setChecked(value < 0.5f, false);
+      limiter.setEnabledColor(value < 0.5f);
       break;
     case kParameter_limiter_strength:
       limiter.strength.slider.setValue(value, false);
@@ -1045,58 +1183,58 @@ protected:
       leveler.gate.meter.setValue(value);
       break;
     case kParameter_69:
-      mbCompressor.metersM.m1.setValue(value);
+      msCompressor.metersM.m1.setValue(value);
       break;
     case kParameter_70:
-      mbCompressor.metersS.m1.setValue(value);
+      msCompressor.metersS.m1.setValue(value);
       break;
     case kParameter_71:
-      mbCompressor.metersM.m2.setValue(value);
+      msCompressor.metersM.m2.setValue(value);
       break;
     case kParameter_72:
-      mbCompressor.metersS.m2.setValue(value);
+      msCompressor.metersS.m2.setValue(value);
       break;
     case kParameter_73:
-      mbCompressor.metersM.m3.setValue(value);
+      msCompressor.metersM.m3.setValue(value);
       break;
     case kParameter_74:
-      mbCompressor.metersS.m3.setValue(value);
+      msCompressor.metersS.m3.setValue(value);
       break;
     case kParameter_75:
-      mbCompressor.metersM.m4.setValue(value);
+      msCompressor.metersM.m4.setValue(value);
       break;
     case kParameter_76:
-      mbCompressor.metersS.m4.setValue(value);
+      msCompressor.metersS.m4.setValue(value);
       break;
     case kParameter_77:
-      mbCompressor.metersM.m5.setValue(value);
+      msCompressor.metersM.m5.setValue(value);
       break;
     case kParameter_78:
-      mbCompressor.metersS.m5.setValue(value);
+      msCompressor.metersS.m5.setValue(value);
       break;
     case kParameter_79:
-      mbCompressor.metersM.m6.setValue(value);
+      msCompressor.metersM.m6.setValue(value);
       break;
     case kParameter_80:
-      mbCompressor.metersS.m6.setValue(value);
+      msCompressor.metersS.m6.setValue(value);
       break;
     case kParameter_81:
-      mbCompressor.metersM.m7.setValue(value);
+      msCompressor.metersM.m7.setValue(value);
       break;
     case kParameter_82:
-      mbCompressor.metersS.m7.setValue(value);
+      msCompressor.metersS.m7.setValue(value);
       break;
     case kParameter_83:
-      mbCompressor.metersM.m8.setValue(value);
+      msCompressor.metersM.m8.setValue(value);
       break;
     case kParameter_84:
-      mbCompressor.metersS.m8.setValue(value);
+      msCompressor.metersS.m8.setValue(value);
       break;
     case kParameter_85:
-      mbCompressor.metersM.m9.setValue(value);
+      msCompressor.metersM.m9.setValue(value);
       break;
     case kParameter_86:
-      mbCompressor.metersS.m9.setValue(value);
+      msCompressor.metersS.m9.setValue(value);
       break;
     case kParameter_limiter_gain_reduction:
       limiter.gainReduction.meter.setValue(value);
@@ -1169,6 +1307,13 @@ protected:
   /* --------------------------------------------------------------------------------------------------------
    * Custom Widget Callbacks */
 
+  void reportGroupBypassChanged(const uint id, const bool enabled)
+  {
+      editParameter(id, true);
+      setParameterValue(id, enabled ? 0.f : 1.f);
+      editParameter(id, false);
+  }
+
   void buttonClicked(SubWidget* const widget, int) override
   {
       if (const uint id = widget->getId())
@@ -1176,19 +1321,34 @@ protected:
           QuantumSwitch* const qswitch = reinterpret_cast<QuantumSwitch*>(widget);
           DISTRHO_SAFE_ASSERT_RETURN(qswitch != nullptr,);
 
+          const bool enabled = qswitch->isChecked();
+
           switch (id)
           {
           // bypass switches, inverted operation
           case kParameter_gate_bypass:
-          case kParameter_stereo_correct:
+              gate.setEnabledColor(enabled);
+              reportGroupBypassChanged(id, enabled);
+              break;
           case kParameter_leveler_bypass:
+              leveler.setEnabledColor(enabled);
+              reportGroupBypassChanged(id, enabled);
+              break;
           case kParameter_eq_bypass:
-          case kParameter_mscomp_bypass:
+              eq.setEnabledColor(enabled);
+              reportGroupBypassChanged(id, enabled);
+              break;
           case kParameter_kneecomp_bypass:
+              kneeComp.setEnabledColor(enabled);
+              reportGroupBypassChanged(id, enabled);
+              break;
+          case kParameter_mscomp_bypass:
+              msCompressor.setEnabledColor(enabled);
+              reportGroupBypassChanged(id, enabled);
+              break;
           case kParameter_limiter_bypass:
-              editParameter(id, true);
-              setParameterValue(id, qswitch->isChecked() ? 0.f : 1.f);
-              editParameter(id, false);
+              limiter.setEnabledColor(enabled);
+              reportGroupBypassChanged(id, enabled);
               break;
           // regular switches, normal operation
           case kParameter_mono:
