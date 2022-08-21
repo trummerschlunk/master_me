@@ -4,10 +4,11 @@
 #include "DistrhoPluginInfo.h"
 #include "DistrhoUI.hpp"
 
+#include "NanoVG.hpp"
 #include "extra/ScopedPointer.hpp"
 #include "widgets/InspectorWindow.hpp"
 
-#include "Quantum.hpp"
+#include "SoundsgoodWidgetGroups.hpp"
 
 START_NAMESPACE_DISTRHO
 
@@ -24,7 +25,7 @@ struct SoundsGoodMetrics : QuantumMetrics
 };
 
 // custom layout for input levels and mixer slider
-struct InputMeterGroup : QuantumFrameGroup
+struct InputMeterGroup : QuantumFrame
 {
     const QuantumTheme& theme;
 
@@ -33,7 +34,7 @@ struct InputMeterGroup : QuantumFrameGroup
     QuantumLevelMeter meterGain;
 
     explicit InputMeterGroup(TopLevelWidget* const parent, const QuantumTheme& t)
-        : QuantumFrameGroup(parent, t),
+        : QuantumFrame(parent, t),
           theme(t),
           meterLufs(parent, t),
           slider(parent, t),
@@ -50,7 +51,7 @@ struct InputMeterGroup : QuantumFrameGroup
 
     void setAbsolutePos(const int x, const int y)
     {
-        QuantumFrameGroup::setAbsolutePos(x, y);
+        QuantumFrame::setAbsolutePos(x, y);
         meterLufs.setAbsolutePos(x + theme.borderSize + theme.padding, y + theme.borderSize + theme.padding);
         slider.setAbsolutePos(meterLufs.getAbsoluteX() + meterLufs.getWidth() + theme.padding, y + theme.borderSize + theme.padding);
         meterGain.setAbsolutePos(slider.getAbsoluteX() + slider.getWidth() + theme.padding, y + theme.borderSize + theme.padding);
@@ -58,14 +59,14 @@ struct InputMeterGroup : QuantumFrameGroup
 };
 
 // custom layout for output levels (single widget for now)
-struct OutputMeterGroup : QuantumFrameGroup
+struct OutputMeterGroup : QuantumFrame
 {
     const QuantumTheme& theme;
 
     QuantumLevelMeter meter;
 
     explicit OutputMeterGroup(TopLevelWidget* const parent, const QuantumTheme& t)
-        : QuantumFrameGroup(parent, t),
+        : QuantumFrame(parent, t),
           theme(t),
           meter(parent, t) {}
 
@@ -78,98 +79,8 @@ struct OutputMeterGroup : QuantumFrameGroup
 
     void setAbsolutePos(const int x, const int y)
     {
-        QuantumFrameGroup::setAbsolutePos(x, y);
+        QuantumFrame::setAbsolutePos(x, y);
         meter.setAbsolutePos(x + theme.borderSize + theme.padding, y + theme.borderSize + theme.padding);
-    }
-};
-
-// custom layout for multiband compressor labels
-struct MultiBandCompressorLabels : HorizontalLayout
-{
-    QuantumLabel spacer1;
-    QuantumLabel label1, label2, label3, label4, label5, label6, label7, label8, label9;
-    QuantumLabel spacer2;
-
-    explicit MultiBandCompressorLabels(TopLevelWidget* const parent, const QuantumTheme& theme)
-        : spacer1(parent, theme),
-          label1(parent, theme),
-          label2(parent, theme),
-          label3(parent, theme),
-          label4(parent, theme),
-          label5(parent, theme),
-          label6(parent, theme),
-          label7(parent, theme),
-          label8(parent, theme),
-          label9(parent, theme),
-          spacer2(parent, theme)
-    {
-        label1.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
-        label2.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
-        label3.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
-        label4.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
-        label5.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
-        label6.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
-        label7.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
-        label8.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
-        label9.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
-
-        widgets.push_back({ &spacer1, Expanding });
-        widgets.push_back({ &label1, Fixed });
-        widgets.push_back({ &label2, Fixed });
-        widgets.push_back({ &label3, Fixed });
-        widgets.push_back({ &label4, Fixed });
-        widgets.push_back({ &label5, Fixed });
-        widgets.push_back({ &label6, Fixed });
-        widgets.push_back({ &label7, Fixed });
-        widgets.push_back({ &label8, Fixed });
-        widgets.push_back({ &label9, Fixed });
-        widgets.push_back({ &spacer2, Expanding });
-    }
-};
-
-// custom layout for multiband compressor meters
-struct MultiBandCompressorValueMeters : HorizontalLayout
-{
-    QuantumLabel label;
-    QuantumValueMeter m1, m2, m3, m4, m5, m6, m7, m8, m9;
-    QuantumLabel spacer;
-
-    explicit MultiBandCompressorValueMeters(TopLevelWidget* const parent, const QuantumTheme& theme)
-        : label(parent, theme),
-          m1(parent, theme),
-          m2(parent, theme),
-          m3(parent, theme),
-          m4(parent, theme),
-          m5(parent, theme),
-          m6(parent, theme),
-          m7(parent, theme),
-          m8(parent, theme),
-          m9(parent, theme),
-          spacer(parent, theme)
-    {
-        label.setAlignment(NanoVG::ALIGN_RIGHT|NanoVG::ALIGN_MIDDLE);
-
-        m1.setOrientation(QuantumValueMeter::TopToBottom);
-        m2.setOrientation(QuantumValueMeter::TopToBottom);
-        m3.setOrientation(QuantumValueMeter::TopToBottom);
-        m4.setOrientation(QuantumValueMeter::TopToBottom);
-        m5.setOrientation(QuantumValueMeter::TopToBottom);
-        m6.setOrientation(QuantumValueMeter::TopToBottom);
-        m7.setOrientation(QuantumValueMeter::TopToBottom);
-        m8.setOrientation(QuantumValueMeter::TopToBottom);
-        m9.setOrientation(QuantumValueMeter::TopToBottom);
-
-        widgets.push_back({ &label, Expanding });
-        widgets.push_back({ &m1, Fixed });
-        widgets.push_back({ &m2, Fixed });
-        widgets.push_back({ &m3, Fixed });
-        widgets.push_back({ &m4, Fixed });
-        widgets.push_back({ &m5, Fixed });
-        widgets.push_back({ &m6, Fixed });
-        widgets.push_back({ &m7, Fixed });
-        widgets.push_back({ &m8, Fixed });
-        widgets.push_back({ &m9, Fixed });
-        widgets.push_back({ &spacer, Expanding });
     }
 };
 
@@ -192,111 +103,71 @@ class SoundsGoodUI : public UI,
 
   // group of widgets
   InputMeterGroup inputGroup;
-  QuantumFrameGroup contentGroup;
+  QuantumFrame contentGroup;
   OutputMeterGroup outputGroup;
-  QuantumFrameGroup presetGroup;
+  QuantumFrame presetGroup;
 
   // easy mode labels
   QuantumValueMeter17 easyMetering;
   QuantumLabel welcomeLabel;
 
-  // parameters
-  template<class tMainWidget>
-  struct ParameterGroup {
-      QuantumGroupWithVerticallyStackedLayout<tMainWidget> group;
+  struct PreProcessing : SoundsgoodParameterGroupWithoutBypassSwitch {
+      QuantumValueSliderWithLabel inputGain;
+      QuantumSingleSwitch mono;
+      QuantumSingleSwitch phaseL;
+      QuantumSingleSwitch phaseR;
+      QuantumSingleSwitch dcBlocker;
+      QuantumSingleSwitch stereoCorrect;
 
-      // constructor with label as main widget
-      explicit ParameterGroup(TopLevelWidget* const parent, const QuantumTheme& theme)
-          : group(parent, theme) {}
-
-      // constructor with switch as main widget
-      explicit ParameterGroup(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, const QuantumTheme& theme)
-          : group(parent, theme)
+      explicit PreProcessing(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
+          : SoundsgoodParameterGroupWithoutBypassSwitch(parent, theme),
+            inputGain(&frame, theme),
+            mono(&frame, theme),
+            phaseL(&frame, theme),
+            phaseR(&frame, theme),
+            dcBlocker(&frame, theme),
+            stereoCorrect(&frame, theme)
       {
-          group.mainWidget.setCallback(bcb);
+          frame.setName("Pre-Processing");
+          frame.mainWidget.setLabel("Pre-Processing");
+
+          setupSlider(inputGain, cb, kParameter_in_gain, 0);
+          setupSwitch(mono, bcb, kParameter_mono, 0);
+          setupSwitch(phaseL, bcb, kParameter_phase_l, 0);
+          setupSwitch(phaseR, bcb, kParameter_phase_r, 0);
+          setupSwitch(dcBlocker, bcb, kParameter_dc_blocker, 0);
+          setupSwitch(stereoCorrect, bcb, kParameter_stereo_correct, 0);
       }
 
-      virtual void adjustSize(const SoundsGoodMetrics&)
+      void adjustSize(const QuantumMetrics& metrics) override
       {
-          group.adjustSize();
+          inputGain.slider.setSize(metrics.valueSlider);
+          mono.switch_.adjustSize();
+          phaseL.switch_.adjustSize();
+          phaseR.switch_.adjustSize();
+          dcBlocker.switch_.adjustSize();
+          stereoCorrect.switch_.adjustSize();
+          SoundsgoodParameterGroupWithoutBypassSwitch::adjustSize(metrics);
       }
+  } preProcessing;
 
-      inline void setupSlider(QuantumValueSliderWithLabel& w, KnobEventHandler::Callback* const cb, const int id, const uint nameOffset)
-      {
-          w.slider.setCallback(cb);
-          w.slider.setId(id);
-          w.slider.setName(kParameterNames[id]);
-          w.slider.setRange(kParameterRanges[id].min, kParameterRanges[id].max);
-          w.slider.setUnitLabel(kParameterUnits[id]);
-          w.slider.setValue(kParameterRanges[id].def, false);
-          w.label.setLabel(kParameterNames[id] + nameOffset);
-          w.label.setName(String(kParameterNames[id]) + " [label]");
-          group.layout.items.push_back(&w);
-      }
-
-      inline void setupDualSlider(QuantumDualValueSliderWithCenterLabel&w, KnobEventHandler::Callback* const cb, const int id, const uint idOffset, const uint nameOffset)
-      {
-          w.sliderL.setCallback(cb);
-          w.sliderR.setCallback(cb);
-          w.sliderL.setId(id);
-          w.sliderR.setId(id + idOffset);
-          w.sliderL.setName(kParameterNames[id]);
-          w.sliderR.setName(kParameterNames[id + idOffset]);
-          w.sliderL.setRange(kParameterRanges[id].min, kParameterRanges[id].max);
-          w.sliderL.setRange(kParameterRanges[id + idOffset].min, kParameterRanges[id + idOffset].max);
-          w.sliderL.setUnitLabel(kParameterUnits[id]);
-          w.sliderR.setUnitLabel(kParameterUnits[id + idOffset]);
-          w.sliderL.setValue(kParameterRanges[id].def, false);
-          w.sliderR.setValue(kParameterRanges[id + idOffset].def, false);
-          w.label.setLabel(kParameterNames[id] + nameOffset);
-          w.label.setName(String(kParameterNames[id]) + " [label]");
-          group.layout.items.push_back(&w);
-      }
-
-      inline void setupMeter(QuantumValueMeterWithLabel& w, const int id, const uint nameOffset)
-      {
-          w.meter.setId(id);
-          w.meter.setName(kParameterNames[id]);
-          w.meter.setOrientation(QuantumValueMeter::RightToLeft);
-          w.meter.setRange(kParameterRanges[id].min, kParameterRanges[id].max);
-          w.meter.setUnitLabel(kParameterUnits[id]);
-          w.meter.setValue(kParameterRanges[id].def);
-          w.label.setLabel(kParameterNames[id] + nameOffset);
-          w.label.setName(String(kParameterNames[id]) + " [label]");
-          group.layout.items.push_back(&w);
-      }
-
-      inline void setupSwitch(QuantumSwitchWithLayout& w, ButtonEventHandler::Callback* const bcb, const int id, const uint nameOffset)
-      {
-          w.switch_.setCallback(bcb);
-          w.switch_.setId(id);
-          w.switch_.setChecked(kParameterRanges[id].def > 0.5f, false);
-          w.switch_.setLabel(kParameterNames[id] + nameOffset);
-          w.switch_.setName(kParameterNames[id]);
-          group.layout.items.push_back(&w);
-      }
-  };
-
-  typedef ParameterGroup<QuantumSwitch> ParameterGroupWithBypassSwitch;
-  typedef ParameterGroup<QuantumLabel> ParameterGroupWithoutBypassSwitch;
-
-  struct Gate : ParameterGroupWithBypassSwitch {
+  struct Gate : SoundsgoodParameterGroupWithBypassSwitch {
       QuantumValueSliderWithLabel threshold;
       QuantumValueSliderWithLabel attack;
       QuantumValueSliderWithLabel hold;
       QuantumValueSliderWithLabel release;
 
       explicit Gate(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
-          : ParameterGroup(parent, bcb, theme),
-            threshold(parent, theme),
-            attack(parent, theme),
-            hold(parent, theme),
-            release(parent, theme)
+          : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
+            threshold(&frame, theme),
+            attack(&frame, theme),
+            hold(&frame, theme),
+            release(&frame, theme)
       {
-          group.setName("Gate Group");
-          group.mainWidget.setId(kParameter_gate_bypass);
-          group.mainWidget.setLabel("Gate");
-          group.mainWidget.setName("Gate Switch");
+          frame.setName("Gate");
+          frame.mainWidget.setCallback(bcb);
+          frame.mainWidget.setId(kParameter_gate_bypass);
+          frame.mainWidget.setLabel("Gate");
 
           setupSlider(threshold, cb, kParameter_gate_threshold, 5);
           setupSlider(attack, cb, kParameter_gate_attack, 5);
@@ -304,40 +175,17 @@ class SoundsGoodUI : public UI,
           setupSlider(release, cb, kParameter_gate_release, 5);
       }
 
-      void adjustSize(const SoundsGoodMetrics& metrics) override
+      void adjustSize(const QuantumMetrics& metrics) override
       {
           threshold.slider.setSize(metrics.valueSlider);
           attack.slider.setSize(metrics.valueSlider);
           hold.slider.setSize(metrics.valueSlider);
           release.slider.setSize(metrics.valueSlider);
-          ParameterGroup::adjustSize(metrics);
+          SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
   } gate;
 
-  struct StereoCorrect : ParameterGroupWithBypassSwitch {
-      QuantumSwitchWithLayout mono;
-
-      explicit StereoCorrect(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback*, const QuantumTheme& theme)
-          : ParameterGroup(parent, bcb, theme),
-            mono(parent, theme)
-      {
-          group.setName("Stereo Correct Group");
-          group.mainWidget.setId(kParameter_stereo_correct);
-          group.mainWidget.setLabel("Stereo Correct");
-          group.mainWidget.setName("Stereo Correct Switch");
-
-          setupSwitch(mono, bcb, kParameter_mono, 0);
-      }
-
-      void adjustSize(const SoundsGoodMetrics& metrics) override
-      {
-          // TODO
-          // mono.switch_.setSize(metrics.label);xxx
-          ParameterGroup::adjustSize(metrics);
-      }
-  } stereoCorrect;
-
-  struct Leveler : ParameterGroupWithBypassSwitch {
+  struct Leveler : SoundsgoodParameterGroupWithBypassSwitch {
       QuantumValueSliderWithLabel speed;
       QuantumValueSliderWithLabel max_plus;
       QuantumValueSliderWithLabel max_minus;
@@ -346,17 +194,17 @@ class SoundsGoodUI : public UI,
       // NOTE kParameter_leveler_gain is setup separately
 
       explicit Leveler(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
-          : ParameterGroup(parent, bcb, theme),
-            speed(parent, theme),
-            max_plus(parent, theme),
-            max_minus(parent, theme),
-            threshold(parent, theme),
-            gate(parent, theme)
+          : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
+            speed(&frame, theme),
+            max_plus(&frame, theme),
+            max_minus(&frame, theme),
+            threshold(&frame, theme),
+            gate(&frame, theme)
       {
-          group.setName("Leveler Group");
-          group.mainWidget.setId(kParameter_leveler_bypass);
-          group.mainWidget.setLabel("Leveler");
-          group.mainWidget.setName("Leveler Switch");
+          frame.setName("Leveler");
+          frame.mainWidget.setCallback(bcb);
+          frame.mainWidget.setId(kParameter_leveler_bypass);
+          frame.mainWidget.setLabel("Leveler");
 
           setupSlider(speed, cb, kParameter_leveler_speed, 8);
           setupSlider(max_plus, cb, kParameter_leveler_max_plus, 8);
@@ -365,18 +213,18 @@ class SoundsGoodUI : public UI,
           setupMeter(gate, kParameter_leveler_gate, 8);
       }
 
-      void adjustSize(const SoundsGoodMetrics& metrics) override
+      void adjustSize(const QuantumMetrics& metrics) override
       {
           speed.slider.setSize(metrics.valueSlider);
           max_plus.slider.setSize(metrics.valueSlider);
           max_minus.slider.setSize(metrics.valueSlider);
           threshold.slider.setSize(metrics.valueSlider);
           gate.meter.setSize(metrics.valueMeterHorizontal);
-          ParameterGroup::adjustSize(metrics);
+          SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
   } leveler;
 
-  struct Eq : ParameterGroupWithBypassSwitch {
+  struct Eq : SoundsgoodParameterGroupWithBypassSwitch {
       QuantumValueSliderWithLabel highpass;
       QuantumValueSliderWithLabel tilt_gain;
       QuantumValueSliderWithLabel side_gain;
@@ -384,17 +232,17 @@ class SoundsGoodUI : public UI,
       QuantumValueSliderWithLabel side_bandwidth;
 
       explicit Eq(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
-          : ParameterGroup(parent, bcb, theme),
-            highpass(parent, theme),
-            tilt_gain(parent, theme),
-            side_gain(parent, theme),
-            side_freq(parent, theme),
-            side_bandwidth(parent, theme)
+          : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
+            highpass(&frame, theme),
+            tilt_gain(&frame, theme),
+            side_gain(&frame, theme),
+            side_freq(&frame, theme),
+            side_bandwidth(&frame, theme)
       {
-          group.setName("EQ Group");
-          group.mainWidget.setId(kParameter_eq_bypass);
-          group.mainWidget.setLabel("EQ");
-          group.mainWidget.setName("EQ Switch");
+          frame.setName("EQ");
+          frame.mainWidget.setCallback(bcb);
+          frame.mainWidget.setId(kParameter_eq_bypass);
+          frame.mainWidget.setLabel("EQ");
 
           setupSlider(highpass, cb, kParameter_eq_highpass_freq, 3);
           setupSlider(tilt_gain, cb, kParameter_eq_tilt_gain, 3);
@@ -403,18 +251,18 @@ class SoundsGoodUI : public UI,
           setupSlider(side_bandwidth, cb, kParameter_eq_side_bandwidth, 3);
       }
 
-      void adjustSize(const SoundsGoodMetrics& metrics) override
+      void adjustSize(const QuantumMetrics& metrics) override
       {
           highpass.slider.setSize(metrics.valueSlider);
           tilt_gain.slider.setSize(metrics.valueSlider);
           side_gain.slider.setSize(metrics.valueSlider);
           side_freq.slider.setSize(metrics.valueSlider);
           side_bandwidth.slider.setSize(metrics.valueSlider);
-          ParameterGroup::adjustSize(metrics);
+          SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
   } eq;
 
-  struct KneeCompressor : ParameterGroupWithBypassSwitch {
+  struct KneeCompressor : SoundsgoodParameterGroupWithBypassSwitch {
       QuantumValueSliderWithLabel strength;
       QuantumValueSliderWithLabel threshold;
       QuantumValueSliderWithLabel attack;
@@ -426,21 +274,21 @@ class SoundsGoodUI : public UI,
       QuantumValueSliderWithLabel drywet;
 
       explicit KneeCompressor(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
-          : ParameterGroup(parent, bcb, theme),
-            strength(parent, theme),
-            threshold(parent, theme),
-            attack(parent, theme),
-            release(parent, theme),
-            knee(parent, theme),
-            link(parent, theme),
-            fffb(parent, theme),
-            makeup(parent, theme),
-            drywet(parent, theme)
+          : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
+            strength(&frame, theme),
+            threshold(&frame, theme),
+            attack(&frame, theme),
+            release(&frame, theme),
+            knee(&frame, theme),
+            link(&frame, theme),
+            fffb(&frame, theme),
+            makeup(&frame, theme),
+            drywet(&frame, theme)
       {
-          group.setName("Knee Compressor Group");
-          group.mainWidget.setId(kParameter_kneecomp_bypass);
-          group.mainWidget.setLabel("Compressor");
-          group.mainWidget.setName("Compressor Switch");
+          frame.setName("Knee Compressor");
+          frame.mainWidget.setCallback(bcb);
+          frame.mainWidget.setId(kParameter_kneecomp_bypass);
+          frame.mainWidget.setLabel("Compressor");
 
           setupSlider(strength, cb, kParameter_kneecomp_strength, 9);
           setupSlider(threshold, cb, kParameter_kneecomp_threshold, 9);
@@ -453,7 +301,7 @@ class SoundsGoodUI : public UI,
           setupSlider(drywet, cb, kParameter_kneecomp_drywet, 9);
       }
 
-      void adjustSize(const SoundsGoodMetrics& metrics) override
+      void adjustSize(const QuantumMetrics& metrics) override
       {
           strength.slider.setSize(metrics.valueSlider);
           threshold.slider.setSize(metrics.valueSlider);
@@ -464,11 +312,11 @@ class SoundsGoodUI : public UI,
           fffb.slider.setSize(metrics.valueSlider);
           makeup.slider.setSize(metrics.valueSlider);
           drywet.slider.setSize(metrics.valueSlider);
-          ParameterGroup::adjustSize(metrics);
+          SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
   } kneeComp;
 
-  struct MultiBandCompressor : ParameterGroupWithBypassSwitch {
+  struct MultiBandCompressor : SoundsgoodParameterGroupWithBypassSwitch {
       QuantumDualValueSliderWithCenterLabel crossover;
       QuantumDualValueSliderWithCenterLabel strength;
       QuantumDualValueSliderWithCenterLabel threshold;
@@ -482,23 +330,23 @@ class SoundsGoodUI : public UI,
       QuantumValueSliderWithLabel output_gain;
 
       explicit MultiBandCompressor(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
-          : ParameterGroup(parent, bcb, theme),
-            crossover(parent, theme),
-            strength(parent, theme),
-            threshold(parent, theme),
-            attack(parent, theme),
-            release(parent, theme),
-            knee(parent, theme),
-            link(parent, theme),
-            labels(parent, theme),
-            metersM(parent, theme),
-            metersS(parent, theme),
-            output_gain(parent, theme)
+          : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
+            crossover(&frame, theme),
+            strength(&frame, theme),
+            threshold(&frame, theme),
+            attack(&frame, theme),
+            release(&frame, theme),
+            knee(&frame, theme),
+            link(&frame, theme),
+            labels(&frame, theme),
+            metersM(&frame, theme),
+            metersS(&frame, theme),
+            output_gain(&frame, theme)
       {
-          group.setName("MultiBand Compressor Group");
-          group.mainWidget.setId(kParameter_mscomp_bypass);
-          group.mainWidget.setLabel("MultiBand Compressor");
-          group.mainWidget.setName("MultiBand Compressor Switch");
+          frame.setName("MultiBand Compressor");
+          frame.mainWidget.setCallback(bcb);
+          frame.mainWidget.setId(kParameter_mscomp_bypass);
+          frame.mainWidget.setLabel("MultiBand Compressor");
 
           constexpr const uint idOffset = kParameter_mscomp_high_crossover - kParameter_mscomp_low_crossover;
           static_assert(kParameter_mscomp_high_strength - kParameter_mscomp_low_strength == idOffset, "mscomp param id offset mismatch");
@@ -525,14 +373,16 @@ class SoundsGoodUI : public UI,
           labels.label7.setLabel("7");
           labels.label8.setLabel("8");
           labels.label9.setLabel("9");
-          group.layout.items.push_back(&labels);
+          metersM.label.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_MIDDLE);
+          metersS.label.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_MIDDLE);
+          items.push_back(&labels);
 
-          setupMeters(metersM, "m", kParameter_69);
-          setupMeters(metersS, "s", kParameter_78);
+          setupMeters(metersM, "  m  ", kParameter_69);
+          setupMeters(metersS, "  s  ", kParameter_78);
           setupSlider(output_gain, cb, kParameter_mscomp_output_gain, 0);
       }
 
-      void adjustSize(const SoundsGoodMetrics& metrics) override
+      void adjustSize(const QuantumMetrics& metrics) override
       {
           crossover.sliderL.setSize(metrics.valueSlider);
           crossover.sliderR.setSize(metrics.valueSlider);
@@ -557,6 +407,8 @@ class SoundsGoodUI : public UI,
           labels.label7.setSize(metrics.label);
           labels.label8.setSize(metrics.label);
           labels.label9.setSize(metrics.label);
+          metersM.label.adjustSize();
+          metersS.label.adjustSize();
           metersM.m1.setSize(metrics.valueMeterVertical);
           metersM.m2.setSize(metrics.valueMeterVertical);
           metersM.m3.setSize(metrics.valueMeterVertical);
@@ -576,7 +428,7 @@ class SoundsGoodUI : public UI,
           metersS.m8.setSize(metrics.valueMeterVertical);
           metersS.m9.setSize(metrics.valueMeterVertical);
           output_gain.slider.setSize(metrics.valueSlider);
-          ParameterGroup::adjustSize(metrics);
+          SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
 
       inline void setupMeters(MultiBandCompressorValueMeters& w, const char* const label, const int idStart)
@@ -642,11 +494,11 @@ class SoundsGoodUI : public UI,
 
           w.label.setLabel(label);
           w.label.setName(label);
-          group.layout.items.push_back(&w);
+          items.push_back(&w);
       }
   } mbCompressor;
 
-  struct Limiter : ParameterGroupWithBypassSwitch {
+  struct Limiter : SoundsgoodParameterGroupWithBypassSwitch {
       QuantumValueSliderWithLabel strength;
       QuantumValueSliderWithLabel threshold;
       QuantumValueSliderWithLabel attack;
@@ -657,20 +509,20 @@ class SoundsGoodUI : public UI,
       QuantumValueMeterWithLabel gain_reduction;
 
       explicit Limiter(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
-          : ParameterGroup(parent, bcb, theme),
-            strength(parent, theme),
-            threshold(parent, theme),
-            attack(parent, theme),
-            release(parent, theme),
-            fffb(parent, theme),
-            knee(parent, theme),
-            makeup(parent, theme),
-            gain_reduction(parent, theme)
+          : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
+            strength(&frame, theme),
+            threshold(&frame, theme),
+            attack(&frame, theme),
+            release(&frame, theme),
+            fffb(&frame, theme),
+            knee(&frame, theme),
+            makeup(&frame, theme),
+            gain_reduction(&frame, theme)
       {
-          group.setName("Limiter Group");
-          group.mainWidget.setId(kParameter_limiter_bypass);
-          group.mainWidget.setLabel("Limiter");
-          group.mainWidget.setName("Limiter Switch");
+          frame.setName("Limiter");
+          frame.mainWidget.setCallback(bcb);
+          frame.mainWidget.setId(kParameter_limiter_bypass);
+          frame.mainWidget.setLabel("Limiter");
 
           setupSlider(strength, cb, kParameter_limiter_strength, 8);
           setupSlider(threshold, cb, kParameter_limiter_threshold, 8);
@@ -682,7 +534,7 @@ class SoundsGoodUI : public UI,
           setupMeter(gain_reduction, kParameter_limiter_gain_reduction, 8);
       }
 
-      void adjustSize(const SoundsGoodMetrics& metrics) override
+      void adjustSize(const QuantumMetrics& metrics) override
       {
           strength.slider.setSize(metrics.valueSlider);
           threshold.slider.setSize(metrics.valueSlider);
@@ -692,38 +544,48 @@ class SoundsGoodUI : public UI,
           knee.slider.setSize(metrics.valueSlider);
           makeup.slider.setSize(metrics.valueSlider);
           gain_reduction.meter.setSize(metrics.valueMeterHorizontal);
-          ParameterGroup::adjustSize(metrics);
+          SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
   } limiter;
 
-  struct Brickwall : ParameterGroupWithoutBypassSwitch {
+  struct Brickwall : SoundsgoodParameterGroupWithoutBypassSwitch {
       QuantumValueSliderWithLabel ceiling;
       QuantumValueSliderWithLabel release;
       QuantumValueMeterWithLabel limit;
 
       explicit Brickwall(TopLevelWidget* const parent, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
-          : ParameterGroup(parent, theme),
-            ceiling(parent, theme),
-            release(parent, theme),
-            limit(parent, theme)
+          : SoundsgoodParameterGroupWithoutBypassSwitch(parent, theme),
+            ceiling(&frame, theme),
+            release(&frame, theme),
+            limit(&frame, theme)
       {
-          group.setName("Brickwall Group");
-          group.mainWidget.setLabel("Brickwall");
-          group.mainWidget.setName("Brickwall Label");
+          frame.setName("Brickwall");
+          frame.mainWidget.setLabel("Brickwall");
 
           setupSlider(ceiling, cb, kParameter_brickwall_ceiling, 10);
           setupSlider(release, cb, kParameter_brickwall_release, 10);
           setupMeter(limit, kParameter_brickwall_limit, 0);
       }
 
-      void adjustSize(const SoundsGoodMetrics& metrics) override
+      void adjustSize(const QuantumMetrics& metrics) override
       {
           ceiling.slider.setSize(metrics.valueSlider);
           release.slider.setSize(metrics.valueSlider);
           limit.meter.setSize(metrics.valueMeterHorizontal);
-          ParameterGroup::adjustSize(metrics);
+          SoundsgoodParameterGroupWithoutBypassSwitch::adjustSize(metrics);
       }
   } brickwall;
+
+  NanoSubWidget* parameterGroups[8] = {
+      &preProcessing.frame,
+      &gate.frame,
+      &leveler.frame,
+      &eq.frame,
+      &kneeComp.frame,
+      &mbCompressor.frame,
+      &limiter.frame,
+      &brickwall.frame,
+  };
 
   // preset buttons
   std::vector<QuantumButton*> presetButtons;
@@ -739,8 +601,8 @@ public:
         presetGroup(this, theme),
         easyMetering(this, theme),
         welcomeLabel(this, theme),
+        preProcessing(this, this, this, theme),
         gate(this, this, this, theme),
-        stereoCorrect(this, this, this, theme),
         leveler(this, this, this, theme),
         eq(this, this, this, theme),
         kneeComp(this, this, this, theme),
@@ -843,14 +705,9 @@ public:
 
     // load initial state
     easyModeButton.setChecked(true, false);
-    gate.group.hideAll();
-    stereoCorrect.group.hideAll();
-    leveler.group.hideAll();
-    eq.group.hideAll();
-    kneeComp.group.hideAll();
-    mbCompressor.group.hideAll();
-    limiter.group.hideAll();
-    brickwall.group.hideAll();
+
+    for (NanoSubWidget* w : parameterGroups)
+        w->hide();
   }
 
   ~SoundsGoodUI() override
@@ -861,17 +718,18 @@ public:
 
   void repositionWidgets(const double scaleFactor)
   {
+      const SoundsGoodMetrics metrics(theme);
+
       const uint width = getWidth();
       const uint height = getHeight();
       const uint borderSize = theme.borderSize * scaleFactor;
       const uint padding = theme.padding * scaleFactor;
-      const uint buttonHeight = (theme.textHeight + theme.padding * 2) * scaleFactor;
       const uint windowPadding = theme.windowPadding * scaleFactor;
-      const uint contentY = windowPadding * 2 + buttonHeight;
+      const uint startY = windowPadding * 2 + metrics.button.getHeight();
 
-      inputGroup.setAbsolutePos(windowPadding, contentY);
-      contentGroup.setAbsolutePos(windowPadding + inputGroup.getWidth() + padding * 2, contentY);
-      outputGroup.setAbsolutePos(width - windowPadding - outputGroup.getWidth(), contentY);
+      inputGroup.setAbsolutePos(windowPadding, startY);
+      contentGroup.setAbsolutePos(windowPadding + inputGroup.getWidth() + padding * 2, startY);
+      outputGroup.setAbsolutePos(width - windowPadding - outputGroup.getWidth(), startY);
       presetGroup.setAbsolutePos(windowPadding, height - windowPadding - presetGroup.getHeight());
 
       const uint inputAreaCenter = inputGroup.getWidth() / 2;
@@ -879,22 +737,24 @@ public:
       easyModeButton.setAbsolutePos(windowPadding + easyModeButtonOffset, windowPadding);
       expertModeButton.setAbsolutePos(contentGroup.getAbsoluteX() + easyModeButtonOffset, windowPadding);
 
-      welcomeLabel.setAbsolutePos(contentGroup.getAbsoluteX() + borderSize + padding, contentY + borderSize + padding);
+      welcomeLabel.setAbsolutePos(contentGroup.getAbsoluteX() + borderSize + padding, startY + borderSize + padding);
       easyMetering.setAbsolutePos(contentGroup.getAbsoluteX() + contentGroup.getWidth() - easyMetering.getWidth() - padding,
-                                  contentY + contentGroup.getHeight() - easyMetering.getHeight() - padding);
+                                  startY + contentGroup.getHeight() - easyMetering.getHeight() - padding);
 
       // 1st row
-      gate.group.setAbsolutePos(contentGroup.getAbsoluteX() + borderSize + padding, contentGroup.getAbsoluteY() + borderSize + padding);
-      stereoCorrect.group.setAbsolutePos(gate.group.getAbsoluteX() + gate.group.getWidth() + padding, gate.group.getAbsoluteY());
-      leveler.group.setAbsolutePos(stereoCorrect.group.getAbsoluteX() + stereoCorrect.group.getWidth() + padding, gate.group.getAbsoluteY());
-      eq.group.setAbsolutePos(leveler.group.getAbsoluteX() + leveler.group.getWidth() + padding, gate.group.getAbsoluteY());
+      const uint row1y = contentGroup.getAbsoluteY() + borderSize + padding;
+      preProcessing.setAbsolutePos(contentGroup.getAbsoluteX() + borderSize + padding, row1y);
+      gate.setAbsolutePos(preProcessing.frame.getAbsoluteX() + preProcessing.frame.getWidth() + padding, row1y);
+      leveler.setAbsolutePos(gate.frame.getAbsoluteX() + gate.frame.getWidth() + padding, row1y);
+      eq.setAbsolutePos(leveler.frame.getAbsoluteX() + leveler.frame.getWidth() + padding, row1y);
 
       // 2nd row
-      const uint highestOf1stRow = std::max(gate.group.getHeight(), std::max(stereoCorrect.group.getHeight(), std::max(leveler.group.getHeight(), eq.group.getHeight())));
-      kneeComp.group.setAbsolutePos(gate.group.getAbsoluteX(), contentGroup.getAbsoluteY() + borderSize + padding * 3 + highestOf1stRow);
-      mbCompressor.group.setAbsolutePos(kneeComp.group.getAbsoluteX() + kneeComp.group.getWidth() + padding, kneeComp.group.getAbsoluteY());
-      limiter.group.setAbsolutePos(mbCompressor.group.getAbsoluteX() + mbCompressor.group.getWidth() + padding, kneeComp.group.getAbsoluteY());
-      brickwall.group.setAbsolutePos(limiter.group.getAbsoluteX() + limiter.group.getWidth() + padding, kneeComp.group.getAbsoluteY());
+      const uint highestOf1stRow = std::max(preProcessing.frame.getHeight(), std::max(gate.frame.getHeight(), std::max(leveler.frame.getHeight(), eq.frame.getHeight())));
+      const uint row2y = contentGroup.getAbsoluteY() + borderSize + padding * 3 + highestOf1stRow;
+      kneeComp.setAbsolutePos(preProcessing.frame.getAbsoluteX(), row2y);
+      mbCompressor.setAbsolutePos(kneeComp.frame.getAbsoluteX() + kneeComp.frame.getWidth() + padding, row2y);
+      limiter.setAbsolutePos(mbCompressor.frame.getAbsoluteX() + mbCompressor.frame.getWidth() + padding, row2y);
+      brickwall.setAbsolutePos(limiter.frame.getAbsoluteX() + limiter.frame.getWidth() + padding, row2y);
 
       uint buttonIndex = 0;
       for (QuantumButton* button : presetButtons)
@@ -907,6 +767,8 @@ public:
 
   void resizeWidgets(const double scaleFactor, const uint width, const uint height)
   {
+      const SoundsGoodMetrics metrics(theme);
+
       const uint padding = theme.padding * scaleFactor;
       const uint buttonHeight = (theme.textHeight + theme.padding * 2) * scaleFactor;
       const uint borderSize = theme.borderSize * scaleFactor;
@@ -916,8 +778,6 @@ public:
       const uint contentHeight = height - windowPadding - contentY - presetGroupHeight - padding * 2;
       // const uint switchesHeight = (theme.textHeight / 2 + theme.borderSize * 2) * scaleFactor;
       // const uint slidersHeight = (theme.textHeight + theme.padding * 2) * scaleFactor;
-
-      const SoundsGoodMetrics metrics(theme);
 
       // TODO easy / expert buttons
       // TODO preset buttons
@@ -930,8 +790,8 @@ public:
       welcomeLabel.setSize(contentGroup.getWidth() - borderSize * 2 - padding * 2, contentHeight - borderSize * 2 - padding * 2);
       easyMetering.setSize(300 * scaleFactor, contentGroup.getHeight() / 2 - padding);
 
+      preProcessing.adjustSize(metrics);
       gate.adjustSize(metrics);
-      stereoCorrect.adjustSize(metrics);
       leveler.adjustSize(metrics);
       eq.adjustSize(metrics);
       kneeComp.adjustSize(metrics);
@@ -962,8 +822,26 @@ protected:
     case kParameter_target:
       inputGroup.slider.setValue(value, false);
       break;
+    case kParameter_in_gain:
+      preProcessing.inputGain.slider.setValue(value, false);
+      break;
+    case kParameter_mono:
+      preProcessing.mono.switch_.setChecked(value > 0.5f, false);
+      break;
+    case kParameter_phase_l:
+      preProcessing.phaseL.switch_.setChecked(value > 0.5f, false);
+      break;
+    case kParameter_phase_r:
+      preProcessing.phaseR.switch_.setChecked(value > 0.5f, false);
+      break;
+    case kParameter_dc_blocker:
+      preProcessing.dcBlocker.switch_.setChecked(value > 0.5f, false);
+      break;
+    case kParameter_stereo_correct:
+      preProcessing.stereoCorrect.switch_.setChecked(value > 0.5f, false);
+      break;
     case kParameter_gate_bypass:
-      gate.group.mainWidget.setChecked(value < 0.5f, false);
+      gate.frame.mainWidget.setChecked(value < 0.5f, false);
       break;
     case kParameter_gate_threshold:
       gate.threshold.slider.setValue(value, false);
@@ -977,14 +855,8 @@ protected:
     case kParameter_gate_release:
       gate.release.slider.setValue(value, false);
       break;
-    case kParameter_stereo_correct:
-      stereoCorrect.group.mainWidget.setChecked(value < 0.5f, false);
-      break;
-    case kParameter_mono:
-      stereoCorrect.mono.switch_.setChecked(value > 0.5f, false);
-      break;
     case kParameter_leveler_bypass:
-      leveler.group.mainWidget.setChecked(value < 0.5f, false);
+      leveler.frame.mainWidget.setChecked(value < 0.5f, false);
       break;
     case kParameter_leveler_speed:
       leveler.speed.slider.setValue(value, false);
@@ -999,7 +871,7 @@ protected:
       leveler.max_minus.slider.setValue(value, false);
       break;
     case kParameter_eq_bypass:
-      eq.group.mainWidget.setChecked(value < 0.5f, false);
+      eq.frame.mainWidget.setChecked(value < 0.5f, false);
       break;
     case kParameter_eq_highpass_freq:
       eq.highpass.slider.setValue(value, false);
@@ -1017,7 +889,7 @@ protected:
       eq.side_bandwidth.slider.setValue(value, false);
       break;
     case kParameter_kneecomp_bypass:
-      gate.group.mainWidget.setChecked(value < 0.5f, false);
+      gate.frame.mainWidget.setChecked(value < 0.5f, false);
       break;
     case kParameter_kneecomp_strength:
       kneeComp.strength.slider.setValue(value, false);
@@ -1047,7 +919,7 @@ protected:
       kneeComp.drywet.slider.setValue(value, false);
       break;
     case kParameter_mscomp_bypass:
-      mbCompressor.group.mainWidget.setChecked(value < 0.5f, false);
+      mbCompressor.frame.mainWidget.setChecked(value < 0.5f, false);
       break;
     case kParameter_mscomp_low_crossover:
       mbCompressor.crossover.sliderL.setValue(value, false);
@@ -1095,7 +967,7 @@ protected:
       mbCompressor.output_gain.slider.setValue(value, false);
       break;
     case kParameter_limiter_bypass:
-      limiter.group.mainWidget.setChecked(value < 0.5f, false);
+      limiter.frame.mainWidget.setChecked(value < 0.5f, false);
       break;
     case kParameter_limiter_strength:
       limiter.strength.slider.setValue(value, false);
@@ -1302,14 +1174,8 @@ protected:
           easyMetering.show();
           welcomeLabel.show();
 
-          gate.group.hideAll();
-          stereoCorrect.group.hideAll();
-          leveler.group.hideAll();
-          eq.group.hideAll();
-          kneeComp.group.hideAll();
-          mbCompressor.group.hideAll();
-          limiter.group.hideAll();
-          brickwall.group.hideAll();
+          for (NanoSubWidget* w : parameterGroups)
+              w->hide();
       }
       else if (widget == &expertModeButton)
       {
@@ -1319,14 +1185,8 @@ protected:
           easyMetering.hide();
           welcomeLabel.hide();
 
-          gate.group.showAll();
-          stereoCorrect.group.showAll();
-          leveler.group.showAll();
-          eq.group.showAll();
-          kneeComp.group.showAll();
-          mbCompressor.group.showAll();
-          limiter.group.showAll();
-          brickwall.group.showAll();
+          for (NanoSubWidget* w : parameterGroups)
+              w->show();
       }
       else if (std::find(presetButtons.begin(), presetButtons.end(), widget) != presetButtons.end())
       {

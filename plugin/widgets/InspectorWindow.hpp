@@ -49,6 +49,14 @@ protected:
         ImGui::SetNextWindowSize(ImVec2(getWidth(), getHeight()));
         ImGui::Begin("Widgets", nullptr, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoCollapse);
 
+        displaySubWidget(subwidgets);
+
+        ImGui::End();
+    }
+
+private:
+    static void displaySubWidget(const std::list<SubWidget*>& subwidgets)
+    {
         for (SubWidget* w : subwidgets)
         {
             if (ImGui::TreeNode(w->getName()))
@@ -57,6 +65,19 @@ protected:
 
                 if (ImGui::Button("Bring To Front"))
                     w->toFront();
+
+                ImGui::SameLine();
+
+                if (w->isVisible())
+                {
+                    if (ImGui::Button("Hide"))
+                        w->hide();
+                }
+                else
+                {
+                    if (ImGui::Button("Show"))
+                        w->show();
+                }
 
                 val = w->getAbsoluteX();
                 if (ImGui::DragFloat("Absolute X", &val))
@@ -74,11 +95,11 @@ protected:
                 if (ImGui::DragFloat("Height", &val))
                     w->setHeight(std::max(0.f, val));
 
+                displaySubWidget(w->getChildren());
+
                 ImGui::TreePop();
             }
         }
-
-        ImGui::End();
     }
 };
 
