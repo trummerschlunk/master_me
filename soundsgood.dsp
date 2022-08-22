@@ -337,36 +337,83 @@ mscomp8i(target) =
   : ms_dec
 ;
 
-
-Eight_band_Compressor_N_chan(N) =
-   crossover
-  : compressors
-  : mixer
+Eight_band_Compressor_N_chan(N) = si.bus (N) <: si.bus (2 * N)
+  : (calcredux(N,(flist)), si.bus (N))
+  : groupGainOut
+  : par(i, N, shelfcascade ((flist)))
   : outputGain
 with {
-  inputGain = par(i, N, _*inGain);
-  crossover =
-    (
-      (crossoverFreqs<:par(i, Nr_crossoverFreqs, _<:si.bus(N)))
-     ,si.bus(N)
-    )
-    <: ro.interleave(N,Nr_bands)
-    :  par(i, N, fi.crossover8LR4)
-    :  ro.interleave(Nr_bands,N);
-  compressors =
-    (strength_array , thresh_array , att_array , rel_array , knee_array , link_array, ro.interleave(N,Nr_bands))
+
+  /* re-order, interleave output:  left gain [Nr_bands .. 1], left-signal , right gain [Nr_bands .. 1], right-signal
+   * Note: shelfcascade takes gains in reverse order */
+  groupGainOut  =
+    (ro.interleave(Nr_bands,N), si.bus(N))
+    : (ro.interleave(N, Nr_bands+1))
+    : par(i, N, ro.cross(Nr_bands),_);
+
+  /* ******* 8< *******/
+  // TODO: use co.peak_compression_gain_N_chan_db when it arrives in the current faust version
+  peak_compression_gain_mono_db(strength,thresh,att,rel,knee,prePost) =
+    abs : ba.bypass1(prePost,si.onePoleSwitching(att,rel)) : ba.linear2db : gain_computer(strength,thresh,knee) : ba.bypass1((prePost !=1),si.onePoleSwitching(rel,att))
+  with {
+    gain_computer(strength,thresh,knee,level) =
+      select3((level>(thresh-(knee/2)))+(level>(thresh+(knee/2))),
+        0,
+        ((level-thresh+(knee/2)) : pow(2)/(2*max(ma.EPSILON,knee))),
+        (level-thresh))
+      : max(0)*-strength;
+  };
+
+  peak_compression_gain_N_chan_db(strength,thresh,att,rel,knee,prePost,link,1) =
+    peak_compression_gain_mono_db(strength,thresh,att,rel,knee,prePost);
+
+  peak_compression_gain_N_chan_db(strength,thresh,att,rel,knee,prePost,link,N) =
+    par(i, N, peak_compression_gain_mono_db(strength,thresh,att,rel,knee,prePost))
+    <: (si.bus(N),(ba.parallelMin(N) <: si.bus(N))) : ro.interleave(N,2) : par(i,N,(it.interpolate_linear(link)));
+
+  /* ******* >8 *******/
+
+  compressor(N,prePost,strength,thresh,att,rel,knee,link) = peak_compression_gain_N_chan_db (strength,thresh,att,rel,knee,prePost,link,N);
+
+  comps(N) = (strength_array, thresh_array, att_array, rel_array, knee_array, link_array, si.bus(N*Nr_bands))
     : ro.interleave(Nr_bands,6+N)
-    : par(i, Nr_bands, compressor(meter(i+1),N,prePost)) ;
-  mixer = si.bus(N*Nr_bands):>si.bus(N);
+    : par(i, Nr_bands, compressor(N,prePost)) // : si.bus (N * Nr_bands)
+    : par(c, N, par(b, Nr_bands, meter(c+1, b+1))):ro.interleave (N,Nr_bands);
+
+  calcredux(N,freqs) = par(i, N, an.analyzer (6, freqs): ro.cross (Nr_bands)) : comps (N);
+
   outputGain = par(i, N, _*mscomp8i_outGain);
 
-  compressor(meter,N,prePost,strength,thresh,att,rel,knee,link) =
-    co.FFcompressor_N_chan(strength,thresh,att,rel,knee,prePost,link,meter,N);
+  /* TODO: separate %b%c in symbol name so that it is a valid C/C++ variable-name (ideally an underscore) %b_%c
+   * meanwhile this is safe since there are only 8 bands (1..9) and 2 channels.
+   */
+  meter(c,b) = _<: attach(_, (max(-40):min(0):vbargraph("v:soundsgood/t:expert/h:[6]mscomp_meter/[%b.%c][unit:dB][tooltip: gain reduction in db][symbol:msredux%b%c]mscomp redux band %b chn %c", -3, 0)));
 
-  //meter(i) = _<:(_, (ba.linear2db:max(-40):min(0):vbargraph("v:soundsgood/t:expert/h:[6]mscomp_meter/[%i][unit:db]%i[tooltip: gain reduction in db]", -3, 0))):attach;
-  meter(i) = _<:(_, (ba.linear2db:max(-40):min(0):vbargraph("v:soundsgood/t:expert/h:[6]mscomp_meter/[%i][unit:db][tooltip: gain reduction in db]", -3, 0))):attach;
+  /* higher order low, band and hi shelf filter primitives */
+  ls3(f,g) = fi.svf.ls (f, .5, g3) : fi.svf.ls (f, .707, g3) : fi.svf.ls (f, 2, g3) with {g3 = g/3;};
+  bs3(f1,f2,g) = ls3(f1,-g) : ls3(f2,g);
+  hs3(f,g) = fi.svf.hs (f, .5, g3) : fi.svf.hs (f, .707, g3) : fi.svf.hs (f, 2, g3) with {g3 = g/3;};
 
+  /* Cascade of shelving filters to apply gain per band.
+   *
+   * `lf` : list of frequencies
+   * followed by (count(lf) +1) gain parameters
+   */
+  shelfcascade(lf) = fbus(lf), ls3(first(lf)) : sc(lf)
+  with {
+    sc((f1, f2, lf)) = fbus((f2,lf)), bs3(f1,f2) : sc((f2,lf)); // recursive pattern
+    sc((f1, f2))     = _, bs3(f1,f2) : hs3(f2);                // halting pattern
+    fbus(l)          = par(i, outputs(l), _);                  // a bus of the size of a list
+    first((x,xs))    = x;                                      // first element of a list
+  };
 
+  /* Cross over frequency range */
+  fl = vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[7][symbol:mscomp_low_crossover][scale:log]low crossover", 60, 20, 4000, 1);
+  fh = vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[7][symbol:mscomp_high_crossover][scale:log]high crossover", 8000, 5000, 20000, 1);
+
+  flist = LogArray (Nr_bands-1, fl, fh);
+
+  /* Compressor settings */
   strength_array = vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[1][unit:%][symbol:mscomp_low_strength]low strength", 10, 0, 100, 1)*0.01,vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[1][unit:%][symbol:mscomp_high_strength]high strength", 10, 0, 100, 1)*0.01:LinArray(Nr_bands);
   thresh_array = target + vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[2][unit:db][symbol:mscomp_low_threshold]low tar-thresh", -2, -12, 12, 0.5),target + vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[2][unit:db][symbol:mscomp_high_threshold]high tar-thresh", -6, -12, 12, 0.5):LinArray(Nr_bands);
   att_array = (vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[3][unit:ms][symbol:mscomp_low_attack]low attack", 15, 0, 100, 0.1)*0.001,vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[3][unit:ms][symbol:mscomp_high_attack]high attack", 3, 0, 100, 0.1)*0.001):LogArray(Nr_bands);
@@ -385,13 +432,8 @@ with {
     t = top:max(ma.EPSILON);
   };
 
-  // make a bottom and a top version of a parameter
-  BTlo(b,t) = BT(b,t):LogArray(Nr_bands);
-  BTli(b,t) = BT(b,t):LinArray(Nr_bands);
   Nr_bands = 8;
-  Nr_crossoverFreqs = Nr_bands-1;
   prePost = 1;
-  maxGR = -30;
 };
 
 
