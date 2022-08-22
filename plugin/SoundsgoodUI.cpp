@@ -4,11 +4,10 @@
 #include "DistrhoPluginInfo.h"
 #include "DistrhoUI.hpp"
 
-#include "NanoVG.hpp"
+#include "SoundsgoodWidgetGroups.hpp"
 #include "extra/ScopedPointer.hpp"
 #include "widgets/InspectorWindow.hpp"
 
-#include "SoundsgoodWidgetGroups.hpp"
 
 START_NAMESPACE_DISTRHO
 
@@ -29,77 +28,43 @@ struct InputMeterGroup : QuantumFrame
 {
     const QuantumTheme& theme;
 
-    QuantumLevelMeter meterL;
-    QuantumLevelMeter meterR;
-    QuantumSpacer spacer;
-    QuantumLevelMeter meterLufs;
+    QuantumStereoLevelMeterWithLUFS meter;
     QuantumMixerSlider slider;
-    QuantumLevelMeter meterGain;
 
     explicit InputMeterGroup(TopLevelWidget* const parent, KnobEventHandler::Callback* const cb, const QuantumTheme& t)
         : QuantumFrame(parent, t),
           theme(t),
-          meterL(this, t),
-          meterR(this, t),
-          spacer(this),
-          meterLufs(this, t),
-          slider(this, t),
-          meterGain(this, t)
+          meter(this, t),
+          slider(this, t)
     {
         setName("Inputs");
+        meter.setName(" + Meter");
 
-        meterL.setId(kParameter_peakmeter_in_l);
-        meterL.setName("In L");
-        meterL.setRange(kParameterRanges[kParameter_peakmeter_in_l].min, kParameterRanges[kParameter_peakmeter_in_l].max);
-        meterL.setValue(kParameterRanges[kParameter_peakmeter_in_l].def);
-
-        meterR.setId(kParameter_peakmeter_in_r);
-        meterR.setName("In R");
-        meterR.setRange(kParameterRanges[kParameter_peakmeter_in_r].min, kParameterRanges[kParameter_peakmeter_in_r].max);
-        meterR.setValue(kParameterRanges[kParameter_peakmeter_in_r].def);
-
-        spacer.setName("Spacer");
-
-        meterLufs.setBackgroundColor(theme.levelMeterAlternativeColor);
-        meterLufs.setId(kParameter_lufs_in);
-        meterLufs.setName("Lufs");
-        meterLufs.setRange(kParameterRanges[kParameter_lufs_in].min, kParameterRanges[kParameter_lufs_in].max);
-        meterLufs.setValue(kParameterRanges[kParameter_lufs_in].def);
+        meter.setRange(kParameterRanges[kParameter_peakmeter_in_l].min, kParameterRanges[kParameter_peakmeter_in_l].max);
+        meter.setValues(kParameterRanges[kParameter_peakmeter_in_l].min,
+                        kParameterRanges[kParameter_peakmeter_in_r].min, 
+                        kParameterRanges[kParameter_lufs_in].min);
 
         slider.setCallback(cb);
         slider.setId(kParameter_target);
         slider.setName("Target");
         slider.setRange(kParameterRanges[kParameter_target].min, kParameterRanges[kParameter_target].max);
         slider.setValue(kParameterRanges[kParameter_target].def, false);
-
-        meterGain.setId(kParameter_leveler_gain);
-        meterGain.setName("Leveler gain");
-        meterGain.setRange(kParameterRanges[kParameter_leveler_gain].min, kParameterRanges[kParameter_leveler_gain].max);
-        meterGain.setValue(kParameterRanges[kParameter_leveler_gain].def);
     }
 
     void adjustSize(const SoundsGoodMetrics& metrics, const uint height)
     {
         const uint usableHeight = height - theme.borderSize * 2 - theme.padding * 2;
-        meterL.setSize(metrics.valueMeterVertical.getWidth(), usableHeight);
-        meterR.setSize(metrics.valueMeterVertical.getWidth(), usableHeight);
-        spacer.setSize(theme.borderSize + theme.padding * 2, usableHeight);
-        meterLufs.setSize(metrics.valueMeterVertical.getWidth()/2, usableHeight);
-        slider.setSize(metrics.valueMeterVertical.getWidth(), usableHeight); // TODO mixer slider metric
-        meterGain.setSize(metrics.valueMeterVertical.getWidth(), usableHeight);
-        setSize(meterL.getWidth() + meterR.getWidth() + meterLufs.getWidth() + spacer.getWidth() + slider.getWidth() + meterGain.getWidth() + theme.borderSize * 3 + theme.padding * 7,
-                height);
+        meter.setSize(metrics.stereoLevelMeterWithLufs.getWidth(), usableHeight);
+        slider.setSize(metrics.mixerSlider.getWidth(), usableHeight - theme.textHeight * 3);
+        setSize(meter.getWidth() + slider.getWidth() + theme.borderSize * 2 + theme.padding * 3, height);
     }
 
     void setAbsolutePos(const int x, const int y)
     {
         QuantumFrame::setAbsolutePos(x, y);
-        meterL.setAbsolutePos(x + theme.borderSize + theme.padding, y + theme.borderSize + theme.padding);
-        meterR.setAbsolutePos(meterL.getAbsoluteX() + meterL.getWidth() + theme.padding, meterL.getAbsoluteY());
-        spacer.setAbsolutePos(meterR.getAbsoluteX() + meterR.getWidth() + theme.padding, meterL.getAbsoluteY());
-        meterLufs.setAbsolutePos(spacer.getAbsoluteX() + spacer.getWidth() + theme.padding, meterL.getAbsoluteY());
-        slider.setAbsolutePos(meterLufs.getAbsoluteX() + meterLufs.getWidth() + theme.padding, meterL.getAbsoluteY());
-        meterGain.setAbsolutePos(slider.getAbsoluteX() + slider.getWidth() + theme.padding, meterL.getAbsoluteY());
+        meter.setAbsolutePos(x + theme.borderSize + theme.padding, y + theme.borderSize + theme.padding);
+        slider.setAbsolutePos(meter.getAbsoluteX() + meter.getWidth() + theme.padding, meter.getAbsoluteY() + theme.textHeight);
     }
 };
 
@@ -108,55 +73,33 @@ struct OutputMeterGroup : QuantumFrame
 {
     const QuantumTheme& theme;
 
-    QuantumLevelMeter meterLufs;
-    QuantumSpacer spacer;
-    QuantumLevelMeter meterL;
-    QuantumLevelMeter meterR;
+    QuantumStereoLevelMeterWithLUFS meter;
 
     explicit OutputMeterGroup(TopLevelWidget* const parent, const QuantumTheme& t)
         : QuantumFrame(parent, t),
           theme(t),
-          meterLufs(this, t),
-          spacer(this),
-          meterL(this, t),
-          meterR(this, t)
+          meter(this, t)
     {
         setName("Outputs");
+        meter.setName(" + Meter");
 
-        meterLufs.setBackgroundColor(theme.levelMeterAlternativeColor);
-        meterLufs.setId(kParameter_lufs_out);
-        meterLufs.setName("Lufs");
-        meterLufs.setRange(kParameterRanges[kParameter_lufs_out].min, kParameterRanges[kParameter_lufs_out].max);
-        meterLufs.setValue(kParameterRanges[kParameter_lufs_out].def);
-
-        meterL.setId(kParameter_peakmeter_out_l);
-        meterL.setName("Out L");
-        meterL.setRange(kParameterRanges[kParameter_peakmeter_out_l].min, kParameterRanges[kParameter_peakmeter_out_l].max);
-        meterL.setValue(kParameterRanges[kParameter_peakmeter_out_l].def);
-
-        meterR.setId(kParameter_peakmeter_out_r);
-        meterR.setName("Out R");
-        meterR.setRange(kParameterRanges[kParameter_peakmeter_out_r].min, kParameterRanges[kParameter_peakmeter_out_r].max);
-        meterR.setValue(kParameterRanges[kParameter_peakmeter_out_r].def);
+        meter.setRange(kParameterRanges[kParameter_peakmeter_out_l].min, kParameterRanges[kParameter_peakmeter_out_l].max);
+        meter.setValues(kParameterRanges[kParameter_peakmeter_out_l].min,
+                        kParameterRanges[kParameter_peakmeter_out_r].min, 
+                        kParameterRanges[kParameter_lufs_out].min);
     }
 
     void adjustSize(const SoundsGoodMetrics& metrics, const uint height)
     {
         const uint usableHeight = height - theme.borderSize * 2 - theme.padding * 2;
-        meterLufs.setSize(metrics.valueMeterVertical.getWidth()/2, usableHeight);
-        spacer.setSize(theme.borderSize + theme.padding * 2, usableHeight);
-        meterL.setSize(metrics.valueMeterVertical.getWidth(), usableHeight);
-        meterR.setSize(metrics.valueMeterVertical.getWidth(), usableHeight);
-        setSize(meterLufs.getWidth() + meterL.getWidth() + meterR.getWidth() + theme.borderSize * 3 + theme.padding * 7, height);
+        meter.setSize(metrics.stereoLevelMeterWithLufs.getWidth(), usableHeight);
+        setSize(meter.getWidth() + theme.borderSize * 2 + theme.padding * 2, height);
     }
 
     void setAbsolutePos(const int x, const int y)
     {
         QuantumFrame::setAbsolutePos(x, y);
-        meterLufs.setAbsolutePos(x + theme.borderSize + theme.padding, y + theme.borderSize + theme.padding);
-        spacer.setAbsolutePos(meterLufs.getAbsoluteX() + meterLufs.getWidth() + theme.padding, meterL.getAbsoluteY());
-        meterL.setAbsolutePos(spacer.getAbsoluteX() + spacer.getWidth() + theme.padding, meterLufs.getAbsoluteY());
-        meterR.setAbsolutePos(meterL.getAbsoluteX() + meterL.getWidth() + theme.padding, meterLufs.getAbsoluteY());
+        meter.setAbsolutePos(x + theme.borderSize + theme.padding, y + theme.borderSize + theme.padding);
     }
 };
 
@@ -282,8 +225,8 @@ class SoundsGoodUI : public UI,
       QuantumValueSliderWithLabel max_plus;
       QuantumValueSliderWithLabel max_minus;
       QuantumLabelWithSeparatorLine separator;
+      QuantumValueMeterWithLabel gain;
       QuantumValueMeterWithLabel gate;
-      // NOTE kParameter_leveler_gain is setup separately
 
       explicit Leveler(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
           : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
@@ -292,6 +235,7 @@ class SoundsGoodUI : public UI,
             max_plus(&frame, theme),
             max_minus(&frame, theme),
             separator(&frame, theme),
+            gain(&frame, theme),
             gate(&frame, theme)
       {
           frame.setName("Leveler");
@@ -304,6 +248,7 @@ class SoundsGoodUI : public UI,
           setupSlider(max_plus, cb, kParameter_leveler_max_plus, 8);
           setupSlider(max_minus, cb, kParameter_leveler_max_minus, 8);
           setupSeparatorLine(separator, "Outputs:");
+          setupMeter(gain, kParameter_leveler_gain, 8);
           setupMeter(gate, kParameter_leveler_gate, 8);
       }
 
@@ -314,6 +259,7 @@ class SoundsGoodUI : public UI,
           max_plus.adjustSize(metrics);
           max_minus.adjustSize(metrics);
           separator.adjustSize(metrics);
+          gain.adjustSize(metrics);
           gate.adjustSize(metrics);
           SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
@@ -330,6 +276,8 @@ class SoundsGoodUI : public UI,
           max_minus.label.setLabelColor(color);
           max_minus.slider.setTextColor(color);
           separator.label.setLabelColor(color);
+          gain.label.setLabelColor(color);
+          gain.meter.setTextColor(color);
           gate.label.setLabelColor(color);
           gate.meter.setTextColor(color);
       }
@@ -963,6 +911,11 @@ public:
 
   ~SoundsGoodUI() override
   {
+      if (inspectorWindow != nullptr)
+      {
+          inspectorWindow->close();
+          inspectorWindow = nullptr;
+      }
   }
 
   void repositionWidgets(const double scaleFactor)
@@ -986,7 +939,7 @@ public:
       const uint easyModeButtonOffset = inputAreaCenter - easyModeButton.getWidth() / 2;
       easyModeButton.setAbsolutePos(windowPadding + easyModeButtonOffset, windowPadding);
       expertModeButton.setAbsolutePos(contentGroup.getAbsoluteX() + easyModeButtonOffset, windowPadding);
-      globalEnableButton.setAbsolutePos(outputGroup.getAbsoluteX() - globalEnableButton.getWidth() * 2 - padding - easyModeButtonOffset, windowPadding);
+      globalEnableButton.setAbsolutePos((getWidth() - globalEnableButton.getWidth()) / 2, windowPadding);
 
       welcomeLabel.setAbsolutePos(contentGroup.getAbsoluteX() + borderSize + padding, startY + borderSize + padding);
       easyMetering.setAbsolutePos(contentGroup.getAbsoluteX() + contentGroup.getWidth() - easyMetering.getWidth() - padding,
@@ -1240,25 +1193,25 @@ protected:
       break;
     // outputs
     case kParameter_peakmeter_in_l:
-      inputGroup.meterL.setValue(value);
+      inputGroup.meter.setValueL(value);
       break;
     case kParameter_peakmeter_in_r:
-      inputGroup.meterR.setValue(value);
+      inputGroup.meter.setValueR(value);
       break;
     case kParameter_lufs_in:
-      inputGroup.meterLufs.setValue(value);
+      inputGroup.meter.setValueLufs(value);
       break;
     case kParameter_leveler_gain:
-      inputGroup.meterGain.setValue(value);
+      leveler.gain.meter.setValue(value);
       break;
     case kParameter_lufs_out:
-      outputGroup.meterLufs.setValue(value);
+      outputGroup.meter.setValueLufs(value);
       break;
     case kParameter_peakmeter_out_l:
-      outputGroup.meterL.setValue(value);
+      outputGroup.meter.setValueL(value);
       break;
     case kParameter_peakmeter_out_r:
-      outputGroup.meterR.setValue(value);
+      outputGroup.meter.setValueR(value);
       break;
     case kParameter_leveler_gate:
       leveler.gate.meter.setValue(value);
@@ -1385,6 +1338,24 @@ protected:
       resizeWidgets(getScaleFactor(), ev.size.getWidth(), ev.size.getHeight());
       UI::onResize(ev);
   }
+
+  /* FOR TESTING
+  static float randomMeterValue()
+  {
+      const double r = static_cast<double>(std::rand()) / RAND_MAX;
+      return r * -70.0;
+  }
+
+  void uiIdle() override
+  {
+      static int doit = 0;
+      if (++doit != 20)
+          return;
+      doit = 0;
+      inputGroup.meter.setValues(randomMeterValue(), randomMeterValue(), randomMeterValue());
+      outputGroup.meter.setValues(randomMeterValue(), randomMeterValue(), randomMeterValue());
+  }
+  */
 
   /* --------------------------------------------------------------------------------------------------------
    * Custom Widget Callbacks */

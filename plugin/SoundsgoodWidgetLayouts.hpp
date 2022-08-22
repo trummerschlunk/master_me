@@ -3,9 +3,7 @@
 
 #pragma once
 
-#include "NanoVG.hpp"
 #include "Quantum.hpp"
-#include "Widget.hpp"
 
 START_NAMESPACE_DGL
 
