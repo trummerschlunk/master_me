@@ -9,6 +9,10 @@ FILES_UI += ../dpf-widgets/opengl/Quantum.cpp
 DPF_TARGET_DIR = ../bin
 DPF_BUILD_DIR = ../build
 DPF_PATH = ../dpf
+
+# force pixel-perfect font positioning
+export NVG_FONT_TEXTURE_FLAGS = NVG_IMAGE_NEAREST
+
 include $(DPF_PATH)/Makefile.plugins.mk
 
 BUILD_CXX_FLAGS += -I../build/soundsgood
