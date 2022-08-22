@@ -20,7 +20,7 @@ init_leveler_target = -18;
 init_leveler_maxboost = 40;
 init_leveler_maxcut = 40;
 init_leveler_gatethreshold = -45;
-init_leveler_speed = .05;
+init_leveler_speed = 25;
 
 init_kneecomp_thresh = -3;
 init_kneecomp_postgain = 0;
@@ -100,7 +100,7 @@ phase_invert_R = _ <: _,_ : (_ : *(-1)),_ : _*sw,_*(1-sw) :> _ with{
 
 // input gain
 in_gain = par(i,2,(_*g)) with{
-  g = vslider("v:soundsgood/t:expert/h:[1]pre-processing/[1][symbol:in_gain]input gain",0,-100,24,1) : ba.db2linear;
+  g = vslider("v:soundsgood/t:expert/h:[1]pre-processing/[1][symbol:in_gain][unit:db]input gain",0,-100,24,1) : ba.db2linear;
 };
 
 // stereo to m/s encoder
@@ -127,10 +127,10 @@ peakmeter_out = out_meter_l,out_meter_r with {
 // GATE
 gate_bp = bp2(checkbox("v:soundsgood/t:expert/h:[2]gate/[1][symbol:gate_bypass]gate bypass"),gate);
 gate = ef.gate_stereo(gate_thresh,gate_att,gate_hold,gate_rel) with{
-  gate_thresh = vslider("v:soundsgood/t:expert/h:[2]gate/[2][unit:dB][symbol:gate_threshold]gate threshold",-90,-90,0,1);
-  gate_att = vslider("v:soundsgood/t:expert/h:[2]gate/[3][symbol:gate_attack]gate attack",0,0,0.1,0.01);
-  gate_hold = vslider("v:soundsgood/t:expert/h:[2]gate/[4][symbol:gate_hold]gate hold",0.1,0,1,0.1);
-  gate_rel = vslider("v:soundsgood/t:expert/h:[2]gate/[5][symbol:gate_release]gate release",0.5,0,5,0.1);
+  gate_thresh = vslider("v:soundsgood/t:expert/h:[2]gate/[2][symbol:gate_threshold][unit:dB]gate threshold",-90,-90,0,1);
+  gate_att = vslider("v:soundsgood/t:expert/h:[2]gate/[3][symbol:gate_attack][unit:ms]gate attack",0,0,100,1) *0.001;
+  gate_hold = vslider("v:soundsgood/t:expert/h:[2]gate/[4][symbol:gate_hold][unit:ms]gate hold",0,0,100,1) *0.001;
+  gate_rel = vslider("v:soundsgood/t:expert/h:[2]gate/[5][symbol:gate_release][unit:ms]gate release",500,50,5000,1) *0.001;
 };
 
 // correlation meter
@@ -215,13 +215,13 @@ with {
 
 
     //leveler_meter_lufs = vbargraph("v:soundsgood/h:easy/[1][unit:dB]leveler lufs-s",-70,0);
-    leveler_meter_gain = vbargraph("v:soundsgood/h:easy/[4]Leveler gain[symbol:leveler_gain]",-50,50);
-    meter_leveler_gate = vbargraph("v:soundsgood/t:expert/h:[3]leveler/[6]leveler gate[symbol:leveler_gate]",0,1);
+    leveler_meter_gain = vbargraph("v:soundsgood/h:easy/[4][unit:db][symbol:leveler_gain]leveler gain",-50,50);
+    meter_leveler_gate = _ * 100 : vbargraph("v:soundsgood/t:expert/h:[3]leveler/[6][unit:%]leveler gate[symbol:leveler_gate]",0,100) * 0.001;
 
-    leveler_speed = vslider("v:soundsgood/t:expert/h:[3]leveler/[4][scale:log]leveler speed[symbol:leveler_speed]", init_leveler_speed, .005, 0.15, .005);
-    leveler_gate_thresh = vslider("v:soundsgood/t:expert/h:[3]leveler/[5]leveler gate threshold[unit:dB][symbol:leveler_gate_threshold]", init_leveler_gatethreshold,-90,0,1);
-    limit_pos = vslider("v:soundsgood/t:expert/h:[3]leveler/[7]leveler max +[symbol:leveler_max_plus]", init_leveler_maxboost, 0, 60, 1);
-    limit_neg = vslider("v:soundsgood/t:expert/h:[3]leveler/[8]leveler max -[symbol:leveler_max_minus]", init_leveler_maxcut, 0, 60, 1) : ma.neg;
+    leveler_speed = vslider("v:soundsgood/t:expert/h:[3]leveler/[4][unit:%][symbol:leveler_speed]leveler speed", init_leveler_speed, 0, 100, 1) * 0.0015; //.005, 0.15, .005);
+    leveler_gate_thresh = vslider("v:soundsgood/t:expert/h:[3]leveler/[5][unit:dB][symbol:leveler_gate_threshold]leveler gate threshold", init_leveler_gatethreshold,-90,0,1);
+    limit_pos = vslider("v:soundsgood/t:expert/h:[3]leveler/[7][symbol:leveler_max_plus][unit:db]leveler max +", init_leveler_maxboost, 0, 60, 1);
+    limit_neg = vslider("v:soundsgood/t:expert/h:[3]leveler/[8][symbol:leveler_max_minus][unit:db]leveler max -", init_leveler_maxcut, 0, 60, 1) : ma.neg;
     fffb = 0; //vslider ("v:soundsgood/t:expert/h:[3]leveler/[9][symbol:leveler_fffb]leveler ff-fb",0,0,1,0.1);
     lp1p(cf) = si.smooth(ba.tau2pole(1/(2*ma.PI*cf)));
 
@@ -280,14 +280,14 @@ with {
     N = 2;
     B = si.bus(2);
     bypass = checkbox("v:soundsgood/t:expert/h:[5]kneecomp/[0][symbol:kneecomp_bypass]kneecomp bypass"):si.smoo;
-    strength = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[1][symbol:kneecomp_strength]kneecomp strength", 0.1, 0, 1, 0.1);
+    strength = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[1][unit:%][symbol:kneecomp_strength]kneecomp strength", 10, 0, 100, 1) * 0.01;
     thresh = target + vslider("v:soundsgood/t:expert/h:[5]kneecomp/[2][symbol:kneecomp_threshold][unit:dB]kneecomp tar-thresh",init_kneecomp_thresh,-12,6,1);
     att = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[3][symbol:kneecomp_attack][unit:ms]kneecomp attack",40,1,100,1)*0.001;
     rel = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[4][symbol:kneecomp_release][unit:ms]kneecomp release",200,1,1000,1)*0.001;
-    knee = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[5][symbol:kneecomp_knee]kneecomp knee",6,0,30,1);
-    link = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[6][symbol:kneecomp_link]kneecomp link", 0.6, 0, 1, 0.1);
-    fffb = vslider ("v:soundsgood/t:expert/h:[5]kneecomp/[7][symbol:kneecomp_fffb]kneecomp ff-fb",0.5,0,1,0.1);
-    dw = vslider ("v:soundsgood/t:expert/h:[5]kneecomp/[9][symbol:kneecomp_drywet]kneecomp dry/wet",100,0,100,1) * 0.01;
+    knee = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[5][unit:db][symbol:kneecomp_knee]kneecomp knee",6,0,30,1);
+    link = vslider("v:soundsgood/t:expert/h:[5]kneecomp/[6][unit:%][symbol:kneecomp_link]kneecomp link", 60, 0, 100, 1) *0.01;
+    fffb = vslider ("v:soundsgood/t:expert/h:[5]kneecomp/[7][unit:%][symbol:kneecomp_fffb]kneecomp ff-fb",50,0,100,1) *0.01;
+    dw = vslider ("v:soundsgood/t:expert/h:[5]kneecomp/[9][unit:%][symbol:kneecomp_drywet]kneecomp dry/wet",100,0,100,1) * 0.01;
 
     dw_bypass = (1-bypass) * dw;
 
@@ -320,7 +320,7 @@ with {
     //post_gain
     post_gain =
         _+
-        (vslider("v:soundsgood/t:expert/h:[5]kneecomp/[8][symbol:kneecomp_makeup][unit:dB]kneecomp makeup", init_kneecomp_postgain,-10,+10,0.5) :si.smoo);
+        (vslider("v:soundsgood/t:expert/h:[5]kneecomp/[8][unit:dB][symbol:kneecomp_makeup]kneecomp makeup", init_kneecomp_postgain,-10,+10,0.5) :si.smoo);
 
 
 
@@ -367,15 +367,14 @@ with {
   meter(i) = _<:(_, (ba.linear2db:max(-40):min(0):vbargraph("v:soundsgood/t:expert/h:[6]mscomp_meter/[%i][unit:dB][tooltip: gain reduction in dB]", -3, 0))):attach;
 
 
-  crossoverFreqs = vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[7][symbol:mscomp_low_crossover][scale:log]low crossover", 60, 20, 20000, 1),vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[7][symbol:mscomp_high_crossover][scale:log]high crossover", 8000, 20, 20000, 1):LogArray(Nr_crossoverFreqs);
-  //crossoverFreqs = 60,8000 :LogArray(Nr_crossoverFreqs);
-  strength_array = vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[1][symbol:mscomp_low_strength]low strength", 0.1, 0, 8, 0.1),vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[1][symbol:mscomp_high_strength]high strength", 0.3, 0, 8, 0.1):LinArray(Nr_bands);
-  thresh_array = target + vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[2][symbol:mscomp_low_threshold]low tar-thresh", -2, -12, 12, 0.5),target + vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[2][symbol:mscomp_high_threshold]high tar-thresh", -6, -12, 12, 0.5):LinArray(Nr_bands);
-  att_array = (vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[3][symbol:mscomp_low_attack]low attack", 15, 0, 100, 0.1)*0.001,vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[3][symbol:mscomp_high_attack]high attack", 3, 0, 100, 0.1)*0.001):LogArray(Nr_bands);
-  rel_array = (vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[4][symbol:mscomp_low_release]low release", 150, 1, 1000, 1)*0.001,vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[4][symbol:mscomp_high_release]high release", 30, 1, 1000, 1)*0.001):LogArray(Nr_bands);
-  knee_array = (vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[5][symbol:mscomp_low_knee]low knee", 12, 0, 30, 0.1),vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[5][symbol:mscomp_high_knee]high knee", 12, 0, 30, 0.1)):LinArray(Nr_bands);
-  link_array = (vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[6][symbol:mscomp_low_link]low link", 0.6, 0, 1, 0.1),vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[6][symbol:mscomp_high_link]high link", 0.3, 0, 1, 0.1)):LinArray(Nr_bands);
-  mscomp8i_outGain = vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[3]out/[3][symbol:mscomp_output_gain]output gain", 1, -6, 6, 0.5):ba.db2linear;
+  strength_array = vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[1][unit:%][symbol:mscomp_low_strength]low strength", 10, 0, 100, 1)*0.01,vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[1][unit:%][symbol:mscomp_high_strength]high strength", 10, 0, 100, 1)*0.01:LinArray(Nr_bands);
+  thresh_array = target + vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[2][unit:db][symbol:mscomp_low_threshold]low tar-thresh", -2, -12, 12, 0.5),target + vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[2][unit:db][symbol:mscomp_high_threshold]high tar-thresh", -6, -12, 12, 0.5):LinArray(Nr_bands);
+  att_array = (vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[3][unit:ms][symbol:mscomp_low_attack]low attack", 15, 0, 100, 0.1)*0.001,vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[3][unit:ms][symbol:mscomp_high_attack]high attack", 3, 0, 100, 0.1)*0.001):LogArray(Nr_bands);
+  rel_array = (vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[4][unit:ms][symbol:mscomp_low_release]low release", 150, 1, 1000, 1)*0.001,vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[4][unit:ms][symbol:mscomp_high_release]high release", 30, 1, 1000, 1)*0.001):LogArray(Nr_bands);
+  knee_array = (vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[5][unit:db][symbol:mscomp_low_knee]low knee", 12, 0, 30, 0.1),vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[5][unit:db][symbol:mscomp_high_knee]high knee", 12, 0, 30, 0.1)):LinArray(Nr_bands);
+  link_array = (vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[6][unit:%][symbol:mscomp_low_link]low link", 60, 0, 100, 1)*0.01,vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[6][unit:%][symbol:mscomp_high_link]high link", 30, 0, 100, 1)*0.01):LinArray(Nr_bands);
+  crossoverFreqs = vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[7][unit:Hz][symbol:mscomp_low_crossover][scale:log]low crossover", 60, 20, 20000, 1),vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[7][unit:Hz][symbol:mscomp_high_crossover][scale:log]high crossover", 8000, 20, 20000, 1):LogArray(Nr_crossoverFreqs);
+  mscomp8i_outGain = vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[3]out/[3][unit:db][symbol:mscomp_output_gain]output gain", 1, -6, 6, 0.5):ba.db2linear;
 
   // make a linear array of values, from bottom to top
   LinArray(N,bottom,top) = par(i,N,   ((top-bottom)*(i/(N-1)))+bottom);
@@ -399,19 +398,19 @@ with {
 // LIMITER
 limiter_rms_bp = bp2(checkbox("v:soundsgood/t:expert/h:[7]limiter/[0]limiter bypass[symbol:limiter_bypass]"),limiter_rms);
 limiter_rms = co.RMS_FBFFcompressor_N_chan(strength,thresh,att,rel,knee,0,1,fffb,limiter_meter,2) : post_gain with{
-    strength = vslider("v:soundsgood/t:expert/h:[7]limiter/[1][symbol:limiter_strength]limiter strength", 0.8, 0, 1, 0.1);
+    strength = vslider("v:soundsgood/t:expert/h:[7]limiter/[1][unit:%][symbol:limiter_strength]limiter strength", 80, 0, 100, 1) *0.01;
     thresh = target + vslider("v:soundsgood/t:expert/h:[7]limiter/[2][symbol:limiter_threshold][unit:dB]limiter tar-thresh",6,-12,12,1);
-    att = vslider("v:soundsgood/t:expert/h:[7]limiter/[3][symbol:limiter_attack]limiter attack",1,0,100,1)*0.001;
-    rel = vslider("v:soundsgood/t:expert/h:[7]limiter/[4][symbol:limiter_release]limiter release",40,1,400,1)*0.001;
+    att = vslider("v:soundsgood/t:expert/h:[7]limiter/[3][unit:ms][symbol:limiter_attack]limiter attack",1,0,100,1)*0.001;
+    rel = vslider("v:soundsgood/t:expert/h:[7]limiter/[4][unit:ms][symbol:limiter_release]limiter release",40,1,400,1)*0.001;
     knee = vslider("v:soundsgood/t:expert/h:[7]limiter/[5][symbol:limiter_knee][unit:dB]limiter knee",8,0,12,1);
 
-    fffb = vslider ("v:soundsgood/t:expert/h:[7]limiter/[6][symbol:limiter_fffb]limiter ff-fb",0.5,0,1,0.1);
+    fffb = vslider ("v:soundsgood/t:expert/h:[7]limiter/[6][unit:%][symbol:limiter_fffb]limiter ff-fb",50,0,100,1)*0.01;
     // post_gain
     post_gain = par(i,Nch,_ * limiter_postgain) with {
 
     };
 
-    limiter_postgain = vslider("v:soundsgood/t:expert/h:[7]limiter/[8]limiter makeup[unit:dB][symbol:limiter_makeup]", init_limiter_postgain,-10,+10,0.5) : ba.db2linear;
+    limiter_postgain = vslider("v:soundsgood/t:expert/h:[7]limiter/[8][unit:dB][symbol:limiter_makeup]limiter makeup", init_limiter_postgain,-10,+10,0.5) : ba.db2linear;
     limiter_meter = _ <: attach(ba.linear2db : vbargraph("v:soundsgood/t:expert/h:[7]limiter/[9][unit:dB][symbol:limiter_gain_reduction]limiter gain reduction",-12,0));
 };
 
