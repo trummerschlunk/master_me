@@ -109,7 +109,7 @@ class SoundsGoodUI : public UI,
                      public ButtonEventHandler::Callback,
                      public KnobEventHandler::Callback
 {
-  static const uint kInitialWidth = 1000;
+  static const uint kInitialWidth = 1010;
   static const uint kInitialHeight = 600;
 
   ScopedPointer<InspectorWindow> inspectorWindow;
@@ -390,8 +390,8 @@ class SoundsGoodUI : public UI,
           setupSlider(makeup, cb, kParameter_kneecomp_makeup, 9);
           setupSlider(drywet, cb, kParameter_kneecomp_drywet, 9);
           setupSeparatorLine(separator, "Outputs:");
-          setupMeter(m1, kParameter_69, 0);
-          setupMeter(m2, kParameter_70, 0);
+          setupMeter(m1, kParameter_70, 0);
+          setupMeter(m2, kParameter_71, 0);
       }
 
       void adjustSize(const QuantumMetrics& metrics) override
@@ -503,8 +503,8 @@ class SoundsGoodUI : public UI,
           labelsMid.label8.setLabel("8");
           items.push_back(&labelsMid);
 
-          setupMeters(metersM, "  m  ", kParameter_71);
-          setupMeters(metersS, "  s  ", kParameter_79);
+          setupMeters(metersM, "  m  ", kParameter_72);
+          setupMeters(metersS, "  s  ", kParameter_80);
 
           outputGain.slider.setCallback(cb);
           outputGain.slider.setId(kParameter_mscomp_output_gain);
@@ -721,18 +721,20 @@ class SoundsGoodUI : public UI,
       }
   } limiter;
 
-  struct Brickwall : SoundsgoodParameterGroupWithoutBypassSwitch {
+  struct Brickwall : SoundsgoodParameterGroupWithBypassSwitch {
       QuantumValueSliderWithLabel ceiling;
       QuantumValueSliderWithLabel release;
       QuantumValueMeterWithLabel limit;
 
-      explicit Brickwall(TopLevelWidget* const parent, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
-          : SoundsgoodParameterGroupWithoutBypassSwitch(parent, theme),
+      explicit Brickwall(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
+          : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
             ceiling(&frame, theme),
             release(&frame, theme),
             limit(&frame, theme)
       {
           frame.setName("Brickwall");
+          frame.mainWidget.setCallback(bcb);
+          frame.mainWidget.setId(kParameter_brickwall_bypass);
           frame.mainWidget.setLabel("Brickwall");
 
           setupSlider(ceiling, cb, kParameter_brickwall_ceiling, 10);
@@ -745,7 +747,18 @@ class SoundsGoodUI : public UI,
           ceiling.adjustSize(metrics);
           release.adjustSize(metrics);
           limit.adjustSize(metrics);
-          SoundsgoodParameterGroupWithoutBypassSwitch::adjustSize(metrics);
+          SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
+      }
+
+      void setEnabledColor(const bool enabled)
+      {
+          const Color color = enabled ? theme.textLightColor : theme.textDarkColor;
+          ceiling.label.setLabelColor(color);
+          ceiling.slider.setTextColor(color);
+          release.label.setLabelColor(color);
+          release.slider.setTextColor(color);
+          limit.label.setLabelColor(color);
+          limit.meter.setTextColor(color);
       }
   } brickwall;
 
@@ -839,7 +852,7 @@ public:
         kneeComp(this, this, this, theme),
         msCompressor(this, this, this, theme),
         limiter(this, this, this, theme),
-        brickwall(this, this, theme),
+        brickwall(this, this, this, theme),
         presetButtons(this, this, theme)
   {
     loadSharedResources();
@@ -1192,6 +1205,10 @@ protected:
     case kParameter_limiter_makeup:
       limiter.makeup.slider.setValue(value, false);
       break;
+    case kParameter_brickwall_bypass:
+      brickwall.frame.mainWidget.setChecked(value < 0.5f, false);
+      brickwall.setEnabledColor(value < 0.5f);
+      break;
     case kParameter_brickwall_ceiling:
       brickwall.ceiling.slider.setValue(value, false);
       break;
@@ -1223,58 +1240,58 @@ protected:
     case kParameter_leveler_gate:
       leveler.gate.meter.setValue(value);
       break;
-    case kParameter_69:
+    case kParameter_70:
       kneeComp.m1.meter.setValue(value);
       break;
-    case kParameter_70:
+    case kParameter_71:
       kneeComp.m2.meter.setValue(value);
       break;
-    case kParameter_71:
+    case kParameter_72:
       msCompressor.metersM.m1.setValue(value);
       break;
-    case kParameter_72:
+    case kParameter_73:
       msCompressor.metersS.m1.setValue(value);
       break;
-    case kParameter_73:
+    case kParameter_74:
       msCompressor.metersM.m2.setValue(value);
       break;
-    case kParameter_74:
+    case kParameter_75:
       msCompressor.metersS.m2.setValue(value);
       break;
-    case kParameter_75:
+    case kParameter_76:
       msCompressor.metersM.m3.setValue(value);
       break;
-    case kParameter_76:
+    case kParameter_77:
       msCompressor.metersS.m3.setValue(value);
       break;
-    case kParameter_77:
+    case kParameter_78:
       msCompressor.metersM.m4.setValue(value);
       break;
-    case kParameter_78:
+    case kParameter_79:
       msCompressor.metersS.m4.setValue(value);
       break;
-    case kParameter_79:
+    case kParameter_80:
       msCompressor.metersM.m5.setValue(value);
       break;
-    case kParameter_80:
+    case kParameter_81:
       msCompressor.metersS.m5.setValue(value);
       break;
-    case kParameter_81:
+    case kParameter_82:
       msCompressor.metersM.m6.setValue(value);
       break;
-    case kParameter_82:
+    case kParameter_83:
       msCompressor.metersS.m6.setValue(value);
       break;
-    case kParameter_83:
+    case kParameter_84:
       msCompressor.metersM.m7.setValue(value);
       break;
-    case kParameter_84:
+    case kParameter_85:
       msCompressor.metersS.m7.setValue(value);
       break;
-    case kParameter_85:
+    case kParameter_86:
       msCompressor.metersM.m8.setValue(value);
       break;
-    case kParameter_86:
+    case kParameter_87:
       msCompressor.metersS.m8.setValue(value);
       break;
     case kParameter_limiter_gain_reduction:
@@ -1289,8 +1306,8 @@ protected:
     }
 
     // easy meters
-    if (index >= kParameter_69 && index <= kParameter_86)
-      easyMetering.setValue(index - kParameter_69, value);
+    if (index >= kParameter_70 && index <= kParameter_87)
+      easyMetering.setValue(index - kParameter_70, value);
   }
 
     void stateChanged(const char* key, const char* value) override
@@ -1411,6 +1428,10 @@ protected:
           break;
       case kParameter_limiter_bypass:
           limiter.setEnabledColor(enabled);
+          reportGroupBypassChanged(id, enabled);
+          break;
+      case kParameter_brickwall_bypass:
+          brickwall.setEnabledColor(enabled);
           reportGroupBypassChanged(id, enabled);
           break;
       // regular switches, normal operation
