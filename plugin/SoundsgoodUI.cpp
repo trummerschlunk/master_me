@@ -356,6 +356,9 @@ class SoundsGoodUI : public UI,
       QuantumValueSliderWithLabel fffb;
       QuantumValueSliderWithLabel makeup;
       QuantumValueSliderWithLabel drywet;
+      QuantumLabelWithSeparatorLine separator;
+      QuantumValueMeterWithLabel m1; // FIXME name this
+      QuantumValueMeterWithLabel m2; // FIXME name this
 
       explicit KneeCompressor(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
           : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
@@ -367,7 +370,10 @@ class SoundsGoodUI : public UI,
             link(&frame, theme),
             fffb(&frame, theme),
             makeup(&frame, theme),
-            drywet(&frame, theme)
+            drywet(&frame, theme),
+            separator(&frame, theme),
+            m1(&frame, theme),
+            m2(&frame, theme)
       {
           frame.setName("Knee Compressor");
           frame.mainWidget.setCallback(bcb);
@@ -383,6 +389,9 @@ class SoundsGoodUI : public UI,
           setupSlider(fffb, cb, kParameter_kneecomp_fffb, 9);
           setupSlider(makeup, cb, kParameter_kneecomp_makeup, 9);
           setupSlider(drywet, cb, kParameter_kneecomp_drywet, 9);
+          setupSeparatorLine(separator, "Outputs:");
+          setupMeter(m1, kParameter_69, 0);
+          setupMeter(m2, kParameter_70, 0);
       }
 
       void adjustSize(const QuantumMetrics& metrics) override
@@ -395,7 +404,9 @@ class SoundsGoodUI : public UI,
           link.adjustSize(metrics);
           fffb.adjustSize(metrics);
           makeup.adjustSize(metrics);
-          drywet.adjustSize(metrics);
+          separator.adjustSize(metrics);
+          m1.adjustSize(metrics);
+          m2.adjustSize(metrics);
           SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
 
@@ -420,6 +431,11 @@ class SoundsGoodUI : public UI,
           makeup.slider.setTextColor(color);
           drywet.label.setLabelColor(color);
           drywet.slider.setTextColor(color);
+          separator.label.setLabelColor(color);
+          m1.label.setLabelColor(color);
+          m1.meter.setTextColor(color);
+          m2.label.setLabelColor(color);
+          m2.meter.setTextColor(color);
       }
   } kneeComp;
 
@@ -485,11 +501,10 @@ class SoundsGoodUI : public UI,
           labelsMid.label6.setLabel("6");
           labelsMid.label7.setLabel("7");
           labelsMid.label8.setLabel("8");
-          labelsMid.label9.setLabel("9");
           items.push_back(&labelsMid);
 
-          setupMeters(metersM, "  m  ", kParameter_69);
-          setupMeters(metersS, "  s  ", kParameter_78);
+          setupMeters(metersM, "  m  ", kParameter_71);
+          setupMeters(metersS, "  s  ", kParameter_79);
 
           outputGain.slider.setCallback(cb);
           outputGain.slider.setId(kParameter_mscomp_output_gain);
@@ -523,7 +538,6 @@ class SoundsGoodUI : public UI,
           labelsMid.label6.setSize(labelsMidSize);
           labelsMid.label7.setSize(labelsMidSize);
           labelsMid.label8.setSize(labelsMidSize);
-          labelsMid.label9.setSize(labelsMidSize);
           metersM.adjustSize(metrics);
           metersS.adjustSize(metrics);
           outputGain.adjustSize(metrics);
@@ -564,7 +578,6 @@ class SoundsGoodUI : public UI,
           labelsMid.label6.setLabelColor(color);
           labelsMid.label7.setLabelColor(color);
           labelsMid.label8.setLabelColor(color);
-          labelsMid.label9.setLabelColor(color);
           metersM.label.setLabelColor(color);
           metersS.label.setLabelColor(color);
           outputGain.label.setLabelColor(color);
@@ -581,7 +594,6 @@ class SoundsGoodUI : public UI,
           w.m6.setId(idStart + 5);
           w.m7.setId(idStart + 6);
           w.m8.setId(idStart + 7);
-          w.m9.setId(idStart + 8);
 
           w.m1.setName(kParameterNames[idStart + 0]);
           w.m2.setName(kParameterNames[idStart + 1]);
@@ -591,7 +603,6 @@ class SoundsGoodUI : public UI,
           w.m6.setName(kParameterNames[idStart + 5]);
           w.m7.setName(kParameterNames[idStart + 6]);
           w.m8.setName(kParameterNames[idStart + 7]);
-          w.m9.setName(kParameterNames[idStart + 8]);
 
           w.m1.setRange(kParameterRanges[idStart + 0].min,
                         kParameterRanges[idStart + 0].max);
@@ -609,8 +620,6 @@ class SoundsGoodUI : public UI,
                         kParameterRanges[idStart + 6].max);
           w.m8.setRange(kParameterRanges[idStart + 7].min,
                         kParameterRanges[idStart + 7].max);
-          w.m9.setRange(kParameterRanges[idStart + 8].min,
-                        kParameterRanges[idStart + 8].max);
 
           w.m1.setUnitLabel(kParameterUnits[idStart + 0]);
           w.m2.setUnitLabel(kParameterUnits[idStart + 1]);
@@ -620,7 +629,6 @@ class SoundsGoodUI : public UI,
           w.m6.setUnitLabel(kParameterUnits[idStart + 5]);
           w.m7.setUnitLabel(kParameterUnits[idStart + 6]);
           w.m8.setUnitLabel(kParameterUnits[idStart + 7]);
-          w.m9.setUnitLabel(kParameterUnits[idStart + 8]);
 
           w.m1.setValue(kParameterRanges[idStart + 0].def);
           w.m2.setValue(kParameterRanges[idStart + 1].def);
@@ -630,7 +638,6 @@ class SoundsGoodUI : public UI,
           w.m6.setValue(kParameterRanges[idStart + 5].def);
           w.m7.setValue(kParameterRanges[idStart + 6].def);
           w.m8.setValue(kParameterRanges[idStart + 7].def);
-          w.m9.setValue(kParameterRanges[idStart + 8].def);
 
           w.label.setLabel(label);
           w.label.setName(label);
@@ -1217,58 +1224,58 @@ protected:
       leveler.gate.meter.setValue(value);
       break;
     case kParameter_69:
-      msCompressor.metersM.m1.setValue(value);
+      kneeComp.m1.meter.setValue(value);
       break;
     case kParameter_70:
-      msCompressor.metersS.m1.setValue(value);
+      kneeComp.m2.meter.setValue(value);
       break;
     case kParameter_71:
-      msCompressor.metersM.m2.setValue(value);
+      msCompressor.metersM.m1.setValue(value);
       break;
     case kParameter_72:
-      msCompressor.metersS.m2.setValue(value);
+      msCompressor.metersS.m1.setValue(value);
       break;
     case kParameter_73:
-      msCompressor.metersM.m3.setValue(value);
+      msCompressor.metersM.m2.setValue(value);
       break;
     case kParameter_74:
-      msCompressor.metersS.m3.setValue(value);
+      msCompressor.metersS.m2.setValue(value);
       break;
     case kParameter_75:
-      msCompressor.metersM.m4.setValue(value);
+      msCompressor.metersM.m3.setValue(value);
       break;
     case kParameter_76:
-      msCompressor.metersS.m4.setValue(value);
+      msCompressor.metersS.m3.setValue(value);
       break;
     case kParameter_77:
-      msCompressor.metersM.m5.setValue(value);
+      msCompressor.metersM.m4.setValue(value);
       break;
     case kParameter_78:
-      msCompressor.metersS.m5.setValue(value);
+      msCompressor.metersS.m4.setValue(value);
       break;
     case kParameter_79:
-      msCompressor.metersM.m6.setValue(value);
+      msCompressor.metersM.m5.setValue(value);
       break;
     case kParameter_80:
-      msCompressor.metersS.m6.setValue(value);
+      msCompressor.metersS.m5.setValue(value);
       break;
     case kParameter_81:
-      msCompressor.metersM.m7.setValue(value);
+      msCompressor.metersM.m6.setValue(value);
       break;
     case kParameter_82:
-      msCompressor.metersS.m7.setValue(value);
+      msCompressor.metersS.m6.setValue(value);
       break;
     case kParameter_83:
-      msCompressor.metersM.m8.setValue(value);
+      msCompressor.metersM.m7.setValue(value);
       break;
     case kParameter_84:
-      msCompressor.metersS.m8.setValue(value);
+      msCompressor.metersS.m7.setValue(value);
       break;
     case kParameter_85:
-      msCompressor.metersM.m9.setValue(value);
+      msCompressor.metersM.m8.setValue(value);
       break;
     case kParameter_86:
-      msCompressor.metersS.m9.setValue(value);
+      msCompressor.metersS.m8.setValue(value);
       break;
     case kParameter_limiter_gain_reduction:
       limiter.gainReduction.meter.setValue(value);

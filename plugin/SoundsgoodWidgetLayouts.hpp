@@ -214,7 +214,7 @@ struct MultiBandCompressorOutputGainGroup : HorizontalLayout
 struct MultiBandCompressorLabels : HorizontalLayout
 {
     QuantumSpacer spacer1;
-    QuantumLabel label1, label2, label3, label4, label5, label6, label7, label8, label9;
+    QuantumLabel label1, label2, label3, label4, label5, label6, label7, label8;
     QuantumSpacer spacer2;
 
     explicit MultiBandCompressorLabels(NanoSubWidget* const parent, const QuantumTheme& theme)
@@ -227,7 +227,6 @@ struct MultiBandCompressorLabels : HorizontalLayout
           label6(parent, theme),
           label7(parent, theme),
           label8(parent, theme),
-          label9(parent, theme),
           spacer2(parent)
     {
         label1.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
@@ -238,7 +237,6 @@ struct MultiBandCompressorLabels : HorizontalLayout
         label6.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
         label7.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
         label8.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
-        label9.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
 
         widgets.push_back({ &spacer1, Expanding });
         widgets.push_back({ &label1, Fixed });
@@ -249,7 +247,6 @@ struct MultiBandCompressorLabels : HorizontalLayout
         widgets.push_back({ &label6, Fixed });
         widgets.push_back({ &label7, Fixed });
         widgets.push_back({ &label8, Fixed });
-        widgets.push_back({ &label9, Fixed });
         widgets.push_back({ &spacer2, Expanding });
     }
 
@@ -263,7 +260,6 @@ struct MultiBandCompressorLabels : HorizontalLayout
         label6.adjustSize();
         label7.adjustSize();
         label8.adjustSize();
-        label9.adjustSize();
     }
 };
 
@@ -273,7 +269,7 @@ struct MultiBandCompressorLabels : HorizontalLayout
 struct MultiBandCompressorValueMeters : HorizontalLayout
 {
     QuantumLabel label;
-    QuantumValueMeter m1, m2, m3, m4, m5, m6, m7, m8, m9;
+    QuantumValueMeter m1, m2, m3, m4, m5, m6, m7, m8;
     QuantumSpacer spacer;
 
     explicit MultiBandCompressorValueMeters(NanoSubWidget* const parent, const QuantumTheme& theme)
@@ -286,7 +282,6 @@ struct MultiBandCompressorValueMeters : HorizontalLayout
           m6(parent, theme),
           m7(parent, theme),
           m8(parent, theme),
-          m9(parent, theme),
           spacer(parent)
     {
         label.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_MIDDLE);
@@ -299,7 +294,6 @@ struct MultiBandCompressorValueMeters : HorizontalLayout
         m6.setOrientation(QuantumValueMeter::TopToBottom);
         m7.setOrientation(QuantumValueMeter::TopToBottom);
         m8.setOrientation(QuantumValueMeter::TopToBottom);
-        m9.setOrientation(QuantumValueMeter::TopToBottom);
 
         widgets.push_back({ &label, Expanding });
         widgets.push_back({ &m1, Fixed });
@@ -310,7 +304,6 @@ struct MultiBandCompressorValueMeters : HorizontalLayout
         widgets.push_back({ &m6, Fixed });
         widgets.push_back({ &m7, Fixed });
         widgets.push_back({ &m8, Fixed });
-        widgets.push_back({ &m9, Fixed });
         widgets.push_back({ &spacer, Expanding });
     }
 
@@ -325,7 +318,6 @@ struct MultiBandCompressorValueMeters : HorizontalLayout
         m6.setSize(metrics.valueMeterVertical);
         m7.setSize(metrics.valueMeterVertical);
         m8.setSize(metrics.valueMeterVertical);
-        m9.setSize(metrics.valueMeterVertical);
     }
 };
 
