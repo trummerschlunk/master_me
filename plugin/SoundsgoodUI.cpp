@@ -1415,6 +1415,10 @@ protected:
           break;
       // regular switches, normal operation
       case kParameter_mono:
+      case kParameter_phase_l:
+      case kParameter_phase_r:
+      case kParameter_dc_blocker:
+      case kParameter_stereo_correct:
           editParameter(id, true);
           setParameterValue(id, qswitch->isChecked() ? 1.f : 0.f);
           editParameter(id, false);
