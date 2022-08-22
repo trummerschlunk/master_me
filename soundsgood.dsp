@@ -65,7 +65,7 @@ process =
            : limiter_rms_bp
              // : brickwall_bp
 
-           : brickwall_no_latency
+           : brickwall_no_latency_bp
 
           )~(si.bus(2))
     )~(si.bus(2))
@@ -448,6 +448,7 @@ brickwall = limiter_lad_N(N, limiter_lad_lookahead, limiter_lad_ceil, limiter_la
 };
 
 // LIMITER NO LATENCY
+brickwall_no_latency_bp = bp2(checkbox("v:soundsgood/t:expert/h:[8]brickwall/[1][symbol:brickwall_bypass]brickwall bypass"),brickwall_no_latency);
 brickwall_no_latency =
     co.FFcompressor_N_chan(1,threshLim,att,rel,knee,0,link,meter_brickwall,2)
 with {
