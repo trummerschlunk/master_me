@@ -15,6 +15,7 @@ export NVG_FONT_TEXTURE_FLAGS = NVG_IMAGE_NEAREST
 
 include $(DPF_PATH)/Makefile.plugins.mk
 
+BUILD_CXX_FLAGS += -I../build
 BUILD_CXX_FLAGS += -I../build/soundsgood
 BUILD_CXX_FLAGS += -I../dpf-widgets/opengl
 

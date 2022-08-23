@@ -8,6 +8,7 @@
 #include "extra/ScopedPointer.hpp"
 #include "widgets/InspectorWindow.hpp"
 
+#include "BuildInfo.hpp"
 
 START_NAMESPACE_DISTRHO
 
@@ -48,7 +49,8 @@ struct InputMeterGroup : QuantumFrame
         slider.setCallback(cb);
         slider.setId(kParameter_target);
         slider.setName("Target");
-        slider.setRange(kParameterRanges[kParameter_target].min, kParameterRanges[kParameter_target].max);
+        // NOTE this slider widget assumes -50 to 0 dB range
+        // slider.setRange(kParameterRanges[kParameter_target].min, kParameterRanges[kParameter_target].max);
         slider.setValue(kParameterRanges[kParameter_target].def, false);
     }
 
@@ -188,6 +190,33 @@ struct TopCenteredGroup : QuantumFrame
     }
 };
 
+// custom widget for drawing build info within frame
+struct ContentGroup : QuantumFrame
+{
+    const QuantumTheme& theme;
+
+public:
+    explicit ContentGroup(TopLevelWidget* const parent, const QuantumTheme& t)
+        : QuantumFrame(parent, t),
+          theme(t)
+    {
+        loadSharedResources();
+        setName("Name");
+    }
+
+    void onNanoDisplay() override
+    {
+        QuantumFrame::onNanoDisplay();
+
+        fillColor(theme.textMidColor);
+        fontSize(theme.fontSize);
+        textAlign(ALIGN_BOTTOM|ALIGN_RIGHT);
+        textBox(0, getHeight() - theme.fontSize * 5 - theme.borderSize,
+                getWidth() - theme.borderSize - theme.padding,
+                kBuildInfoString, nullptr);
+    }
+};
+
 // custom widget for drawing plugin name (so it appears on top of other widgets if needed)
 class SoundsgoodNameWidget : public NanoSubWidget
 {
@@ -247,7 +276,7 @@ class SoundsGoodUI : public UI,
   // group of widgets
   TopCenteredGroup topCenteredGroup;
   InputMeterGroup inputGroup;
-  QuantumFrame contentGroup;
+  ContentGroup contentGroup;
   OutputMeterGroup outputGroup;
 
   // easy mode labels
@@ -1052,14 +1081,14 @@ public:
       }
   }
 
-  void repositionWidgets(const double scaleFactor)
+  void repositionWidgets()
   {
       const SoundsGoodMetrics metrics(theme);
 
       const uint width = getWidth();
-      const uint borderSize = theme.borderSize * scaleFactor;
-      const uint padding = theme.padding * scaleFactor;
-      const uint windowPadding = theme.windowPadding * scaleFactor;
+      const uint borderSize = theme.borderSize;
+      const uint padding = theme.padding;
+      const uint windowPadding = theme.windowPadding;
       const uint startY = windowPadding * 2 + metrics.button.getHeight();
 
       topCenteredGroup.setAbsolutePos(windowPadding, windowPadding);
@@ -1079,7 +1108,7 @@ public:
       expertModeButton.setAbsolutePos(contentGroup.getAbsoluteX() + easyModeButtonOffset, windowPadding);
 
       welcomeLabel.setAbsolutePos(contentGroup.getAbsoluteX() + borderSize + padding, startY + borderSize + padding);
-      easyMetering.setAbsolutePos(contentGroup.getAbsoluteX() + contentGroup.getWidth() - easyMetering.getWidth() - padding,
+      easyMetering.setAbsolutePos(contentGroup.getAbsoluteX() + borderSize + padding,
                                   startY + contentGroup.getHeight() - easyMetering.getHeight() - padding);
 
       // 1st row
@@ -1131,7 +1160,7 @@ public:
       limiter.adjustSize(metrics);
       brickwall.adjustSize(metrics);
 
-      repositionWidgets(scaleFactor);
+      repositionWidgets();
   }
 
 protected:

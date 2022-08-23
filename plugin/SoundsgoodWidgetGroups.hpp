@@ -68,6 +68,7 @@ struct SoundsgoodParameterGroup : VerticallyStackedHorizontalLayout
         w.slider.setCallback(cb);
         w.slider.setId(id);
         w.slider.setName(kParameterNames[id]);
+        w.slider.setDefault(kParameterRanges[id].def);
         w.slider.setRange(kParameterRanges[id].min, kParameterRanges[id].max);
         w.slider.setUnitLabel(kParameterUnits[id]);
         w.slider.setValue(kParameterRanges[id].def, false);
@@ -84,6 +85,8 @@ struct SoundsgoodParameterGroup : VerticallyStackedHorizontalLayout
         w.sliderR.setId(id + idOffset);
         w.sliderL.setName(kParameterNames[id]);
         w.sliderR.setName(kParameterNames[id + idOffset]);
+        w.sliderL.setDefault(kParameterRanges[id].def);
+        w.sliderR.setDefault(kParameterRanges[id + idOffset].def);
         w.sliderL.setRange(kParameterRanges[id].min, kParameterRanges[id].max);
         w.sliderR.setRange(kParameterRanges[id + idOffset].min, kParameterRanges[id + idOffset].max);
         w.sliderL.setUnitLabel(kParameterUnits[id]);

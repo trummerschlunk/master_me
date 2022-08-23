@@ -47,6 +47,7 @@ PLUGIN_GENERATED_FILES  = $(foreach f,$(PLUGIN_TEMPLATE_FILES),build/soundsgood/
 PLUGIN_GENERATED_FILES += bin/soundsgood.lv2/manifest.ttl
 PLUGIN_GENERATED_FILES += bin/soundsgood.lv2/plugin.ttl
 PLUGIN_GENERATED_FILES += bin/soundsgood.lv2/ui.ttl
+PLUGIN_GENERATED_FILES += build/BuildInfo.hpp
 
 gen: $(PLUGIN_GENERATED_FILES)
 
@@ -87,6 +88,17 @@ bin/soundsgood.lv2/%: soundsgood.dsp template/LV2/% faustpp
 build/soundsgood/%: soundsgood.dsp template/% faustpp
 	mkdir -p build/soundsgood
 	$(FAUSTPP_EXEC) $(FAUSTPP_ARGS) -a template/$* $< -o $@
+
+# regenerated on every possible change
+build/BuildInfo.hpp: soundsgood.dsp plugin/* template/* template/LV2/*
+	mkdir -p build
+	echo 'constexpr const char* const kBuildInfoString = ""' > $@
+	echo '"  4ohm.de | soundsgood  \\n"' >> $@
+	echo '"A plugin by Klaus Scheuermann\\n"' >> $@
+	echo '"With contributions from falkTX, magnetophon, x42 and others.\\n\\n"' >> $@
+	echo '"Using `$(shell git branch --show-current)` branch, with commit:\\n"' >> $@
+	echo '"$(shell git log -n 1 --decorate=no --pretty=oneline --abbrev-commit)\\n"' >> $@
+	echo ';' >> $@
 
 # ---------------------------------------------------------------------------------------------------------------------
 # rules for custom faustpp build
