@@ -402,7 +402,7 @@ with {
   knee_array = (vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[5][unit:db][symbol:mscomp_low_knee]low knee", 12, 0, 30, 0.1),vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[5][unit:db][symbol:mscomp_high_knee]high knee", 12, 0, 30, 0.1)):LinArray(B);
   link_array = (vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[6][unit:%][symbol:mscomp_low_link]low link", 60, 0, 100, 1)*0.01,vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[6][unit:%][symbol:mscomp_high_link]high link", 30, 0, 100, 1)*0.01):LinArray(B);
   crossoverFreqs = LogArray(B-1,fl,fh);
-  mscomp_outGain = vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[3]out/[3][unit:db][symbol:mscomp_output_gain]output gain", 1, -6, 6, 0.5):ba.db2linear;
+  mscomp_outGain = vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[3]out/[3][unit:db][symbol:mscomp_output_gain]makeup", 1, -6, 6, 0.5):ba.db2linear;
 
   // make a linear array of values, from bottom to top
   LinArray(N,bottom,top) = par(i,N,   ((top-bottom)*(i/(N-1)))+bottom);
