@@ -188,6 +188,45 @@ struct TopCenteredGroup : QuantumFrame
     }
 };
 
+// custom widget for drawing plugin name (so it appears on top of other widgets if needed)
+class SoundsgoodNameWidget : public NanoSubWidget
+{
+    const QuantumTheme& theme;
+
+    static constexpr const char* const kText = "soundsgood";
+
+public:
+    explicit SoundsgoodNameWidget(TopLevelWidget* const parent, const QuantumTheme& t)
+        : NanoSubWidget(parent),
+          theme(t)
+    {
+        loadSharedResources();
+        setName("Name");
+    }
+
+    // based on QuantumLabel::adjustSize()
+    void adjustSize()
+    {
+        Rectangle<float> bounds;
+        fontSize(theme.fontSize * 2);
+
+        textBounds(0, 0, kText, nullptr, bounds);
+        const uint width = std::max(static_cast<uint>(bounds.getWidth() + 0.5f), theme.padding) + theme.textPixelRatioWidthCompensation;
+        const uint height = std::max(static_cast<uint>(bounds.getHeight() + 0.5f), theme.fontSize * 2);
+
+        setSize(width, height);
+    }
+
+protected:
+    void onNanoDisplay() override
+    {
+        fillColor(theme.textLightColor);
+        fontSize(theme.fontSize * 2);
+        textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
+        text(getWidth() / 2, getHeight() / 2, kText, nullptr);
+    }
+};
+
 // -----------------------------------------------------------------------------------------------------------
 
 class SoundsGoodUI : public UI,
@@ -214,6 +253,9 @@ class SoundsGoodUI : public UI,
   // easy mode labels
   QuantumValueMeter18 easyMetering;
   QuantumLabel welcomeLabel;
+
+  // plugin name
+  SoundsgoodNameWidget name;
 
   struct PreProcessing : SoundsgoodParameterGroupWithoutBypassSwitch {
       QuantumValueSliderWithLabel inputGain;
@@ -922,6 +964,7 @@ public:
         outputGroup(this, theme),
         easyMetering(this, theme),
         welcomeLabel(this, theme),
+        name(this, theme),
         preProcessing(this, this, this, theme),
         gate(this, this, this, theme),
         leveler(this, this, this, theme),
@@ -985,6 +1028,8 @@ public:
     welcomeLabel.setName("Welcome Label");
     welcomeLabel.setAlignment(NanoVG::ALIGN_TOP|NanoVG::ALIGN_LEFT);
 
+    contentGroup.setName("Content");
+
     // bottom of the drawing stack
     topCenteredGroup.toBottom();
 
@@ -1021,6 +1066,9 @@ public:
       inputGroup.setAbsolutePos(windowPadding, startY);
       contentGroup.setAbsolutePos(windowPadding + inputGroup.getWidth() + padding * 2, startY);
       outputGroup.setAbsolutePos(width - windowPadding - outputGroup.getWidth(), startY);
+
+      name.setAbsolutePos(outputGroup.getAbsoluteX() - (name.getWidth() - padding) / 2,
+                          outputGroup.getAbsoluteY() - padding - name.getHeight());
 
       presetButtons.setAbsolutePos(contentGroup.getAbsoluteX() + contentGroup.getWidth() - presetButtons.frame.getWidth() - borderSize - padding,
                                    contentGroup.getAbsoluteY() + borderSize + padding);
@@ -1062,6 +1110,7 @@ public:
 
       easyModeButton.adjustSize();
       expertModeButton.adjustSize();
+      name.adjustSize();
 
       inputGroup.adjustSize(metrics, contentHeight);
       outputGroup.adjustSize(metrics, contentHeight);
@@ -1402,13 +1451,6 @@ protected:
       rect(0, 0, getWidth(), getHeight());
       fillColor(theme.windowBackgroundColor);
       fill();
-
-      fillColor(theme.textLightColor);
-      fontSize(theme.fontSize * 2);
-      textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
-      text(outputGroup.getAbsoluteX() - theme.padding,
-           easyModeButton.getAbsoluteY() + easyModeButton.getHeight() / 2,
-           "soundsgood", nullptr);
   }
 
   bool onMouse(const MouseEvent &ev) override {
