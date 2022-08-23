@@ -594,7 +594,6 @@ class SoundsGoodUI : public UI,
   } kneeComp;
 
   struct MidSideCompressor : SoundsgoodParameterGroupWithBypassSwitch {
-      QuantumDualLabelWithCenterSpacer labelsTop;
       QuantumDualValueSliderWithCenterLabel strength;
       QuantumDualValueSliderWithCenterLabel threshold;
       QuantumDualValueSliderWithCenterLabel attack;
@@ -602,6 +601,7 @@ class SoundsGoodUI : public UI,
       QuantumDualValueSliderWithCenterLabel knee;
       QuantumDualValueSliderWithCenterLabel link;
       QuantumDualValueSliderWithCenterLabel crossover;
+      QuantumDualLabelWithCenterSpacer labelsTop;
       MultiBandCompressorLabels labelsMid;
       MultiBandCompressorValueMeters metersM;
       MultiBandCompressorValueMeters metersS;
@@ -609,7 +609,6 @@ class SoundsGoodUI : public UI,
 
       explicit MidSideCompressor(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
           : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
-            labelsTop(&frame, theme),
             strength(&frame, theme),
             threshold(&frame, theme),
             attack(&frame, theme),
@@ -617,6 +616,7 @@ class SoundsGoodUI : public UI,
             knee(&frame, theme),
             link(&frame, theme),
             crossover(&frame, theme),
+            labelsTop(&frame, theme),
             labelsMid(&frame, theme),
             metersM(&frame, theme),
             metersS(&frame, theme),
@@ -625,7 +625,7 @@ class SoundsGoodUI : public UI,
           frame.setName("MidSide Compressor");
           frame.mainWidget.setCallback(bcb);
           frame.mainWidget.setId(kParameter_mscomp_bypass);
-          frame.mainWidget.setLabel("MidSide Compressor");
+          frame.mainWidget.setLabel("Multiband MidSide Compressor");
 
           constexpr const uint idOffset = kParameter_mscomp_high_crossover - kParameter_mscomp_low_crossover;
           static_assert(kParameter_mscomp_high_strength - kParameter_mscomp_low_strength == idOffset, "mscomp param id offset mismatch");
@@ -635,10 +635,6 @@ class SoundsGoodUI : public UI,
           static_assert(kParameter_mscomp_high_knee - kParameter_mscomp_low_knee == idOffset, "mscomp param id offset mismatch");
           static_assert(kParameter_mscomp_high_link - kParameter_mscomp_low_link == idOffset, "mscomp param id offset mismatch");
 
-          labelsTop.labelL.setLabel("Low");
-          labelsTop.labelR.setLabel("High");
-          items.push_back(&labelsTop);
-
           setupDualSlider(strength, cb, kParameter_mscomp_low_strength, idOffset, 4);
           setupDualSlider(threshold, cb, kParameter_mscomp_low_threshold, idOffset, 4);
           setupDualSlider(attack, cb, kParameter_mscomp_low_attack, idOffset, 4);
@@ -646,6 +642,10 @@ class SoundsGoodUI : public UI,
           setupDualSlider(knee, cb, kParameter_mscomp_low_knee, idOffset, 4);
           setupDualSlider(link, cb, kParameter_mscomp_low_link, idOffset, 4);
           setupDualSlider(crossover, cb, kParameter_mscomp_low_crossover, idOffset, 4);
+
+          labelsTop.labelL.setLabel("Low");
+          labelsTop.labelR.setLabel("High");
+          items.push_back(&labelsTop);
 
           labelsMid.label1.setLabel("1");
           labelsMid.label2.setLabel("2");
@@ -673,9 +673,6 @@ class SoundsGoodUI : public UI,
 
       void adjustSize(const QuantumMetrics& metrics) override
       {
-          const Size<uint> labelsTopSize(metrics.valueSlider.getWidth(), theme.textHeight);
-          labelsTop.labelL.setSize(labelsTopSize);
-          labelsTop.labelR.setSize(labelsTopSize);
           strength.adjustSize(metrics);
           threshold.adjustSize(metrics);
           attack.adjustSize(metrics);
@@ -683,6 +680,9 @@ class SoundsGoodUI : public UI,
           knee.adjustSize(metrics);
           link.adjustSize(metrics);
           crossover.adjustSize(metrics);
+          const Size<uint> labelsTopSize(metrics.valueSlider.getWidth(), theme.textHeight);
+          labelsTop.labelL.setSize(labelsTopSize);
+          labelsTop.labelR.setSize(labelsTopSize);
           const Size<uint> labelsMidSize(metrics.valueMeterVertical.getWidth(), theme.textHeight);
           labelsMid.label1.setSize(labelsMidSize);
           labelsMid.label2.setSize(labelsMidSize);
@@ -701,8 +701,6 @@ class SoundsGoodUI : public UI,
       void setEnabledColor(const bool enabled)
       {
           const Color color = enabled ? theme.textLightColor : theme.textDarkColor;
-          labelsTop.labelL.setLabelColor(color);
-          labelsTop.labelR.setLabelColor(color);
           crossover.label.setLabelColor(color);
           crossover.sliderL.setTextColor(color);
           crossover.sliderR.setTextColor(color);
@@ -724,6 +722,8 @@ class SoundsGoodUI : public UI,
           link.label.setLabelColor(color);
           link.sliderL.setTextColor(color);
           link.sliderR.setTextColor(color);
+          labelsTop.labelL.setLabelColor(color);
+          labelsTop.labelR.setLabelColor(color);
           labelsMid.label1.setLabelColor(color);
           labelsMid.label2.setLabelColor(color);
           labelsMid.label3.setLabelColor(color);
