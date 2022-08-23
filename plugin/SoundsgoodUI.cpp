@@ -4,6 +4,7 @@
 #include "DistrhoPluginInfo.h"
 #include "DistrhoUI.hpp"
 
+#include "Quantum.hpp"
 #include "SoundsgoodWidgetGroups.hpp"
 #include "extra/ScopedPointer.hpp"
 #include "widgets/InspectorWindow.hpp"
@@ -194,11 +195,13 @@ struct TopCenteredGroup : QuantumFrame
 struct ContentGroup : QuantumFrame
 {
     const QuantumTheme& theme;
+    QuantumButton& expertButton;
 
 public:
-    explicit ContentGroup(TopLevelWidget* const parent, const QuantumTheme& t)
+    explicit ContentGroup(TopLevelWidget* const parent, const QuantumTheme& t, QuantumButton& eb)
         : QuantumFrame(parent, t),
-          theme(t)
+          theme(t),
+          expertButton(eb)
     {
         loadSharedResources();
         setName("Name");
@@ -207,6 +210,9 @@ public:
     void onNanoDisplay() override
     {
         QuantumFrame::onNanoDisplay();
+
+        if (expertButton.isChecked())
+            return;
 
         fillColor(theme.textMidColor);
         fontSize(theme.fontSize);
@@ -989,7 +995,7 @@ public:
         expertModeButton(this, theme),
         topCenteredGroup(this, this, theme),
         inputGroup(this, this, theme),
-        contentGroup(this, theme),
+        contentGroup(this, theme, expertModeButton),
         outputGroup(this, theme),
         easyMetering(this, theme),
         welcomeLabel(this, theme),
