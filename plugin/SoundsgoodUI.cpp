@@ -657,8 +657,8 @@ class SoundsGoodUI : public UI,
           labelsMid.label8.setLabel("8");
           items.push_back(&labelsMid);
 
-          setupMeters(metersM, "  m  ", kParameter_72);
-          setupMeters(metersS, "  s  ", kParameter_80);
+          setupMeters(metersM, "  m  ", kParameter_msredux11);
+          setupMeters(metersS, "  s  ", kParameter_msredux12);
 
           outputGain.slider.setCallback(cb);
           outputGain.slider.setId(kParameter_mscomp_output_gain);
@@ -741,57 +741,57 @@ class SoundsGoodUI : public UI,
       inline void setupMeters(MultiBandCompressorValueMeters& w, const char* const label, const int idStart)
       {
           w.m1.setId(idStart + 0);
-          w.m2.setId(idStart + 1);
-          w.m3.setId(idStart + 2);
-          w.m4.setId(idStart + 3);
-          w.m5.setId(idStart + 4);
-          w.m6.setId(idStart + 5);
-          w.m7.setId(idStart + 6);
-          w.m8.setId(idStart + 7);
+          w.m2.setId(idStart + 2);
+          w.m3.setId(idStart + 4);
+          w.m4.setId(idStart + 6);
+          w.m5.setId(idStart + 8);
+          w.m6.setId(idStart + 10);
+          w.m7.setId(idStart + 12);
+          w.m8.setId(idStart + 14);
 
           w.m1.setName(kParameterNames[idStart + 0]);
-          w.m2.setName(kParameterNames[idStart + 1]);
-          w.m3.setName(kParameterNames[idStart + 2]);
-          w.m4.setName(kParameterNames[idStart + 3]);
-          w.m5.setName(kParameterNames[idStart + 4]);
-          w.m6.setName(kParameterNames[idStart + 5]);
-          w.m7.setName(kParameterNames[idStart + 6]);
-          w.m8.setName(kParameterNames[idStart + 7]);
+          w.m2.setName(kParameterNames[idStart + 2]);
+          w.m3.setName(kParameterNames[idStart + 4]);
+          w.m4.setName(kParameterNames[idStart + 6]);
+          w.m5.setName(kParameterNames[idStart + 8]);
+          w.m6.setName(kParameterNames[idStart + 10]);
+          w.m7.setName(kParameterNames[idStart + 12]);
+          w.m8.setName(kParameterNames[idStart + 14]);
 
           w.m1.setRange(kParameterRanges[idStart + 0].min,
                         kParameterRanges[idStart + 0].max);
-          w.m2.setRange(kParameterRanges[idStart + 1].min,
-                        kParameterRanges[idStart + 1].max);
-          w.m3.setRange(kParameterRanges[idStart + 2].min,
+          w.m2.setRange(kParameterRanges[idStart + 2].min,
                         kParameterRanges[idStart + 2].max);
-          w.m4.setRange(kParameterRanges[idStart + 3].min,
-                        kParameterRanges[idStart + 3].max);
-          w.m5.setRange(kParameterRanges[idStart + 4].min,
+          w.m3.setRange(kParameterRanges[idStart + 4].min,
                         kParameterRanges[idStart + 4].max);
-          w.m6.setRange(kParameterRanges[idStart + 5].min,
-                        kParameterRanges[idStart + 5].max);
-          w.m7.setRange(kParameterRanges[idStart + 6].min,
+          w.m4.setRange(kParameterRanges[idStart + 6].min,
                         kParameterRanges[idStart + 6].max);
-          w.m8.setRange(kParameterRanges[idStart + 7].min,
-                        kParameterRanges[idStart + 7].max);
+          w.m5.setRange(kParameterRanges[idStart + 8].min,
+                        kParameterRanges[idStart + 8].max);
+          w.m6.setRange(kParameterRanges[idStart + 10].min,
+                        kParameterRanges[idStart + 10].max);
+          w.m7.setRange(kParameterRanges[idStart + 12].min,
+                        kParameterRanges[idStart + 12].max);
+          w.m8.setRange(kParameterRanges[idStart + 14].min,
+                        kParameterRanges[idStart + 14].max);
 
           w.m1.setUnitLabel(kParameterUnits[idStart + 0]);
-          w.m2.setUnitLabel(kParameterUnits[idStart + 1]);
-          w.m3.setUnitLabel(kParameterUnits[idStart + 2]);
-          w.m4.setUnitLabel(kParameterUnits[idStart + 3]);
-          w.m5.setUnitLabel(kParameterUnits[idStart + 4]);
-          w.m6.setUnitLabel(kParameterUnits[idStart + 5]);
-          w.m7.setUnitLabel(kParameterUnits[idStart + 6]);
-          w.m8.setUnitLabel(kParameterUnits[idStart + 7]);
+          w.m2.setUnitLabel(kParameterUnits[idStart + 2]);
+          w.m3.setUnitLabel(kParameterUnits[idStart + 4]);
+          w.m4.setUnitLabel(kParameterUnits[idStart + 6]);
+          w.m5.setUnitLabel(kParameterUnits[idStart + 8]);
+          w.m6.setUnitLabel(kParameterUnits[idStart + 10]);
+          w.m7.setUnitLabel(kParameterUnits[idStart + 12]);
+          w.m8.setUnitLabel(kParameterUnits[idStart + 14]);
 
           w.m1.setValue(kParameterRanges[idStart + 0].def);
-          w.m2.setValue(kParameterRanges[idStart + 1].def);
-          w.m3.setValue(kParameterRanges[idStart + 2].def);
-          w.m4.setValue(kParameterRanges[idStart + 3].def);
-          w.m5.setValue(kParameterRanges[idStart + 4].def);
-          w.m6.setValue(kParameterRanges[idStart + 5].def);
-          w.m7.setValue(kParameterRanges[idStart + 6].def);
-          w.m8.setValue(kParameterRanges[idStart + 7].def);
+          w.m2.setValue(kParameterRanges[idStart + 2].def);
+          w.m3.setValue(kParameterRanges[idStart + 4].def);
+          w.m4.setValue(kParameterRanges[idStart + 6].def);
+          w.m5.setValue(kParameterRanges[idStart + 8].def);
+          w.m6.setValue(kParameterRanges[idStart + 10].def);
+          w.m7.setValue(kParameterRanges[idStart + 12].def);
+          w.m8.setValue(kParameterRanges[idStart + 14].def);
 
           w.label.setLabel(label);
           w.label.setName(label);
@@ -1399,52 +1399,52 @@ protected:
     case kParameter_71:
       kneeComp.m2.meter.setValue(value);
       break;
-    case kParameter_72:
+    case kParameter_msredux11:
       msCompressor.metersM.m1.setValue(value);
       break;
-    case kParameter_73:
+    case kParameter_msredux12:
       msCompressor.metersS.m1.setValue(value);
       break;
-    case kParameter_74:
+    case kParameter_msredux21:
       msCompressor.metersM.m2.setValue(value);
       break;
-    case kParameter_75:
+    case kParameter_msredux22:
       msCompressor.metersS.m2.setValue(value);
       break;
-    case kParameter_76:
+    case kParameter_msredux31:
       msCompressor.metersM.m3.setValue(value);
       break;
-    case kParameter_77:
+    case kParameter_msredux32:
       msCompressor.metersS.m3.setValue(value);
       break;
-    case kParameter_78:
+    case kParameter_msredux41:
       msCompressor.metersM.m4.setValue(value);
       break;
-    case kParameter_79:
+    case kParameter_msredux42:
       msCompressor.metersS.m4.setValue(value);
       break;
-    case kParameter_80:
+    case kParameter_msredux51:
       msCompressor.metersM.m5.setValue(value);
       break;
-    case kParameter_81:
+    case kParameter_msredux52:
       msCompressor.metersS.m5.setValue(value);
       break;
-    case kParameter_82:
+    case kParameter_msredux61:
       msCompressor.metersM.m6.setValue(value);
       break;
-    case kParameter_83:
+    case kParameter_msredux62:
       msCompressor.metersS.m6.setValue(value);
       break;
-    case kParameter_84:
+    case kParameter_msredux71:
       msCompressor.metersM.m7.setValue(value);
       break;
-    case kParameter_85:
+    case kParameter_msredux72:
       msCompressor.metersS.m7.setValue(value);
       break;
-    case kParameter_86:
+    case kParameter_msredux81:
       msCompressor.metersM.m8.setValue(value);
       break;
-    case kParameter_87:
+    case kParameter_msredux82:
       msCompressor.metersS.m8.setValue(value);
       break;
     case kParameter_limiter_gain_reduction:
@@ -1459,7 +1459,7 @@ protected:
     }
 
     // easy meters
-    if (index >= kParameter_70 && index <= kParameter_87)
+    if (index >= kParameter_70 && index <= kParameter_msredux82)
       easyMetering.setValue(index - kParameter_70, value);
   }
 

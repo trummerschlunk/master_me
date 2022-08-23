@@ -9,7 +9,6 @@
 // checks to ensure things are still as we expect them to be from faust dsp side
 static_assert(DISTRHO_PLUGIN_NUM_INPUTS == 2, "has 2 audio inputs");
 static_assert(DISTRHO_PLUGIN_NUM_OUTPUTS == 2, "has 2 audio outputs");
-static_assert(kParameter_87 + 1 - kParameter_70 == 18, "has 18 knee+multiband compressor passive controls");
 
 START_NAMESPACE_DISTRHO
 
