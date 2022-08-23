@@ -35,9 +35,9 @@ struct QuantumButtonWithDescription : HorizontalLayout
 
 struct QuantumLabelWithSeparatorLine : HorizontalLayout
 {
-    QuantumSeparatorLine separator1;
+    QuantumHorizontalSeparatorLine separator1;
     QuantumLabel label;
-    QuantumSeparatorLine separator2;
+    QuantumHorizontalSeparatorLine separator2;
 
     explicit QuantumLabelWithSeparatorLine(NanoSubWidget* const parent, const QuantumTheme& theme)
         : separator1(parent, theme),
@@ -51,13 +51,13 @@ struct QuantumLabelWithSeparatorLine : HorizontalLayout
 
     void adjustSize(const QuantumMetrics& metrics)
     {
-        separator1.setSize(metrics.separator);
+        separator1.setSize(metrics.separatorHorizontal);
         label.adjustSize();
     }
 };
 
 // --------------------------------------------------------------------------------------------------------------------
-// fixed meter, expanding label
+// fixed meter, expanding label (both directions)
 
 struct QuantumValueMeterWithLabel : HorizontalLayout
 {
@@ -76,6 +76,26 @@ struct QuantumValueMeterWithLabel : HorizontalLayout
     {
         meter.setSize(metrics.valueMeterHorizontal);
         label.adjustSize();
+    }
+};
+
+struct QuantumLabelWithValueMeter : HorizontalLayout
+{
+    QuantumLabel label;
+    QuantumValueMeter meter;
+
+    explicit QuantumLabelWithValueMeter(NanoSubWidget* const parent, const QuantumTheme& theme)
+        : label(parent, theme),
+          meter(parent, theme)
+    {
+        widgets.push_back({ &label, Expanding });
+        widgets.push_back({ &meter, Fixed });
+    }
+
+    void adjustSize(const QuantumMetrics& metrics)
+    {
+        label.adjustSize();
+        meter.setSize(metrics.valueMeterHorizontal);
     }
 };
 
@@ -165,17 +185,17 @@ struct QuantumDualValueSliderWithCenterLabel : HorizontalLayout
 
 struct QuantumSingleSwitch : HorizontalLayout
 {
-    QuantumSwitch switch_;
+    QuantumSmallSwitch smallSwitch;
 
     explicit QuantumSingleSwitch(NanoSubWidget* const parent, const QuantumTheme& theme)
-        : switch_(parent, theme)
+        : smallSwitch(parent, theme)
     {
-        widgets.push_back({ &switch_, Expanding });
+        widgets.push_back({ &smallSwitch, Expanding });
     }
 
     void adjustSize()
     {
-        switch_.adjustSize();
+        smallSwitch.adjustSize();
     }
 };
 

@@ -110,11 +110,11 @@ struct SoundsgoodParameterGroup : VerticallyStackedHorizontalLayout
 
     inline void setupSwitch(QuantumSingleSwitch& w, ButtonEventHandler::Callback* const bcb, const int id, const uint nameOffset)
     {
-        w.switch_.setCallback(bcb);
-        w.switch_.setId(id);
-        w.switch_.setChecked(kParameterRanges[id].def > 0.5f, false);
-        w.switch_.setLabel(kParameterNames[id] + nameOffset);
-        w.switch_.setName(kParameterNames[id]);
+        w.smallSwitch.setCallback(bcb);
+        w.smallSwitch.setId(id);
+        w.smallSwitch.setChecked(kParameterRanges[id].def > 0.5f, false);
+        w.smallSwitch.setLabel(kParameterNames[id] + nameOffset);
+        w.smallSwitch.setName(kParameterNames[id]);
         items.push_back(&w);
     }
 };

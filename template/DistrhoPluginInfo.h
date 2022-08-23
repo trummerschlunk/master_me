@@ -85,7 +85,7 @@ static const char* kParameterUnits[{{active|length+passive|length}}] = {
     {% endfor %}
 };
 
-// #if has_include("ExtraProperties.h")
+// #if __has_include("ExtraProperties.h")
 #include "ExtraProperties.h"
 // #endif
 

@@ -38,8 +38,8 @@ struct InputMeterGroup : QuantumFrame
           slider(this, t)
     {
         setName("Inputs");
-        meter.setName(" + Meter");
 
+        meter.setName(" + Meter");
         meter.setRange(kParameterRanges[kParameter_peakmeter_in_l].min, kParameterRanges[kParameter_peakmeter_in_l].max);
         meter.setValues(kParameterRanges[kParameter_peakmeter_in_l].min,
                         kParameterRanges[kParameter_peakmeter_in_r].min, 
@@ -81,8 +81,8 @@ struct OutputMeterGroup : QuantumFrame
           meter(this, t)
     {
         setName("Outputs");
-        meter.setName(" + Meter");
 
+        meter.setName(" + Meter");
         meter.setRange(kParameterRanges[kParameter_peakmeter_out_l].min, kParameterRanges[kParameter_peakmeter_out_l].max);
         meter.setValues(kParameterRanges[kParameter_peakmeter_out_l].min,
                         kParameterRanges[kParameter_peakmeter_out_r].min, 
@@ -103,6 +103,91 @@ struct OutputMeterGroup : QuantumFrame
     }
 };
 
+// custom layout for top centered content (global enable and leveler gain)
+struct TopCenteredGroup : QuantumFrame
+{
+    const QuantumTheme& theme;
+
+    QuantumSwitch globalEnableSwitch;
+    QuantumVerticalSeparatorLine separator;
+    QuantumLabelWithValueMeter levelerGain;
+
+    uint innerWidth = 0;
+
+    explicit TopCenteredGroup(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, const QuantumTheme& t)
+        : QuantumFrame(parent, t),
+          theme(t),
+          globalEnableSwitch(this, t),
+          separator(this, t),
+          levelerGain(this, t)
+    {
+        setName("Top Center");
+
+        globalEnableSwitch.setCallback(bcb);
+        globalEnableSwitch.setCheckable(true);
+        globalEnableSwitch.setChecked(kParameterRanges[kParameter_global_bypass].def, false);
+        globalEnableSwitch.setId(kParameter_global_bypass);
+        globalEnableSwitch.setLabel("Enable");
+        globalEnableSwitch.setName("Global Enable Button");
+
+        separator.setName("+ separator");
+
+        levelerGain.meter.setId(kParameter_leveler_gain);
+        levelerGain.meter.setName(kParameterNames[kParameter_leveler_gain]);
+        levelerGain.meter.setOrientation(QuantumValueMeter::CenterToSides);
+        levelerGain.meter.setRange(kParameterRanges[kParameter_leveler_gain].min, kParameterRanges[kParameter_leveler_gain].max);
+        levelerGain.meter.setUnitLabel(kParameterUnits[kParameter_leveler_gain]);
+        levelerGain.meter.setValue(kParameterRanges[kParameter_leveler_gain].def);
+        levelerGain.label.setLabel("Leveler Gain:");
+        levelerGain.label.setName(kParameterNames[kParameter_leveler_gain]);
+    }
+
+    void adjustSize(const SoundsGoodMetrics& metrics, const uint width, const uint height, const uint widgetsHeight)
+    {
+        globalEnableSwitch.adjustSize();
+        globalEnableSwitch.setHeight(widgetsHeight);
+        separator.setSize(metrics.separatorVertical);
+        separator.setHeight(widgetsHeight);
+        levelerGain.adjustSize(metrics);
+        levelerGain.label.setHeight(widgetsHeight);
+        levelerGain.meter.setSize(levelerGain.meter.getWidth() * 2, widgetsHeight); // double the normal meter size
+        innerWidth = globalEnableSwitch.getWidth() + separator.getWidth() + levelerGain.meter.getWidth() + levelerGain.label.getWidth() + theme.padding * 9;
+        setSize(width, height);
+    }
+
+    void setAbsolutePos(int x, const int y)
+    {
+        QuantumFrame::setAbsolutePos(0, 0);
+        x += (getWidth() - innerWidth) / 2;
+        globalEnableSwitch.setAbsolutePos(x, y);
+        separator.setAbsolutePos(globalEnableSwitch.getAbsoluteX() + globalEnableSwitch.getWidth() + theme.padding * 4, y);
+        levelerGain.setAbsolutePos(separator.getAbsoluteX() + separator.getWidth() + theme.padding * 4, y, theme.padding);
+    }
+
+    void onNanoDisplay() override
+    {
+        const Color color2(Color(theme.widgetBackgroundColor, theme.windowBackgroundColor, 0.5f).withAlpha(0.5f));
+        const Color color1(color2.withAlpha(0.f));
+        const uint gradientWidth = (getWidth() - innerWidth) / 2;
+        const uint height = getHeight();
+
+        beginPath();
+        rect(0, 0, gradientWidth, height);
+        fillPaint(linearGradient(0, 0, gradientWidth, 0, color2, color1));
+        fill();
+
+        beginPath();
+        rect(getWidth() - gradientWidth, 0, gradientWidth, height);
+        fillPaint(linearGradient(getWidth() - gradientWidth, 0, getWidth(), 0, color1, color2));
+        fill();
+
+        beginPath();
+        rect(gradientWidth - 1, 0, innerWidth + 2, height);
+        fillColor(color1);
+        fill();
+    }
+};
+
 // -----------------------------------------------------------------------------------------------------------
 
 class SoundsGoodUI : public UI,
@@ -120,10 +205,8 @@ class SoundsGoodUI : public UI,
   QuantumButton easyModeButton;
   QuantumButton expertModeButton;
 
-  // global bypass
-  QuantumButton globalEnableButton;
-
   // group of widgets
+  TopCenteredGroup topCenteredGroup;
   InputMeterGroup inputGroup;
   QuantumFrame contentGroup;
   OutputMeterGroup outputGroup;
@@ -225,7 +308,6 @@ class SoundsGoodUI : public UI,
       QuantumValueSliderWithLabel max_plus;
       QuantumValueSliderWithLabel max_minus;
       QuantumLabelWithSeparatorLine separator;
-      QuantumValueMeterWithLabel gain;
       QuantumValueMeterWithLabel gate;
 
       explicit Leveler(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
@@ -235,7 +317,6 @@ class SoundsGoodUI : public UI,
             max_plus(&frame, theme),
             max_minus(&frame, theme),
             separator(&frame, theme),
-            gain(&frame, theme),
             gate(&frame, theme)
       {
           frame.setName("Leveler");
@@ -248,7 +329,6 @@ class SoundsGoodUI : public UI,
           setupSlider(max_plus, cb, kParameter_leveler_max_plus, 8);
           setupSlider(max_minus, cb, kParameter_leveler_max_minus, 8);
           setupSeparatorLine(separator, "Outputs:");
-          setupMeter(gain, kParameter_leveler_gain, 8);
           setupMeter(gate, kParameter_leveler_gate, 8);
       }
 
@@ -259,7 +339,6 @@ class SoundsGoodUI : public UI,
           max_plus.adjustSize(metrics);
           max_minus.adjustSize(metrics);
           separator.adjustSize(metrics);
-          gain.adjustSize(metrics);
           gate.adjustSize(metrics);
           SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
@@ -276,8 +355,6 @@ class SoundsGoodUI : public UI,
           max_minus.label.setLabelColor(color);
           max_minus.slider.setTextColor(color);
           separator.label.setLabelColor(color);
-          gain.label.setLabelColor(color);
-          gain.meter.setTextColor(color);
           gate.label.setLabelColor(color);
           gate.meter.setTextColor(color);
       }
@@ -839,7 +916,7 @@ public:
       : UI(kInitialWidth, kInitialHeight),
         easyModeButton(this, theme),
         expertModeButton(this, theme),
-        globalEnableButton(this, theme),
+        topCenteredGroup(this, this, theme),
         inputGroup(this, this, theme),
         contentGroup(this, theme),
         outputGroup(this, theme),
@@ -890,17 +967,6 @@ public:
     expertModeButton.setLabel("Expert");
     expertModeButton.setName("Expert Mode Button");
 
-    globalEnableButton.setCallback(this);
-    globalEnableButton.setCheckable(true);
-    globalEnableButton.setChecked(kParameterRanges[kParameter_global_bypass].def, false);
-    globalEnableButton.setId(kParameter_global_bypass);
-    globalEnableButton.setLabel("Enable");
-    globalEnableButton.setName("Global Enable Button");
-
-    inputGroup.setName("Input Group");
-    contentGroup.setName("Content Group");
-    outputGroup.setName("Output Group");
-
     easyMetering.setName("Easy metering for testing");
 
     static const char* const welcomeMessage = ""
@@ -918,6 +984,9 @@ public:
     welcomeLabel.setLabel(welcomeMessage);
     welcomeLabel.setName("Welcome Label");
     welcomeLabel.setAlignment(NanoVG::ALIGN_TOP|NanoVG::ALIGN_LEFT);
+
+    // bottom of the drawing stack
+    topCenteredGroup.toBottom();
 
     // initial resize and reposition
     resizeWidgets(scaleFactor, getWidth(), getHeight());
@@ -948,6 +1017,7 @@ public:
       const uint windowPadding = theme.windowPadding * scaleFactor;
       const uint startY = windowPadding * 2 + metrics.button.getHeight();
 
+      topCenteredGroup.setAbsolutePos(windowPadding, windowPadding);
       inputGroup.setAbsolutePos(windowPadding, startY);
       contentGroup.setAbsolutePos(windowPadding + inputGroup.getWidth() + padding * 2, startY);
       outputGroup.setAbsolutePos(width - windowPadding - outputGroup.getWidth(), startY);
@@ -959,7 +1029,6 @@ public:
       const uint easyModeButtonOffset = inputAreaCenter - easyModeButton.getWidth() / 2;
       easyModeButton.setAbsolutePos(windowPadding + easyModeButtonOffset, windowPadding);
       expertModeButton.setAbsolutePos(contentGroup.getAbsoluteX() + easyModeButtonOffset, windowPadding);
-      globalEnableButton.setAbsolutePos((getWidth() - globalEnableButton.getWidth()) / 2, windowPadding);
 
       welcomeLabel.setAbsolutePos(contentGroup.getAbsoluteX() + borderSize + padding, startY + borderSize + padding);
       easyMetering.setAbsolutePos(contentGroup.getAbsoluteX() + contentGroup.getWidth() - easyMetering.getWidth() - padding,
@@ -993,11 +1062,11 @@ public:
 
       easyModeButton.adjustSize();
       expertModeButton.adjustSize();
-      globalEnableButton.adjustSize();
 
       inputGroup.adjustSize(metrics, contentHeight);
       outputGroup.adjustSize(metrics, contentHeight);
       contentGroup.setSize(width - windowPadding * 2 - padding * 4 - inputGroup.getWidth() - outputGroup.getWidth(), contentHeight);
+      topCenteredGroup.adjustSize(metrics, getWidth(), getHeight(), easyModeButton.getHeight());
 
       welcomeLabel.setSize(contentGroup.getWidth() - borderSize * 2 - padding * 2, contentHeight - borderSize * 2 - padding * 2);
       easyMetering.setSize(300 * scaleFactor, contentGroup.getHeight() / 2 - padding);
@@ -1026,7 +1095,7 @@ protected:
     {
     // inputs
     case kParameter_global_bypass:
-      globalEnableButton.setChecked(value < 0.5f, false);
+      topCenteredGroup.globalEnableSwitch.setChecked(value < 0.5f, false);
       break;
     case kParameter_target:
       inputGroup.slider.setValue(value, false);
@@ -1035,19 +1104,19 @@ protected:
       preProcessing.inputGain.slider.setValue(value, false);
       break;
     case kParameter_mono:
-      preProcessing.mono.switch_.setChecked(value > 0.5f, false);
+      preProcessing.mono.smallSwitch.setChecked(value > 0.5f, false);
       break;
     case kParameter_phase_l:
-      preProcessing.phaseL.switch_.setChecked(value > 0.5f, false);
+      preProcessing.phaseL.smallSwitch.setChecked(value > 0.5f, false);
       break;
     case kParameter_phase_r:
-      preProcessing.phaseR.switch_.setChecked(value > 0.5f, false);
+      preProcessing.phaseR.smallSwitch.setChecked(value > 0.5f, false);
       break;
     case kParameter_dc_blocker:
-      preProcessing.dcBlocker.switch_.setChecked(value > 0.5f, false);
+      preProcessing.dcBlocker.smallSwitch.setChecked(value > 0.5f, false);
       break;
     case kParameter_stereo_correct:
-      preProcessing.stereoCorrect.switch_.setChecked(value > 0.5f, false);
+      preProcessing.stereoCorrect.smallSwitch.setChecked(value > 0.5f, false);
       break;
     case kParameter_gate_bypass:
       gate.frame.mainWidget.setChecked(value < 0.5f, false);
@@ -1226,7 +1295,7 @@ protected:
       inputGroup.meter.setValueLufs(value);
       break;
     case kParameter_leveler_gain:
-      leveler.gain.meter.setValue(value);
+      topCenteredGroup.levelerGain.meter.setValue(value);
       break;
     case kParameter_lufs_out:
       outputGroup.meter.setValueLufs(value);
@@ -1329,8 +1398,6 @@ protected:
 
   void onNanoDisplay() override
   {
-      const uint windowPadding = theme.windowPadding;
-
       beginPath();
       rect(0, 0, getWidth(), getHeight());
       fillColor(theme.windowBackgroundColor);
@@ -1338,9 +1405,9 @@ protected:
 
       fillColor(theme.textLightColor);
       fontSize(theme.fontSize * 2);
-      textAlign(ALIGN_RIGHT|ALIGN_MIDDLE);
-      text(getWidth() - windowPadding - theme.padding,
-           globalEnableButton.getAbsoluteY() + globalEnableButton.getHeight() / 2,
+      textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
+      text(outputGroup.getAbsoluteX() - theme.padding,
+           easyModeButton.getAbsoluteY() + easyModeButton.getHeight() / 2,
            "soundsgood", nullptr);
   }
 
@@ -1363,7 +1430,7 @@ protected:
       UI::onResize(ev);
   }
 
-  /* FOR TESTING
+#if 0 // FOR TESTING
   static float randomMeterValue()
   {
       const double r = static_cast<double>(std::rand()) / RAND_MAX;
@@ -1378,8 +1445,9 @@ protected:
       doit = 0;
       inputGroup.meter.setValues(randomMeterValue(), randomMeterValue(), randomMeterValue());
       outputGroup.meter.setValues(randomMeterValue(), randomMeterValue(), randomMeterValue());
+      topCenteredGroup.levelerGain.meter.setValue(30.f);
   }
-  */
+#endif
 
   /* --------------------------------------------------------------------------------------------------------
    * Custom Widget Callbacks */
@@ -1412,6 +1480,8 @@ protected:
           break;
       case kParameter_leveler_bypass:
           leveler.setEnabledColor(enabled);
+          topCenteredGroup.levelerGain.label.setLabelColor(enabled ? theme.textLightColor : theme.textDarkColor);
+          topCenteredGroup.levelerGain.meter.setTextColor(enabled ? theme.textLightColor : theme.textDarkColor);
           reportGroupBypassChanged(id, enabled);
           break;
       case kParameter_eq_bypass:
