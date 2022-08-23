@@ -56,7 +56,7 @@ struct InputMeterGroup : QuantumFrame
     {
         const uint usableHeight = height - theme.borderSize * 2 - theme.padding * 2;
         meter.setSize(metrics.stereoLevelMeterWithLufs.getWidth(), usableHeight);
-        slider.setSize(metrics.mixerSlider.getWidth(), usableHeight - theme.textHeight * 3);
+        slider.setSize(metrics.mixerSlider.getWidth(), usableHeight);
         setSize(meter.getWidth() + slider.getWidth() + theme.borderSize * 2 + theme.padding * 3, height);
     }
 
@@ -64,7 +64,7 @@ struct InputMeterGroup : QuantumFrame
     {
         QuantumFrame::setAbsolutePos(x, y);
         meter.setAbsolutePos(x + theme.borderSize + theme.padding, y + theme.borderSize + theme.padding);
-        slider.setAbsolutePos(meter.getAbsoluteX() + meter.getWidth() + theme.padding, meter.getAbsoluteY() + theme.textHeight);
+        slider.setAbsolutePos(meter.getAbsoluteX() + meter.getWidth() + theme.padding, meter.getAbsoluteY());
     }
 };
 
