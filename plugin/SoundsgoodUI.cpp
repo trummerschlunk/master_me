@@ -268,7 +268,7 @@ class SoundsGoodUI : public UI,
                      public ButtonEventHandler::Callback,
                      public KnobEventHandler::Callback
 {
-  static const uint kInitialWidth = 1010;
+  static const uint kInitialWidth = 1023;
   static const uint kInitialHeight = 600;
 
   ScopedPointer<InspectorWindow> inspectorWindow;
