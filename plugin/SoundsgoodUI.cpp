@@ -593,8 +593,8 @@ class SoundsGoodUI : public UI,
           setupSlider(makeup, cb, kParameter_kneecomp_makeup, 9);
           setupSlider(drywet, cb, kParameter_kneecomp_drywet, 9);
           setupSeparatorLine(separator);
-          setupMeter(m1, kParameter_70, 0);
-          setupMeter(m2, kParameter_71, 0);
+          setupMeter(m1, kParameter_71, 0);
+          setupMeter(m2, kParameter_72, 0);
       }
 
       void adjustSize(const QuantumMetrics& metrics) override
@@ -1441,10 +1441,10 @@ protected:
     case kParameter_leveler_gate:
       leveler.gate.meter.setValue(value);
       break;
-    case kParameter_70:
+    case kParameter_71:
       kneeComp.m1.meter.setValue(value);
       break;
-    case kParameter_71:
+    case kParameter_72:
       kneeComp.m2.meter.setValue(value);
       break;
     case kParameter_msredux11:
@@ -1507,8 +1507,8 @@ protected:
     }
 
     // easy meters
-    if (index >= kParameter_70 && index <= kParameter_msredux82)
-      easyMetering.setValue(index - kParameter_70, value);
+    if (index >= kParameter_71 && index <= kParameter_msredux82)
+      easyMetering.setValue(index - kParameter_71, value);
   }
 
     void stateChanged(const char* key, const char* value) override
