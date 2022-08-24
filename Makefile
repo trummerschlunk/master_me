@@ -40,6 +40,12 @@ faustpp:
 endif
 
 # ---------------------------------------------------------------------------------------------------------------------
+# dgl target, building the dpf little graphics library
+
+dgl:
+	$(MAKE) -C dpf/dgl opengl NVG_FONT_TEXTURE_FLAGS=NVG_IMAGE_NEAREST
+
+# ---------------------------------------------------------------------------------------------------------------------
 # list of plugin source code files to generate, converted from faust dsp files
 
 PLUGIN_TEMPLATE_FILES   = $(subst template/,,$(wildcard template/*.*))
@@ -54,7 +60,7 @@ gen: $(PLUGIN_GENERATED_FILES)
 # ---------------------------------------------------------------------------------------------------------------------
 # master_me target, for actual building the plugin after its source code has been generated
 
-master_me: $(PLUGIN_GENERATED_FILES)
+master_me: $(PLUGIN_GENERATED_FILES) dgl
 	$(MAKE) -C plugin
 
 # ---------------------------------------------------------------------------------------------------------------------
