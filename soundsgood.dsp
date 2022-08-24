@@ -9,6 +9,7 @@ declare license "GPLv3";
 
 ebu = library("lib/ebur128.dsp");
 import("stdfaust.lib");
+mx = library("maxmsp.lib");
 
 // init values
 
@@ -35,50 +36,49 @@ init_brickwall_release = 75;
 
 target = vslider("v:soundsgood/h:easy/[3]Target[unit:dB][symbol:target]", init_leveler_target,-50,0,1);
 
-
 // main
 process =
-    //tone_generator :
-    si.bus(2)
+  //tone_generator :
+  si.bus(2)
 
 
-    : bp2(checkbox("[symbol:global_bypass]global bypass"),(
-    in_gain
-    : peakmeter_in
-    : lufs_meter_in
-    : dc_blocker_bp
-    : mono_bp
+  : bp2(checkbox("[symbol:global_bypass]global bypass"),(
+         in_gain
+         : peakmeter_in
+         : lufs_meter_in
+         : dc_blocker_bp
+         : mono_bp
          : (phase_invert_L , phase_invert_R)
-    //: correlate_meter
-    : correlate_correct_bp
+           //: correlate_meter
+         : correlate_correct_bp
 
-    : gate_bp
+         : gate_bp
 
-    : (
-        leveler_sc(target)
+         : (
+           leveler_sc(target)
 
-        : (sc_compressor
-           : eq_bp
+           : (sc_compressor
+              : eq_bp
 
               : mscomp_bp
-             // : kneecomp_bp
+                // : kneecomp_bp
 
-           : limiter_rms_bp
-             // : brickwall_bp
+              : limiter_rms_bp
+                // : brickwall_bp
 
-           : brickwall_no_latency_bp
+              : brickwall_no_latency_bp
 
-          )~(si.bus(2))
-    )~(si.bus(2))
-    ))
+             )~(si.bus(2))
+         )~(si.bus(2))
+       ))
 
-    : lufs_meter_out
-    : peakmeter_out
+  : lufs_meter_out
+  : peakmeter_out
 ;
 
 // stereo bypass with si.smoo fading
 bp2(sw,pr) =  _,_ <: _,_,pr : (_*sm,_*sm),(_*(1-sm),_*(1-sm)) :> _,_ with {
-    sm = sw : si.smoo;
+  sm = sw : si.smoo;
 };
 
 // DC FILTER
@@ -107,15 +107,15 @@ in_gain = par(i,2,(_*g)) with{
 // stereo to m/s encoder
 ms_enc = _*0.5,_*0.5 <: +, -;
 
-// m/s to stereo decoder
-ms_dec = _,_ <: +, -;
+                        // m/s to stereo decoder
+                        ms_dec = _,_ <: +, -;
 
-// peak meters
-peakmeter_in = in_meter_l,in_meter_r with {
-envelop = abs : max(ba.db2linear(-70)) : ba.linear2db : min(10)  : max ~ -(80.0/ma.SR);
-in_meter_l(x) = attach(x, envelop(x) : vbargraph("v:soundsgood/h:easy/[0][symbol:peakmeter_in_l]in L[unit:dB]", -70, 0));
-in_meter_r(x) = attach(x, envelop(x) : vbargraph("v:soundsgood/h:easy/[1][symbol:peakmeter_in_r]in R[unit:dB]", -70, 0));
-           };
+                                        // peak meters
+                                        peakmeter_in = in_meter_l,in_meter_r with {
+                                     envelop = abs : max(ba.db2linear(-70)) : ba.linear2db : min(10)  : max ~ -(80.0/ma.SR);
+                                     in_meter_l(x) = attach(x, envelop(x) : vbargraph("v:soundsgood/h:easy/[0][symbol:peakmeter_in_l]in L[unit:dB]", -70, 0));
+                                     in_meter_r(x) = attach(x, envelop(x) : vbargraph("v:soundsgood/h:easy/[1][symbol:peakmeter_in_r]in R[unit:dB]", -70, 0));
+                                   };
 peakmeter_out = out_meter_l,out_meter_r with {
   envelop = abs : max(ba.db2linear(-70)) : ba.linear2db : min(10)  : max ~ -(80.0/ma.SR);
   out_meter_l(x) = attach(x, envelop(x) : vbargraph("v:soundsgood/h:easy/[8][symbol:peakmeter_out_l]out L[unit:dB]", -70, 0));
@@ -169,12 +169,12 @@ correlate_correct(l,r) = out_pos1, out_neg1, out_0, out_pos, out_neg :> _,_ with
 
   th =.0001;
   corr_pos1 = avg(t, (corr(t,l,r) > (1-th))) : smoothing /*: vbargraph("[5]1[symbol:corr_pos1]",0,1)*/;
-  corr_neg1 = avg(t, corr(t,l,r) < (-1+th)) : smoothing /*: vbargraph("[9]-1[symbol:]corr_neg1",0,1)*/;
-  corr_0 = avg(t, ((corr(t,l,r) < th) & (corr(t,l,r) > (0-th)))) : smoothing /*: vbargraph("[7]0[symbol:corr_0]",0,1)*/;
-  corr_pos = avg(t, ((corr(t,l,r) > (0+th)) & (corr(t,l,r) < (1-th)))) : smoothing /*: vbargraph("[6]>0,<1[symbol:corr_pos]",0,1)*/;
-  corr_neg = avg(t, ((corr(t,l,r) > (-1+th)) & (corr(t,l,r) < (0-th)))) : smoothing /*: vbargraph("[8]>-1,<0[symbol:corr_neg]",0,1)*/;
+                                               corr_neg1 = avg(t, corr(t,l,r) < (-1+th)) : smoothing /*: vbargraph("[9]-1[symbol:]corr_neg1",0,1)*/;
+                                                                                           corr_0 = avg(t, ((corr(t,l,r) < th) & (corr(t,l,r) > (0-th)))) : smoothing /*: vbargraph("[7]0[symbol:corr_0]",0,1)*/;
+                                                                                                                                                            corr_pos = avg(t, ((corr(t,l,r) > (0+th)) & (corr(t,l,r) < (1-th)))) : smoothing /*: vbargraph("[6]>0,<1[symbol:corr_pos]",0,1)*/;
+                                                                                                                                                                                                                                   corr_neg = avg(t, ((corr(t,l,r) > (-1+th)) & (corr(t,l,r) < (0-th)))) : smoothing /*: vbargraph("[8]>-1,<0[symbol:corr_neg]",0,1)*/;
 
-  smoothing = lp1p(2) ;
+                                                                                                                                                                                                                                                                                                           smoothing = lp1p(2) ;
 
   out_pos1 = ((l * corr_pos1 + r * corr_pos1) /2) , ((l * corr_pos1 + r * corr_pos1) /2);
   out_neg1 = ((l * corr_neg1 + (-r) * corr_neg1) /2) , ((l * corr_neg1 + (-r) * corr_neg1) /2);
@@ -189,52 +189,104 @@ correlate_correct(l,r) = out_pos1, out_neg1, out_0, out_pos, out_neg :> _,_ with
 mono_bp = bp2(1 - checkbox("v:soundsgood/t:expert/h:[1]pre-processing/[2][symbol:mono]mono"),mono);
 mono = _*0.5,_*0.5 <: +, +;
 
-
-// LEVELER
+ // LEVELER
 
 
 leveler_sc(target,fl,fr,l,r) =
-                        ( lk2(fl,fr)// :max(-70)
-                          : (calc*(1-bp)+bp)
-                            <: si.bus(2)
-                        ) : (_*l,_*r)
-                      with {
-               N = 2;
-               B = si.bus(N);
+(
+  (calc(lk2(fl,fr),lk2_var(length,fl,fr))*(1-bp)+bp)
+  <: si.bus(2)
+)
+: (_*l,_*r)
+with {
+N = 2;
+B = si.bus(N);
 
-               calc(lufs) = FB(lufs)~_: ba.db2linear;
-               FB(lufs,prev_gain) =
-                 (target - lufs)
-                   +(prev_gain )
-                 :  limit(limit_neg,limit_pos)
-                 : si.onePoleSwitching(rel_gated(fl+fr)/ diff(lufs),att/ diff(lufs))
-                 : leveler_meter_gain;
+lp1p(cf) = si.smooth(ba.tau2pole(1/(2*ma.PI*cf)));
 
-               diff(lufs) = (1+ (power*abs(target - lufs)));
+calc(lufs,short_lufs) = FB(lufs,short_lufs)~_: ba.db2linear;
+FB(lufs,short_lufs,prev_gain) =
+  (target - short_lufs)
+  // : hbargraph("[0]target-lufs[unit:dB]", -30, 30)
+  +(prev_gain )
+  // : hbargraph("[1]+prev_gain[unit:dB]", -30, 30)
+  :  limit(limit_neg,limit_pos)
+  : si.onePoleSwitching(release,attack)
+    // : hbargraph("[2]env fol[unit:dB]", -30, 30)
+  : leveler_meter_gain
+with {
+  attack = att/ ((speedfactor*(1-undead_att))+undead_att);
+  release = rel_gated(fl+fr)/ ((speedfactor*(1-undead_rel))+undead_rel);
+  speedfactor = (autoSat((diff/(deadzone*0.5))-1)+1)*0.5
+                // : hbargraph("[-1]speedfactor", 0, 1)
+  ;
+  diff = abs(target - lufs);
+  // from: https://github.com/zamaudio/zam-plugins/blob/8cd23d781018e3ec84159958d3d2dc7038a82736/plugins/ZamAutoSat/ZamAutoSatPlugin.cpp#L71
+  autoSat(x) = x:min(1):max(-1)<:2.0*_ * (1.0-abs(_)*0.5);
+  long_lufs = short_lufs:si.onePoleSwitching(long_length*mult,long_length)
+  ;
+  long_diff = (target-long_lufs)
+              // : hbargraph("[2]long diff[unit:dB]", -30, 30)
+  ;
+  undead_att =
+    long_diff:min(0)/(0-deadzone):min(1):pow(att_power)
+                                         // : hbargraph("undead_att", 0, 1)
+  ;
+  undead_rel =
+    long_diff:max(0)/deadzone:min(1):pow(rel_power)
+                                     // : hbargraph("undead_rel", 0, 1)
+  ;
+};
 
-               bp = checkbox("v:soundsgood/t:expert/h:[3]leveler/[1]leveler bypass[symbol:leveler_bypass]") : si.smoo;
 
-               limit(lo,hi) = min(hi) : max(lo);
 
-               rel_gated(sc) = max((10000 * lev_gate(sc)), rel);
-               lev_gate(sc) = 1-(ef.gate_gain_mono(leveler_gate_thresh,0.1,0,0.1,abs(sc)) <: attach(_, (1-_) : meter_leveler_gate));
+bp = checkbox("v:soundsgood/t:expert/h:[3]leveler/[1]leveler bypass[symbol:leveler_bypass]") : si.smoo;
 
-               leveler_meter_gain = vbargraph("v:soundsgood/h:easy/[4][unit:dB][symbol:leveler_gain]leveler gain",-50,50);
-               meter_leveler_gate = _ * 100 : vbargraph("v:soundsgood/t:expert/h:[3]leveler/[6][unit:%]leveler gate[symbol:leveler_gate]",0,100) * 0.001;
+limit(lo,hi) = min(hi) : max(lo);
 
-               leveler_speed = vslider("v:soundsgood/t:expert/h:[3]leveler/[4][unit:%][symbol:leveler_speed]leveler speed", init_leveler_speed, 0, 100, 1) * 0.01; //.005, 0.15, .005);
-               leveler_gate_thresh = target + vslider("v:soundsgood/t:expert/h:[3]leveler/[5][unit:db][symbol:leveler_gate_threshold]leveler gate threshold", init_leveler_gatethreshold,-90,0,1);
-               limit_pos = vslider("v:soundsgood/t:expert/h:[3]leveler/[7][symbol:leveler_max_plus][unit:db]leveler max +", init_leveler_maxboost, 0, 60, 1);
-               limit_neg = vslider("v:soundsgood/t:expert/h:[3]leveler/[8][symbol:leveler_max_minus][unit:db]leveler max -", init_leveler_maxcut, 0, 60, 1) : ma.neg;
-               power = 0.075;
-               //hslider("[2]power[unit:*]", 0.075, 0, 2, 0.001);
-               speed_scale = 0.25+(1-leveler_speed);
-               att = speed_scale *
-                     9;
-               // hslider("[98]att[unit:s]", 9, 0, 10, 0.1);
-               rel = speed_scale *
-                     18;
-               // hslider("[99]rel[unit:s]", 18, 1, 100, 0.1);
+rel_gated(sc) = max((10000 * lev_gate(sc)), rel);
+lev_gate(sc) = 1-(ef.gate_gain_mono(leveler_gate_thresh,0.1,0,0.1,abs(sc)) <: attach(_, (1-_) : meter_leveler_gate));
+
+leveler_meter_gain = vbargraph("v:soundsgood/h:easy/[4][unit:dB][symbol:leveler_gain]leveler gain",-50,50);
+meter_leveler_gate = _ * 100 : vbargraph("v:soundsgood/t:expert/h:[3]leveler/[6][unit:%]leveler gate[symbol:leveler_gate]",0,100) * 0.001;
+
+leveler_speed = vslider("v:soundsgood/t:expert/h:[3]leveler/[4][unit:%][symbol:leveler_speed]leveler speed", init_leveler_speed, 0, 100, 1) * 0.01; //0 to 1
+leveler_gate_thresh = target + vslider("v:soundsgood/t:expert/h:[3]leveler/[5][unit:db][symbol:leveler_gate_threshold]leveler gate threshold", init_leveler_gatethreshold,-90,0,1);
+limit_pos = vslider("v:soundsgood/t:expert/h:[3]leveler/[7][symbol:leveler_max_plus][unit:db]leveler max +", init_leveler_maxboost, 0, 60, 1);
+limit_neg = vslider("v:soundsgood/t:expert/h:[3]leveler/[8][symbol:leveler_max_minus][unit:db]leveler max -", init_leveler_maxcut, 0, 60, 1) : ma.neg;
+att_power =
+  0.5;
+// hslider("[2]att power[unit:*]", 0.5, 0, 2, 0.001);
+mult =
+  0.22;
+// hslider("[3]mult[unit:*]", 0.22, 0, 2, 0.001);
+rel_power =
+  1;
+// hslider("[3]rel power[unit:*]", 1, 0, 2, 0.001);
+speed_scale = 0.25+(1-leveler_speed);
+att = speed_scale *
+      3;
+// hslider("[98]att[unit:s]", 3, 0, 10, 0.1);
+rel = speed_scale *
+      12;
+// hslider("[99]rel[unit:s]", 12, 1, 100, 0.1);
+length =
+  0.4;
+// hslider("[99]length[unit:s]", 0.4, 0, 3, 0.01);
+long_length =
+  (1-leveler_speed):pow(power)*24+6
+                    // : hbargraph("long length[unit:dB]", 0, 36)
+;
+// undead_att =
+// hslider("[12]undead attack[unit:*]", 0.15 , 0, 1, 0.001);
+// undead_rel =
+// hslider("[13]undead release[unit:*]", 0.05 , 0, 1, 0.001);
+power =
+  3;
+// hslider("[3]power[unit:*]", 3, 0, 20, 0.01);
+deadzone =
+  long_length;
+// hslider("[14]deadzone[unit:dB]", 13 , 0, 60, 1);
              };
 
 
@@ -499,6 +551,28 @@ with {
 };
 
 // +++++++++++++++++++++++++ LUFS METER +++++++++++++++++++++++++
+lk2_instant =
+  par(i,2,kfilter ) :> 4.342944819 * log(max(1e-12)) : -(0.691) with {
+  // maximum assumed sample rate is 192k
+  maxSR = 192000;
+  sump(n) = ba.slidingSump(n, Tg*maxSR)/n;
+
+  kfilter = ebu.prefilter;
+};
+
+lk2_var(length) =
+  par(i,2,kfilter : envelope(length)) :> 4.342944819 * log(max(1e-12)) : -(0.691) with {
+  // maximum assumed sample rate is 192k
+  maxSR = 192000;
+  sump(n) = ba.slidingSump(n, Tg*maxSR)/n;
+  // mean square: average power = energy/Tg = integral of squared signal / Tg
+  envelope(period, x) = x * x :  sump(rint(period * ma.SR));
+  //Tg = 0.4; // 3 second window for 'short-term' measurement
+  Tg = 3;
+
+
+  kfilter = ebu.prefilter;
+};
 
 lk2 = par(i,2,kfilter : zi) :> 4.342944819 * log(max(1e-12)) : -(0.691) with {
   // maximum assumed sample rate is 192k
