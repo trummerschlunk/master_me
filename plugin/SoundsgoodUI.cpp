@@ -558,6 +558,7 @@ class SoundsGoodUI : public UI,
           link.adjustSize(metrics);
           fffb.adjustSize(metrics);
           makeup.adjustSize(metrics);
+          drywet.adjustSize(metrics);
           separator.adjustSize(metrics);
           m1.adjustSize(metrics);
           m2.adjustSize(metrics);
