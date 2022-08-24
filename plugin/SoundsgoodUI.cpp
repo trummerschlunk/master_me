@@ -429,63 +429,6 @@ class SoundsGoodUI : public UI,
       }
   } gate;
 
-  struct Leveler : SoundsgoodParameterGroupWithBypassSwitch {
-      QuantumValueSliderWithLabel speed;
-      QuantumValueSliderWithLabel threshold;
-      QuantumValueSliderWithLabel max_plus;
-      QuantumValueSliderWithLabel max_minus;
-      QuantumSingleSeparatorLine separator;
-      QuantumValueMeterWithLabel gate;
-
-      explicit Leveler(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
-          : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
-            speed(&frame, theme),
-            threshold(&frame, theme),
-            max_plus(&frame, theme),
-            max_minus(&frame, theme),
-            separator(&frame, theme),
-            gate(&frame, theme)
-      {
-          frame.setName("Leveler");
-          frame.mainWidget.setCallback(bcb);
-          frame.mainWidget.setId(kParameter_leveler_bypass);
-          frame.mainWidget.setLabel("Leveler");
-
-          setupSlider(speed, cb, kParameter_leveler_speed, 8);
-          setupSlider(threshold, cb, kParameter_leveler_gate_threshold, 8);
-          setupSlider(max_plus, cb, kParameter_leveler_max_plus, 8);
-          setupSlider(max_minus, cb, kParameter_leveler_max_minus, 8);
-          setupSeparatorLine(separator);
-          setupMeter(gate, kParameter_leveler_gate, 8);
-      }
-
-      void adjustSize(const QuantumMetrics& metrics) override
-      {
-          speed.adjustSize(metrics);
-          threshold.adjustSize(metrics);
-          max_plus.adjustSize(metrics);
-          max_minus.adjustSize(metrics);
-          separator.adjustSize(metrics);
-          gate.adjustSize(metrics);
-          SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
-      }
-
-      void setEnabledColor(const bool enabled)
-      {
-          const Color color = enabled ? theme.textLightColor : theme.textDarkColor;
-          speed.label.setLabelColor(color);
-          speed.slider.setTextColor(color);
-          threshold.label.setLabelColor(color);
-          threshold.slider.setTextColor(color);
-          max_plus.label.setLabelColor(color);
-          max_plus.slider.setTextColor(color);
-          max_minus.label.setLabelColor(color);
-          max_minus.slider.setTextColor(color);
-          gate.label.setLabelColor(color);
-          gate.meter.setTextColor(color);
-      }
-  } leveler;
-
   struct Eq : SoundsgoodParameterGroupWithBypassSwitch {
       QuantumValueSliderWithLabel highpass;
       QuantumLabelWithSeparatorLine tilt;
@@ -548,6 +491,63 @@ class SoundsGoodUI : public UI,
           side_bandwidth.slider.setTextColor(color);
       }
   } eq;
+
+  struct Leveler : SoundsgoodParameterGroupWithBypassSwitch {
+      QuantumValueSliderWithLabel speed;
+      QuantumValueSliderWithLabel threshold;
+      QuantumValueSliderWithLabel max_plus;
+      QuantumValueSliderWithLabel max_minus;
+      QuantumSingleSeparatorLine separator;
+      QuantumValueMeterWithLabel gate;
+
+      explicit Leveler(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
+          : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
+            speed(&frame, theme),
+            threshold(&frame, theme),
+            max_plus(&frame, theme),
+            max_minus(&frame, theme),
+            separator(&frame, theme),
+            gate(&frame, theme)
+      {
+          frame.setName("Leveler");
+          frame.mainWidget.setCallback(bcb);
+          frame.mainWidget.setId(kParameter_leveler_bypass);
+          frame.mainWidget.setLabel("Leveler");
+
+          setupSlider(speed, cb, kParameter_leveler_speed, 8);
+          setupSlider(threshold, cb, kParameter_leveler_gate_threshold, 8);
+          setupSlider(max_plus, cb, kParameter_leveler_max_plus, 8);
+          setupSlider(max_minus, cb, kParameter_leveler_max_minus, 8);
+          setupSeparatorLine(separator);
+          setupMeter(gate, kParameter_leveler_gate, 8);
+      }
+
+      void adjustSize(const QuantumMetrics& metrics) override
+      {
+          speed.adjustSize(metrics);
+          threshold.adjustSize(metrics);
+          max_plus.adjustSize(metrics);
+          max_minus.adjustSize(metrics);
+          separator.adjustSize(metrics);
+          gate.adjustSize(metrics);
+          SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
+      }
+
+      void setEnabledColor(const bool enabled)
+      {
+          const Color color = enabled ? theme.textLightColor : theme.textDarkColor;
+          speed.label.setLabelColor(color);
+          speed.slider.setTextColor(color);
+          threshold.label.setLabelColor(color);
+          threshold.slider.setTextColor(color);
+          max_plus.label.setLabelColor(color);
+          max_plus.slider.setTextColor(color);
+          max_minus.label.setLabelColor(color);
+          max_minus.slider.setTextColor(color);
+          gate.label.setLabelColor(color);
+          gate.meter.setTextColor(color);
+      }
+  } leveler;
 
   struct KneeCompressor : SoundsgoodParameterGroupWithBypassSwitch {
       QuantumValueSliderWithLabel strength;
@@ -967,8 +967,8 @@ class SoundsGoodUI : public UI,
   NanoSubWidget* parameterGroups[8] = {
       &preProcessing.frame,
       &gate.frame,
-      &leveler.frame,
       &eq.frame,
+      &leveler.frame,
       &kneeComp.frame,
       &msCompressor.frame,
       &limiter.frame,
@@ -1050,8 +1050,8 @@ public:
         name(this, theme),
         preProcessing(this, this, this, theme),
         gate(this, this, this, theme),
-        leveler(this, this, this, theme),
         eq(this, this, this, theme),
+        leveler(this, this, this, theme),
         kneeComp(this, this, this, theme),
         msCompressor(this, this, this, theme),
         limiter(this, this, this, theme),
@@ -1167,8 +1167,8 @@ public:
       const uint row1y = contentGroup.getAbsoluteY() + borderSize + padding;
       preProcessing.setAbsolutePos(contentGroup.getAbsoluteX() + borderSize + padding, row1y);
       gate.setAbsolutePos(preProcessing.frame.getAbsoluteX() + preProcessing.frame.getWidth() + arrowSpacing + padding, row1y);
-      leveler.setAbsolutePos(gate.frame.getAbsoluteX() + gate.frame.getWidth() + arrowSpacing + padding, row1y);
-      eq.setAbsolutePos(leveler.frame.getAbsoluteX() + leveler.frame.getWidth() + arrowSpacing + padding, row1y);
+      eq.setAbsolutePos(gate.frame.getAbsoluteX() + gate.frame.getWidth() + arrowSpacing + padding, row1y);
+      leveler.setAbsolutePos(eq.frame.getAbsoluteX() + eq.frame.getWidth() + arrowSpacing + padding, row1y);
 
       // 2nd row
       const uint highestOf1stRow = std::max(preProcessing.frame.getHeight(), std::max(gate.frame.getHeight(), std::max(leveler.frame.getHeight(), eq.frame.getHeight())));
