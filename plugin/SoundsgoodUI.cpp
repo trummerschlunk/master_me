@@ -1471,11 +1471,6 @@ protected:
     }
 
   /* --------------------------------------------------------------------------------------------------------
-   * DSP/Plugin Callbacks (optional) */
-
-  void sampleRateChanged(double newSampleRate) override {}
-
-  /* --------------------------------------------------------------------------------------------------------
    * Widget Callbacks */
 
   void onNanoDisplay() override

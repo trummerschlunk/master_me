@@ -252,6 +252,22 @@ protected:
         dsp->compute(frames, const_cast<float**>(inputs), outputs);
     }
 
+    void sampleRateChanged(const double newSampleRate) override
+    {
+        // retrieve parameter info first
+        float params[{{ active|length }}] = {
+            {% for p in active %}dsp->{{p.var}},
+            {% endfor %}
+        };
+
+        // tell dsp to change sample rate
+        dsp->init(newSampleRate);
+
+        // set parameters back, which have been reset in the dsp
+        {% for p in active %}dsp->{{p.var}} = params[{{ loop.index0 }}];
+        {% endfor %}
+    }
+
     // ----------------------------------------------------------------------------------------------------------------
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FaustGeneratedPlugin)
