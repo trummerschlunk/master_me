@@ -128,7 +128,7 @@ struct OutputMeterGroup : QuantumFrame
 };
 
 // custom layout for top centered content (global enable and leveler gain)
-struct TopCenteredGroup : QuantumFrame
+struct TopCenteredGroup : NanoSubWidget
 {
     const QuantumTheme& theme;
 
@@ -136,7 +136,7 @@ struct TopCenteredGroup : QuantumFrame
     QuantumVerticalSeparatorLine separator;
 
     explicit TopCenteredGroup(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, const QuantumTheme& t)
-        : QuantumFrame(parent, t),
+        : NanoSubWidget(parent),
           theme(t),
           globalEnableSwitch(this, t),
           separator(this, t)
@@ -164,32 +164,12 @@ struct TopCenteredGroup : QuantumFrame
 
     void setAbsolutePos(int x, const int y)
     {
-        QuantumFrame::setAbsolutePos(0, 0);
         globalEnableSwitch.setAbsolutePos(x, y);
         separator.setAbsolutePos(globalEnableSwitch.getAbsoluteX() + globalEnableSwitch.getWidth() + theme.padding * 4, y);
     }
 
     void onNanoDisplay() override
     {
-        const Color color2(Color(theme.widgetBackgroundColor, theme.windowBackgroundColor, 0.5f).withAlpha(0.5f));
-        const Color color1(color2.withAlpha(0.f));
-        const uint widthBy3 = getWidth() / 3;
-        const uint height = getHeight();
-
-        beginPath();
-        rect(0, 0, widthBy3, height);
-        fillPaint(linearGradient(0, 0, widthBy3, 0, color2, color1));
-        fill();
-
-        beginPath();
-        rect(getWidth() - widthBy3, 0, widthBy3, height);
-        fillPaint(linearGradient(getWidth() - widthBy3, 0, getWidth(), 0, color1, color2));
-        fill();
-
-        beginPath();
-        rect(widthBy3 - 1, 0, widthBy3 + 2, height);
-        fillColor(color1);
-        fill();
     }
 };
 
@@ -1484,6 +1464,26 @@ protected:
       beginPath();
       rect(0, 0, getWidth(), getHeight());
       fillColor(theme.windowBackgroundColor);
+      fill();
+
+      const Color color2(Color(theme.widgetBackgroundColor, theme.windowBackgroundColor, 0.5f).withAlpha(0.5f));
+      const Color color1(color2.withAlpha(0.f));
+      const uint widthBy3 = getWidth() / 3;
+      const uint height = getHeight();
+
+      beginPath();
+      rect(0, 0, widthBy3, height);
+      fillPaint(linearGradient(0, 0, widthBy3, 0, color2, color1));
+      fill();
+
+      beginPath();
+      rect(getWidth() - widthBy3, 0, widthBy3, height);
+      fillPaint(linearGradient(getWidth() - widthBy3, 0, getWidth(), 0, color1, color2));
+      fill();
+
+      beginPath();
+      rect(widthBy3 - 1, 0, widthBy3 + 2, height);
+      fillColor(color1);
       fill();
   }
 
