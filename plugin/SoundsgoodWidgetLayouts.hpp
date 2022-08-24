@@ -181,6 +181,25 @@ struct QuantumDualValueSliderWithCenterLabel : HorizontalLayout
 };
 
 // --------------------------------------------------------------------------------------------------------------------
+// single separator line
+
+struct QuantumSingleSeparatorLine : HorizontalLayout
+{
+    QuantumHorizontalSeparatorLine separator;
+
+    explicit QuantumSingleSeparatorLine(NanoSubWidget* const parent, const QuantumTheme& theme)
+        : separator(parent, theme)
+    {
+        widgets.push_back({ &separator, Expanding });
+    }
+
+    void adjustSize(const QuantumMetrics& metrics)
+    {
+        separator.setSize(metrics.separatorHorizontal);
+    }
+};
+
+// --------------------------------------------------------------------------------------------------------------------
 // single expanding switch
 
 struct QuantumSingleSwitch : HorizontalLayout

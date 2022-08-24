@@ -63,6 +63,12 @@ struct SoundsgoodParameterGroup : VerticallyStackedHorizontalLayout
         items.push_back(&w);
     }
 
+    inline void setupSeparatorLine(QuantumSingleSeparatorLine& w)
+    {
+        w.separator.setName("+ separator");
+        items.push_back(&w);
+    }
+
     inline void setupSlider(QuantumValueSliderWithLabel& w, KnobEventHandler::Callback* const cb, const int id, const uint nameOffset)
     {
         w.slider.setCallback(cb);

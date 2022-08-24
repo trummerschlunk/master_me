@@ -384,7 +384,7 @@ class SoundsGoodUI : public UI,
       QuantumValueSliderWithLabel threshold;
       QuantumValueSliderWithLabel max_plus;
       QuantumValueSliderWithLabel max_minus;
-      QuantumLabelWithSeparatorLine separator;
+      QuantumSingleSeparatorLine separator;
       QuantumValueMeterWithLabel gate;
 
       explicit Leveler(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
@@ -405,7 +405,7 @@ class SoundsGoodUI : public UI,
           setupSlider(threshold, cb, kParameter_leveler_gate_threshold, 8);
           setupSlider(max_plus, cb, kParameter_leveler_max_plus, 8);
           setupSlider(max_minus, cb, kParameter_leveler_max_minus, 8);
-          setupSeparatorLine(separator, "Outputs:");
+          setupSeparatorLine(separator);
           setupMeter(gate, kParameter_leveler_gate, 8);
       }
 
@@ -431,7 +431,6 @@ class SoundsGoodUI : public UI,
           max_plus.slider.setTextColor(color);
           max_minus.label.setLabelColor(color);
           max_minus.slider.setTextColor(color);
-          separator.label.setLabelColor(color);
           gate.label.setLabelColor(color);
           gate.meter.setTextColor(color);
       }
@@ -510,7 +509,7 @@ class SoundsGoodUI : public UI,
       QuantumValueSliderWithLabel fffb;
       QuantumValueSliderWithLabel makeup;
       QuantumValueSliderWithLabel drywet;
-      QuantumLabelWithSeparatorLine separator;
+      QuantumSingleSeparatorLine separator;
       QuantumValueMeterWithLabel m1; // FIXME name this
       QuantumValueMeterWithLabel m2; // FIXME name this
 
@@ -543,7 +542,7 @@ class SoundsGoodUI : public UI,
           setupSlider(fffb, cb, kParameter_kneecomp_fffb, 9);
           setupSlider(makeup, cb, kParameter_kneecomp_makeup, 9);
           setupSlider(drywet, cb, kParameter_kneecomp_drywet, 9);
-          setupSeparatorLine(separator, "Outputs:");
+          setupSeparatorLine(separator);
           setupMeter(m1, kParameter_70, 0);
           setupMeter(m2, kParameter_71, 0);
       }
@@ -586,7 +585,6 @@ class SoundsGoodUI : public UI,
           makeup.slider.setTextColor(color);
           drywet.label.setLabelColor(color);
           drywet.slider.setTextColor(color);
-          separator.label.setLabelColor(color);
           m1.label.setLabelColor(color);
           m1.meter.setTextColor(color);
           m2.label.setLabelColor(color);
@@ -808,7 +806,7 @@ class SoundsGoodUI : public UI,
       QuantumValueSliderWithLabel fffb;
       QuantumValueSliderWithLabel knee;
       QuantumValueSliderWithLabel makeup;
-      QuantumLabelWithSeparatorLine separator;
+      QuantumSingleSeparatorLine separator;
       QuantumValueMeterWithLabel gainReduction;
 
       explicit Limiter(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
@@ -835,7 +833,7 @@ class SoundsGoodUI : public UI,
           setupSlider(fffb, cb, kParameter_limiter_fffb, 8);
           setupSlider(knee, cb, kParameter_limiter_knee, 8);
           setupSlider(makeup, cb, kParameter_limiter_makeup, 8);
-          setupSeparatorLine(separator, "Outputs:");
+          setupSeparatorLine(separator);
           setupMeter(gainReduction, kParameter_limiter_gain_reduction, 8);
       }
 
@@ -870,7 +868,6 @@ class SoundsGoodUI : public UI,
           knee.slider.setTextColor(color);
           makeup.label.setLabelColor(color);
           makeup.slider.setTextColor(color);
-          separator.label.setLabelColor(color);
           gainReduction.label.setLabelColor(color);
           gainReduction.meter.setTextColor(color);
       }
