@@ -128,12 +128,16 @@ peakmeter_out = out_meter_l,out_meter_r with {
 
 // GATE
 gate_bp = bp2(checkbox("v:soundsgood/t:expert/h:[2]gate/[1][symbol:gate_bypass]gate bypass"),gate);
-gate = ef.gate_stereo(gate_thresh,gate_att,gate_hold,gate_rel) with{
+gate(x,y) = attach(x,gateview(abs(x)+abs(y))),y : ef.gate_stereo(gate_thresh,gate_att,gate_hold,gate_rel) with{
   gate_thresh = vslider("v:soundsgood/t:expert/h:[2]gate/[2][symbol:gate_threshold][unit:dB]gate threshold",-90,-90,0,1);
   gate_att = vslider("v:soundsgood/t:expert/h:[2]gate/[3][symbol:gate_attack][unit:ms]gate attack",0,0,100,1) *0.001;
   gate_hold = vslider("v:soundsgood/t:expert/h:[2]gate/[4][symbol:gate_hold][unit:ms]gate hold",50,0,500,1) *0.001;
   gate_rel = vslider("v:soundsgood/t:expert/h:[2]gate/[5][symbol:gate_release][unit:ms]gate release",500,50,5000,1) *0.001;
+  gateview = ef.gate_gain_mono(gate_thresh,gate_att,gate_hold,gate_rel) : ba.linear2db :
+      vbargraph("v:soundsgood/t:expert/h:[2]gate/[6][symbol:gate_meter][unit:dB]gate meter", -70,0);
 };
+
+
 
 // correlation meter
 correlate_meter(x,y) = x,y <: x , attach(y, (corr(t) : meter_correlate_meter )) : _,_ with {
