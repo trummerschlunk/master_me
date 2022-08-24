@@ -387,13 +387,17 @@ class SoundsGoodUI : public UI,
       QuantumValueSliderWithLabel attack;
       QuantumValueSliderWithLabel hold;
       QuantumValueSliderWithLabel release;
+      QuantumSingleSeparatorLine separator;
+      QuantumValueMeterWithLabel meter;
 
       explicit Gate(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
           : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
             threshold(&frame, theme),
             attack(&frame, theme),
             hold(&frame, theme),
-            release(&frame, theme)
+            release(&frame, theme),
+            separator(&frame, theme),
+            meter(&frame, theme)
       {
           frame.setName("Gate");
           frame.mainWidget.setCallback(bcb);
@@ -404,6 +408,8 @@ class SoundsGoodUI : public UI,
           setupSlider(attack, cb, kParameter_gate_attack, 5);
           setupSlider(hold, cb, kParameter_gate_hold, 5);
           setupSlider(release, cb, kParameter_gate_release, 5);
+          setupSeparatorLine(separator);
+          setupMeter(meter, kParameter_gate_meter, 5);
       }
 
       void adjustSize(const QuantumMetrics& metrics) override
@@ -412,6 +418,8 @@ class SoundsGoodUI : public UI,
           attack.adjustSize(metrics);
           hold.adjustSize(metrics);
           release.adjustSize(metrics);
+          separator.adjustSize(metrics);
+          meter.adjustSize(metrics);
           SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
 
@@ -426,6 +434,8 @@ class SoundsGoodUI : public UI,
           hold.slider.setTextColor(color);
           release.label.setLabelColor(color);
           release.slider.setTextColor(color);
+          meter.label.setLabelColor(color);
+          meter.meter.setTextColor(color);
       }
   } gate;
 
@@ -1440,6 +1450,9 @@ protected:
       break;
     case kParameter_leveler_gate:
       leveler.gate.meter.setValue(value);
+      break;
+    case kParameter_gate_meter:
+      gate.meter.meter.setValue(value);
       break;
     case kParameter_71:
       kneeComp.m1.meter.setValue(value);
