@@ -79,26 +79,6 @@ struct QuantumValueMeterWithLabel : HorizontalLayout
     }
 };
 
-struct QuantumLabelWithValueMeter : HorizontalLayout
-{
-    QuantumLabel label;
-    QuantumValueMeter meter;
-
-    explicit QuantumLabelWithValueMeter(NanoSubWidget* const parent, const QuantumTheme& theme)
-        : label(parent, theme),
-          meter(parent, theme)
-    {
-        widgets.push_back({ &label, Expanding });
-        widgets.push_back({ &meter, Fixed });
-    }
-
-    void adjustSize(const QuantumMetrics& metrics)
-    {
-        label.adjustSize();
-        meter.setSize(metrics.valueMeterHorizontal);
-    }
-};
-
 // --------------------------------------------------------------------------------------------------------------------
 // fixed slider, expanding label
 

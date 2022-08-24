@@ -15,6 +15,14 @@ START_NAMESPACE_DISTRHO
 
 // -----------------------------------------------------------------------------------------------------------
 
+// make sure our expectations match
+static_assert(kParameterRanges[kParameter_target].min == -50.f, "lufs target -50 dB min");
+static_assert(kParameterRanges[kParameter_target].max == 0.f, "lufs target 0 dB max");
+static_assert(kParameterRanges[kParameter_leveler_gain].min == -50.f, "leveler gain -50 dB min");
+static_assert(kParameterRanges[kParameter_leveler_gain].max == +50.f, "leveler gain +50 dB max");
+
+// -----------------------------------------------------------------------------------------------------------
+
 // our custom metrics, making vertical sliders have less height
 struct SoundsGoodMetrics : QuantumMetrics
 {
@@ -32,12 +40,14 @@ struct InputMeterGroup : QuantumFrame
 
     QuantumStereoLevelMeterWithLUFS meter;
     QuantumMixerSlider slider;
+    QuantumGainReductionMeter levelerGain;
 
     explicit InputMeterGroup(TopLevelWidget* const parent, KnobEventHandler::Callback* const cb, const QuantumTheme& t)
         : QuantumFrame(parent, t),
           theme(t),
           meter(this, t),
-          slider(this, t)
+          slider(this, t),
+          levelerGain(this, t)
     {
         setName("Inputs");
 
@@ -53,6 +63,15 @@ struct InputMeterGroup : QuantumFrame
         // NOTE this slider widget assumes -50 to 0 dB range
         // slider.setRange(kParameterRanges[kParameter_target].min, kParameterRanges[kParameter_target].max);
         slider.setValue(kParameterRanges[kParameter_target].def, false);
+
+        levelerGain.setId(kParameter_leveler_gain);
+        levelerGain.setName(kParameterNames[kParameter_leveler_gain]);
+        // levelerGain.setRange(kParameterRanges[kParameter_leveler_gain].min, kParameterRanges[kParameter_leveler_gain].max);
+        // levelerGain.setUnitLabel(kParameterUnits[kParameter_leveler_gain]);
+        levelerGain.setValue(kParameterRanges[kParameter_leveler_gain].def);
+
+        // levelerGain.label.setLabel("Leveler Gain:");
+        // levelerGain.label.setName(kParameterNames[kParameter_leveler_gain]);
     }
 
     void adjustSize(const SoundsGoodMetrics& metrics, const uint height)
@@ -60,7 +79,8 @@ struct InputMeterGroup : QuantumFrame
         const uint usableHeight = height - theme.borderSize * 2 - theme.padding * 2;
         meter.setSize(metrics.stereoLevelMeterWithLufs.getWidth(), usableHeight);
         slider.setSize(metrics.mixerSlider.getWidth(), usableHeight);
-        setSize(meter.getWidth() + slider.getWidth() + theme.borderSize * 2 + theme.padding * 3, height);
+        levelerGain.setSize(metrics.gainReductionMeter.getWidth(), usableHeight);
+        setSize(meter.getWidth() + slider.getWidth() + levelerGain.getWidth() + theme.borderSize * 2 + theme.padding * 4, height);
     }
 
     void setAbsolutePos(const int x, const int y)
@@ -68,6 +88,7 @@ struct InputMeterGroup : QuantumFrame
         QuantumFrame::setAbsolutePos(x, y);
         meter.setAbsolutePos(x + theme.borderSize + theme.padding, y + theme.borderSize + theme.padding);
         slider.setAbsolutePos(meter.getAbsoluteX() + meter.getWidth() + theme.padding, meter.getAbsoluteY());
+        levelerGain.setAbsolutePos(slider.getAbsoluteX() + slider.getWidth() + theme.padding, meter.getAbsoluteY());
     }
 };
 
@@ -113,7 +134,6 @@ struct TopCenteredGroup : QuantumFrame
 
     QuantumSwitch globalEnableSwitch;
     QuantumVerticalSeparatorLine separator;
-    QuantumLabelWithValueMeter levelerGain;
 
     uint innerWidth = 0;
 
@@ -121,8 +141,7 @@ struct TopCenteredGroup : QuantumFrame
         : QuantumFrame(parent, t),
           theme(t),
           globalEnableSwitch(this, t),
-          separator(this, t),
-          levelerGain(this, t)
+          separator(this, t)
     {
         setName("Top Center");
 
@@ -134,15 +153,6 @@ struct TopCenteredGroup : QuantumFrame
         globalEnableSwitch.setName("Global Enable Button");
 
         separator.setName("+ separator");
-
-        levelerGain.meter.setId(kParameter_leveler_gain);
-        levelerGain.meter.setName(kParameterNames[kParameter_leveler_gain]);
-        levelerGain.meter.setOrientation(QuantumValueMeter::CenterToSides);
-        levelerGain.meter.setRange(kParameterRanges[kParameter_leveler_gain].min, kParameterRanges[kParameter_leveler_gain].max);
-        levelerGain.meter.setUnitLabel(kParameterUnits[kParameter_leveler_gain]);
-        levelerGain.meter.setValue(kParameterRanges[kParameter_leveler_gain].def);
-        levelerGain.label.setLabel("Leveler Gain:");
-        levelerGain.label.setName(kParameterNames[kParameter_leveler_gain]);
     }
 
     void adjustSize(const SoundsGoodMetrics& metrics, const uint width, const uint height, const uint widgetsHeight)
@@ -151,10 +161,7 @@ struct TopCenteredGroup : QuantumFrame
         globalEnableSwitch.setHeight(widgetsHeight);
         separator.setSize(metrics.separatorVertical);
         separator.setHeight(widgetsHeight);
-        levelerGain.adjustSize(metrics);
-        levelerGain.label.setHeight(widgetsHeight);
-        levelerGain.meter.setSize(levelerGain.meter.getWidth() * 2, widgetsHeight); // double the normal meter size
-        innerWidth = globalEnableSwitch.getWidth() + separator.getWidth() + levelerGain.meter.getWidth() + levelerGain.label.getWidth() + theme.padding * 9;
+        innerWidth = globalEnableSwitch.getWidth() + separator.getWidth() + theme.padding * 9;
         setSize(width, height);
     }
 
@@ -164,7 +171,6 @@ struct TopCenteredGroup : QuantumFrame
         x += (getWidth() - innerWidth) / 2;
         globalEnableSwitch.setAbsolutePos(x, y);
         separator.setAbsolutePos(globalEnableSwitch.getAbsoluteX() + globalEnableSwitch.getWidth() + theme.padding * 4, y);
-        levelerGain.setAbsolutePos(separator.getAbsoluteX() + separator.getWidth() + theme.padding * 4, y, theme.padding);
     }
 
     void onNanoDisplay() override
@@ -1377,7 +1383,7 @@ protected:
       inputGroup.meter.setValueLufs(value);
       break;
     case kParameter_leveler_gain:
-      topCenteredGroup.levelerGain.meter.setValue(value);
+      inputGroup.levelerGain.setValue(value);
       break;
     case kParameter_lufs_out:
       outputGroup.meter.setValueLufs(value);
@@ -1515,7 +1521,7 @@ protected:
       doit = 0;
       inputGroup.meter.setValues(randomMeterValue(), randomMeterValue(), randomMeterValue());
       outputGroup.meter.setValues(randomMeterValue(), randomMeterValue(), randomMeterValue());
-      topCenteredGroup.levelerGain.meter.setValue(30.f);
+      inputGroup.levelerGain.setValue(-30.f);
   }
 #endif
 
@@ -1550,8 +1556,8 @@ protected:
           break;
       case kParameter_leveler_bypass:
           leveler.setEnabledColor(enabled);
-          topCenteredGroup.levelerGain.label.setLabelColor(enabled ? theme.textLightColor : theme.textDarkColor);
-          topCenteredGroup.levelerGain.meter.setTextColor(enabled ? theme.textLightColor : theme.textDarkColor);
+          // inputGroup.levelerGain.label.setLabelColor(enabled ? theme.textLightColor : theme.textDarkColor);
+          // inputGroup.levelerGain.setTextColor(enabled ? theme.textLightColor : theme.textDarkColor);
           reportGroupBypassChanged(id, enabled);
           break;
       case kParameter_eq_bypass:

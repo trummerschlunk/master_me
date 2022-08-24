@@ -49,7 +49,7 @@ enum States {
     kStateCount
 };
 
-static const char* kParameterNames[{{active|length+passive|length}}] = {
+static constexpr const char* kParameterNames[{{active|length+passive|length}}] = {
     // inputs
     {% for p in active %}{{cstr(p.label)}},
     {% endfor %}
@@ -58,7 +58,7 @@ static const char* kParameterNames[{{active|length+passive|length}}] = {
     {% endfor %}
 };
 
-static const struct { float def, min, max; } kParameterRanges[{{active|length+passive|length}}] = {
+static constexpr const struct { float def, min, max; } kParameterRanges[{{active|length+passive|length}}] = {
     // inputs
     {% for p in active %}{ {{p.init}}, {{p.min}}, {{p.max}} },
     {% endfor %}
@@ -67,7 +67,7 @@ static const struct { float def, min, max; } kParameterRanges[{{active|length+pa
     {% endfor %}
 };
 
-static const char* kParameterSymbols[{{active|length+passive|length}}] = {
+static constexpr const char* kParameterSymbols[{{active|length+passive|length}}] = {
     // inputs
     {% for p in active %}{{cstr(cid(p.meta.symbol|default("lv2_port_" ~ (inputs+outputs+loop.index0))))}},
     {% endfor %}
@@ -76,7 +76,7 @@ static const char* kParameterSymbols[{{active|length+passive|length}}] = {
     {% endfor %}
 };
 
-static const char* kParameterUnits[{{active|length+passive|length}}] = {
+static constexpr const char* kParameterUnits[{{active|length+passive|length}}] = {
     // inputs
     {% for p in active %}{{cstr(p.unit)}},
     {% endfor %}
