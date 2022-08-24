@@ -179,6 +179,8 @@ struct ContentGroup : QuantumFrame
     const QuantumTheme& theme;
     QuantumButton& expertButton;
 
+    NanoSubWidget* parameterGroups[8] = {};
+
 public:
     explicit ContentGroup(TopLevelWidget* const parent, const QuantumTheme& t, QuantumButton& eb)
         : QuantumFrame(parent, t),
@@ -186,22 +188,76 @@ public:
           expertButton(eb)
     {
         loadSharedResources();
-        setName("Name");
+        setName("Content");
     }
 
+    void setParameterGroups(NanoSubWidget* groups[8])
+    {
+        std::memcpy(parameterGroups, groups, sizeof(parameterGroups));
+    }
+
+protected:
     void onNanoDisplay() override
     {
         QuantumFrame::onNanoDisplay();
 
         if (expertButton.isChecked())
-            return;
+        {
+            const int x = getAbsoluteX();
+            const int y = getAbsoluteY();
 
-        fillColor(theme.textMidColor);
-        fontSize(theme.fontSize);
-        textAlign(ALIGN_BOTTOM|ALIGN_RIGHT);
-        textBox(0, getHeight() - theme.fontSize * 5 - theme.borderSize,
-                getWidth() - theme.borderSize - theme.padding,
-                kBuildInfoString, nullptr);
+            const uint arrowSpacing = theme.textHeight;
+            fillColor(theme.textVeryDarkColor);
+
+            drawArrowLR(parameterGroups[1]->getAbsoluteX() - x - arrowSpacing, arrowSpacing * 2);
+            drawArrowLR(parameterGroups[2]->getAbsoluteX() - x - arrowSpacing, arrowSpacing * 2);
+            drawArrowLR(parameterGroups[3]->getAbsoluteX() - x - arrowSpacing, arrowSpacing * 2);
+
+            drawArrowLR(parameterGroups[5]->getAbsoluteX() - x - arrowSpacing, parameterGroups[5]->getAbsoluteY() - y + arrowSpacing * 2);
+            drawArrowLR(parameterGroups[6]->getAbsoluteX() - x - arrowSpacing, parameterGroups[5]->getAbsoluteY() - y + arrowSpacing * 2);
+        }
+        else
+        {
+            fillColor(theme.textMidColor);
+            fontSize(theme.fontSize);
+            textAlign(ALIGN_BOTTOM|ALIGN_RIGHT);
+            textBox(0, getHeight() - theme.fontSize * 5 - theme.borderSize,
+                    getWidth() - theme.borderSize - theme.padding,
+                    kBuildInfoString, nullptr);
+        }
+    }
+
+private:
+    inline void drawArrowLR(const int x, const int y)
+    {
+        const uint b = theme.textHeight / 2;
+
+        beginPath();
+        moveTo(x, y);
+        lineTo(x + b, y);
+        lineTo(x + b, y - b);
+        lineTo(x + b + b, y + b / 2);
+        lineTo(x + b, y + b + b);
+        lineTo(x + b, y + b);
+        lineTo(x, y + b);
+        closePath();
+        fill();
+    }
+
+    inline void drawArrowTB(const int x, const int y)
+    {
+        const uint b = theme.textHeight;
+
+        beginPath();
+        moveTo(x, y);
+        lineTo(x + b, y);
+        lineTo(x + b, y - b);
+        lineTo(x + b + b, y + b / 2);
+        lineTo(x + b, y + b + b);
+        lineTo(x + b, y + b);
+        lineTo(x, y + b);
+        closePath();
+        fill();
     }
 };
 
@@ -209,6 +265,7 @@ public:
 class SoundsgoodNameWidget : public NanoSubWidget
 {
     const QuantumTheme& theme;
+    ScopedPointer<InspectorWindow> inspectorWindow;
 
     static constexpr const char* const kText = "master_me";
 
@@ -242,6 +299,19 @@ protected:
         textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
         text(getWidth() / 2, getHeight() / 2, kText, nullptr);
     }
+
+    bool onMouse(const MouseEvent& ev) override
+    {
+        if (ev.button == 1 && ev.press && contains(ev.pos))
+        {
+            if (inspectorWindow == nullptr)
+                inspectorWindow = new InspectorWindow(getTopLevelWidget());
+
+            inspectorWindow->isOpen = true;
+        }
+
+        return false;
+    }
 };
 
 // -----------------------------------------------------------------------------------------------------------
@@ -252,8 +322,6 @@ class SoundsGoodUI : public UI,
 {
   static const uint kInitialWidth = 1023;
   static const uint kInitialHeight = 600;
-
-  ScopedPointer<InspectorWindow> inspectorWindow;
 
   QuantumTheme theme;
 
@@ -1043,7 +1111,7 @@ public:
     welcomeLabel.setName("Welcome Label");
     welcomeLabel.setAlignment(NanoVG::ALIGN_TOP|NanoVG::ALIGN_LEFT);
 
-    contentGroup.setName("Content");
+    contentGroup.setParameterGroups(parameterGroups);
 
     // bottom of the drawing stack
     topCenteredGroup.toBottom();
@@ -1060,11 +1128,6 @@ public:
 
   ~SoundsGoodUI() override
   {
-      if (inspectorWindow != nullptr)
-      {
-          inspectorWindow->close();
-          inspectorWindow = nullptr;
-      }
   }
 
   void repositionWidgets()
@@ -1076,6 +1139,7 @@ public:
       const uint padding = theme.padding;
       const uint windowPadding = theme.windowPadding;
       const uint startY = windowPadding * 2 + metrics.button.getHeight();
+      const uint arrowSpacing = theme.textHeight;
 
       inputGroup.setAbsolutePos(windowPadding, startY);
       contentGroup.setAbsolutePos(windowPadding + inputGroup.getWidth() + padding * 2, startY);
@@ -1102,19 +1166,19 @@ public:
       // 1st row
       const uint row1y = contentGroup.getAbsoluteY() + borderSize + padding;
       preProcessing.setAbsolutePos(contentGroup.getAbsoluteX() + borderSize + padding, row1y);
-      gate.setAbsolutePos(preProcessing.frame.getAbsoluteX() + preProcessing.frame.getWidth() + padding, row1y);
-      leveler.setAbsolutePos(gate.frame.getAbsoluteX() + gate.frame.getWidth() + padding, row1y);
-      eq.setAbsolutePos(leveler.frame.getAbsoluteX() + leveler.frame.getWidth() + padding, row1y);
+      gate.setAbsolutePos(preProcessing.frame.getAbsoluteX() + preProcessing.frame.getWidth() + arrowSpacing + padding, row1y);
+      leveler.setAbsolutePos(gate.frame.getAbsoluteX() + gate.frame.getWidth() + arrowSpacing + padding, row1y);
+      eq.setAbsolutePos(leveler.frame.getAbsoluteX() + leveler.frame.getWidth() + arrowSpacing + padding, row1y);
 
       // 2nd row
       const uint highestOf1stRow = std::max(preProcessing.frame.getHeight(), std::max(gate.frame.getHeight(), std::max(leveler.frame.getHeight(), eq.frame.getHeight())));
-      const uint row2y = contentGroup.getAbsoluteY() + borderSize + padding * 3 + highestOf1stRow;
+      const uint row2y = contentGroup.getAbsoluteY() + borderSize + arrowSpacing + padding * 3 + highestOf1stRow;
       kneeComp.setAbsolutePos(preProcessing.frame.getAbsoluteX(), row2y);
-      msCompressor.setAbsolutePos(kneeComp.frame.getAbsoluteX() + kneeComp.frame.getWidth() + padding, row2y);
-      limiter.setAbsolutePos(msCompressor.frame.getAbsoluteX() + msCompressor.frame.getWidth() + padding, row2y);
+      msCompressor.setAbsolutePos(kneeComp.frame.getAbsoluteX() + kneeComp.frame.getWidth() + arrowSpacing + padding, row2y);
+      limiter.setAbsolutePos(msCompressor.frame.getAbsoluteX() + msCompressor.frame.getWidth() + arrowSpacing + padding, row2y);
 
       // brickwall below limiter
-      brickwall.setAbsolutePos(limiter.frame.getAbsoluteX(), limiter.frame.getAbsoluteY() + limiter.frame.getHeight() + padding);
+      brickwall.setAbsolutePos(limiter.frame.getAbsoluteX(), limiter.frame.getAbsoluteY() + limiter.frame.getHeight() + arrowSpacing + padding);
   }
 
   void resizeWidgets(const double scaleFactor, const uint width, const uint height)
@@ -1485,19 +1549,6 @@ protected:
       rect(widthBy3 - 1, 0, widthBy3 + 2, height);
       fillColor(color1);
       fill();
-  }
-
-  bool onMouse(const MouseEvent &ev) override {
-    if (UI::onMouse(ev))
-      return true;
-
-    if (ev.button == 1 && ev.press) {
-      if (inspectorWindow == nullptr)
-        inspectorWindow = new InspectorWindow(this);
-      inspectorWindow->show();
-    }
-
-    return false;
   }
 
   void onResize(const ResizeEvent& ev) override

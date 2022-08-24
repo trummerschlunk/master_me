@@ -27,27 +27,34 @@ START_NAMESPACE_DGL
 
 // --------------------------------------------------------------------------------------------------------------------
 
-class InspectorWindow : public ImGuiStandaloneWindow
+class InspectorWindow : public ImGuiTopLevelWidget
 {
     std::list<SubWidget*> subwidgets;
 
 public:
+    bool isOpen = true;
+
     explicit InspectorWindow(TopLevelWidget* const tlw)
-        : ImGuiStandaloneWindow(tlw->getApp(), tlw->getWindow()),
+        : ImGuiTopLevelWidget(tlw->getWindow()),
           subwidgets(tlw->getChildren())
     {
-        String title(tlw->getApp().getClassName());
-        title += " ";
-        title += " Inspector Window";
-        setTitle(title);
+        ResizeEvent ev;
+        ev.size = tlw->getSize();
+        onResize(ev);
     }
 
 protected:
     void onImGuiDisplay() override
     {
-        ImGui::SetNextWindowPos(ImVec2(0, 0));
-        ImGui::SetNextWindowSize(ImVec2(getWidth(), getHeight()));
-        ImGui::Begin("Widgets", nullptr, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoCollapse);
+        if (!isOpen)
+            return;
+
+        const double initialSize = 600 * getScaleFactor();
+
+        ImGui::SetNextWindowPos(ImVec2(initialSize / 4, initialSize / 4), ImGuiCond_Once);
+        ImGui::SetNextWindowSize(ImVec2(initialSize, initialSize / 2), ImGuiCond_Once);
+
+        ImGui::Begin("Widgets", &isOpen);
 
         displaySubWidget(subwidgets);
 
