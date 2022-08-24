@@ -53,12 +53,13 @@ process =
     : correlate_correct_bp
 
     : gate_bp
+    : eq_bp
 
     : (
         leveler_sc(target)
 
         : (sc_compressor
-           : eq_bp
+
 
               : mscomp_bp
              // : kneecomp_bp
