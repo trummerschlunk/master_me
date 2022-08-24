@@ -1,6 +1,6 @@
 // -*-Faust-*-
 
-declare name "Soundsgood";
+declare name "master_me";
 declare version "1.0";
 declare author "Klaus Scheuermann";
 declare license "GPLv3";

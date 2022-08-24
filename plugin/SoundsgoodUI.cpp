@@ -228,7 +228,7 @@ class SoundsgoodNameWidget : public NanoSubWidget
 {
     const QuantumTheme& theme;
 
-    static constexpr const char* const kText = "soundsgood";
+    static constexpr const char* const kText = "master_me";
 
 public:
     explicit SoundsgoodNameWidget(TopLevelWidget* const parent, const QuantumTheme& t)
@@ -1051,7 +1051,7 @@ public:
     static const char* const welcomeMessage = ""
         "Hi there,\n"
         "\n"
-        "soundsgood is an automatic mastering plugin for live-streamers,\n"
+        "master_me is an automatic mastering plugin for live-streamers,\n"
         "podcasters and alike.\n"
         "\n"
         "You are currently in \"easy\" mode.\n"
