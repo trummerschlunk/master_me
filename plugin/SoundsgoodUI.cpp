@@ -135,8 +135,6 @@ struct TopCenteredGroup : QuantumFrame
     QuantumSwitch globalEnableSwitch;
     QuantumVerticalSeparatorLine separator;
 
-    uint innerWidth = 0;
-
     explicit TopCenteredGroup(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, const QuantumTheme& t)
         : QuantumFrame(parent, t),
           theme(t),
@@ -161,14 +159,12 @@ struct TopCenteredGroup : QuantumFrame
         globalEnableSwitch.setHeight(widgetsHeight);
         separator.setSize(metrics.separatorVertical);
         separator.setHeight(widgetsHeight);
-        innerWidth = globalEnableSwitch.getWidth() + separator.getWidth() + theme.padding * 9;
         setSize(width, height);
     }
 
     void setAbsolutePos(int x, const int y)
     {
         QuantumFrame::setAbsolutePos(0, 0);
-        x += (getWidth() - innerWidth) / 2;
         globalEnableSwitch.setAbsolutePos(x, y);
         separator.setAbsolutePos(globalEnableSwitch.getAbsoluteX() + globalEnableSwitch.getWidth() + theme.padding * 4, y);
     }
@@ -177,21 +173,21 @@ struct TopCenteredGroup : QuantumFrame
     {
         const Color color2(Color(theme.widgetBackgroundColor, theme.windowBackgroundColor, 0.5f).withAlpha(0.5f));
         const Color color1(color2.withAlpha(0.f));
-        const uint gradientWidth = (getWidth() - innerWidth) / 2;
+        const uint widthBy3 = getWidth() / 3;
         const uint height = getHeight();
 
         beginPath();
-        rect(0, 0, gradientWidth, height);
-        fillPaint(linearGradient(0, 0, gradientWidth, 0, color2, color1));
+        rect(0, 0, widthBy3, height);
+        fillPaint(linearGradient(0, 0, widthBy3, 0, color2, color1));
         fill();
 
         beginPath();
-        rect(getWidth() - gradientWidth, 0, gradientWidth, height);
-        fillPaint(linearGradient(getWidth() - gradientWidth, 0, getWidth(), 0, color1, color2));
+        rect(getWidth() - widthBy3, 0, widthBy3, height);
+        fillPaint(linearGradient(getWidth() - widthBy3, 0, getWidth(), 0, color1, color2));
         fill();
 
         beginPath();
-        rect(gradientWidth - 1, 0, innerWidth + 2, height);
+        rect(widthBy3 - 1, 0, widthBy3 + 2, height);
         fillColor(color1);
         fill();
     }
@@ -1101,13 +1097,15 @@ public:
       const uint windowPadding = theme.windowPadding;
       const uint startY = windowPadding * 2 + metrics.button.getHeight();
 
-      topCenteredGroup.setAbsolutePos(windowPadding, windowPadding);
       inputGroup.setAbsolutePos(windowPadding, startY);
       contentGroup.setAbsolutePos(windowPadding + inputGroup.getWidth() + padding * 2, startY);
       outputGroup.setAbsolutePos(width - windowPadding - outputGroup.getWidth(), startY);
 
       name.setAbsolutePos(outputGroup.getAbsoluteX() - (name.getWidth() - padding) / 2,
                           outputGroup.getAbsoluteY() - padding - name.getHeight());
+
+      topCenteredGroup.setAbsolutePos(name.getAbsoluteX() - topCenteredGroup.globalEnableSwitch.getWidth() - theme.padding * 8 - theme.borderSize,
+                                      windowPadding + theme.borderSize);
 
       presetButtons.setAbsolutePos(contentGroup.getAbsoluteX() + contentGroup.getWidth() - presetButtons.frame.getWidth() - borderSize - padding,
                                    contentGroup.getAbsoluteY() + borderSize + padding);
@@ -1515,13 +1513,35 @@ protected:
 
   void uiIdle() override
   {
+      /*
       static int doit = 0;
-      if (++doit != 20)
+      if (++doit != 5)
           return;
       doit = 0;
-      inputGroup.meter.setValues(randomMeterValue(), randomMeterValue(), randomMeterValue());
-      outputGroup.meter.setValues(randomMeterValue(), randomMeterValue(), randomMeterValue());
-      inputGroup.levelerGain.setValue(-30.f);
+      */
+      // inputGroup.meter.setValues(randomMeterValue(), randomMeterValue(), randomMeterValue());
+      // outputGroup.meter.setValues(randomMeterValue(), randomMeterValue(), randomMeterValue());
+      static bool growing = true;
+      static float f = -50;
+      if (growing)
+      {
+         f += 1;
+         if (f > 50)
+         {
+          growing = false;
+          f = 50;
+         }
+      }
+      else
+      {
+        f -= 1;
+         if (f < -50)
+         {
+          growing = true;
+          f = -50;
+         }
+      }
+      inputGroup.levelerGain.setValue(f);
   }
 #endif
 
