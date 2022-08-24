@@ -347,13 +347,10 @@ B_band_Compressor_N_chan(B,N) =
   : outputGain
 with {
   crossover =
-    par(i, N, an.analyzer (6, crossoverFreqs)
-              // : ro.cross (B)
-       );
+    par(i, N, an.analyzer (6, crossoverFreqs) : ro.cross (B));
 
   apply_gain =
     (ro.interleave(N, B+1))
-    : par(i, N, ro.cross(B),_)
     : par(i, N, shelfcascade ((crossoverFreqs)))
   ;
 
