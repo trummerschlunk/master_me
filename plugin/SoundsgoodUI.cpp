@@ -1132,7 +1132,9 @@ public:
       kneeComp.setAbsolutePos(preProcessing.frame.getAbsoluteX(), row2y);
       msCompressor.setAbsolutePos(kneeComp.frame.getAbsoluteX() + kneeComp.frame.getWidth() + padding, row2y);
       limiter.setAbsolutePos(msCompressor.frame.getAbsoluteX() + msCompressor.frame.getWidth() + padding, row2y);
-      brickwall.setAbsolutePos(limiter.frame.getAbsoluteX() + limiter.frame.getWidth() + padding, row2y);
+
+      // brickwall below limiter
+      brickwall.setAbsolutePos(limiter.frame.getAbsoluteX(), limiter.frame.getAbsoluteY() + limiter.frame.getHeight() + padding);
   }
 
   void resizeWidgets(const double scaleFactor, const uint width, const uint height)
