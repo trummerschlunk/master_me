@@ -803,8 +803,8 @@ class SoundsGoodUI : public UI,
       QuantumValueSliderWithLabel threshold;
       QuantumValueSliderWithLabel attack;
       QuantumValueSliderWithLabel release;
-      QuantumValueSliderWithLabel fffb;
       QuantumValueSliderWithLabel knee;
+      QuantumValueSliderWithLabel fffb;
       QuantumValueSliderWithLabel makeup;
       QuantumSingleSeparatorLine separator;
       QuantumValueMeterWithLabel gainReduction;
@@ -815,8 +815,8 @@ class SoundsGoodUI : public UI,
             threshold(&frame, theme),
             attack(&frame, theme),
             release(&frame, theme),
-            fffb(&frame, theme),
             knee(&frame, theme),
+            fffb(&frame, theme),
             makeup(&frame, theme),
             separator(&frame, theme),
             gainReduction(&frame, theme)
@@ -830,8 +830,8 @@ class SoundsGoodUI : public UI,
           setupSlider(threshold, cb, kParameter_limiter_threshold, 8);
           setupSlider(attack, cb, kParameter_limiter_attack, 8);
           setupSlider(release, cb, kParameter_limiter_release, 8);
-          setupSlider(fffb, cb, kParameter_limiter_fffb, 8);
           setupSlider(knee, cb, kParameter_limiter_knee, 8);
+          setupSlider(fffb, cb, kParameter_limiter_fffb, 8);
           setupSlider(makeup, cb, kParameter_limiter_makeup, 8);
           setupSeparatorLine(separator);
           setupMeter(gainReduction, kParameter_limiter_gain_reduction, 8);
@@ -843,8 +843,8 @@ class SoundsGoodUI : public UI,
           threshold.adjustSize(metrics);
           attack.adjustSize(metrics);
           release.adjustSize(metrics);
-          fffb.adjustSize(metrics);
           knee.adjustSize(metrics);
+          fffb.adjustSize(metrics);
           makeup.adjustSize(metrics);
           separator.adjustSize(metrics);
           gainReduction.adjustSize(metrics);
@@ -862,10 +862,10 @@ class SoundsGoodUI : public UI,
           attack.slider.setTextColor(color);
           release.label.setLabelColor(color);
           release.slider.setTextColor(color);
-          fffb.label.setLabelColor(color);
-          fffb.slider.setTextColor(color);
           knee.label.setLabelColor(color);
           knee.slider.setTextColor(color);
+          fffb.label.setLabelColor(color);
+          fffb.slider.setTextColor(color);
           makeup.label.setLabelColor(color);
           makeup.slider.setTextColor(color);
           gainReduction.label.setLabelColor(color);
