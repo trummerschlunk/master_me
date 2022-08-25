@@ -11,6 +11,8 @@
 
 #include "BuildInfo.hpp"
 
+#include <functional>
+
 START_NAMESPACE_DISTRHO
 
 // -----------------------------------------------------------------------------------------------------------
@@ -1768,10 +1770,43 @@ protected:
     setParameterValue(widget->getId(), value);
   }
   
-  void quantumThemeChanged() override
+  void quantumThemeChanged(const bool size, const bool colors) override
   {
-      resizeWidgets(getWidth(), getHeight());
-      resizeOnNextIdle = true;
+      if (colors)
+      {
+          recursiveTypeFind<QuantumButton>(getChildren(), [=](QuantumButton* const w){
+              w->setBackgroundColor(theme.widgetDefaultActiveColor);
+          });
+          recursiveTypeFind<QuantumValueSlider>(getChildren(), [=](QuantumValueSlider* const w){
+              w->setBackgroundColor(theme.widgetDefaultActiveColor);
+              w->setTextColor(theme.textLightColor);
+          });
+          recursiveTypeFind<QuantumValueMeter>(getChildren(), [=](QuantumValueMeter* const w){
+              w->setBackgroundColor(theme.widgetDefaultAlternativeColor);
+              w->setTextColor(theme.textLightColor);
+          });
+          recursiveTypeFind<QuantumLevelMeter>(getChildren(), [=](QuantumLevelMeter* const w){
+              w->setBackgroundColor(theme.levelMeterColor);
+          });
+      }
+
+      if (size)
+      {
+          resizeWidgets(getWidth(), getHeight());
+          resizeOnNextIdle = true;
+      }
+  }
+
+  template<class W>
+  static void recursiveTypeFind(std::list<SubWidget*> children, std::function<void(W*)> fn)
+  {
+      for (SubWidget* w : children)
+      {
+          if (W* const w2 = dynamic_cast<W*>(w))
+              fn(w2);
+
+          recursiveTypeFind<W>(w->getChildren(), fn);
+      }
   }
 
   DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SoundsGoodUI)

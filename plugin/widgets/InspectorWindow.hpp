@@ -64,66 +64,68 @@ protected:
         ImGui::Begin("Theme", &isOpen, ImGuiWindowFlags_NoCollapse);
 
         int val;
-        bool changed = false;
+        bool changedSize = false;
+        bool changedColors = false;
 
         if (ImGui::Button("Reset"))
         {
-            changed = true;
+            changedSize = true;
+            changedColors = true;
             theme = QuantumTheme();
         }
 
         val = theme.borderSize;
         if (ImGui::SliderInt("Border Size", &val, 1, 20))
         {
-            changed = true;
+            changedSize = true;
             theme.borderSize = val;
         }
 
         val = theme.padding;
         if (ImGui::SliderInt("Padding", &val, 0, 20))
         {
-            changed = true;
+            changedSize = true;
             theme.padding = val;
         }
 
         val = theme.fontSize;
         if (ImGui::SliderInt("Font Size", &val, 8, 50))
         {
-            changed = true;
+            changedSize = true;
             theme.fontSize = val;
         }
 
         val = theme.textHeight;
         if (ImGui::SliderInt("Text Height", &val, theme.fontSize, 60))
         {
-            changed = true;
+            changedSize = true;
             theme.textHeight = val;
         }
 
         val = theme.widgetLineSize;
         if (ImGui::SliderInt("Widget Line Size", &val, 1, 10))
         {
-            changed = true;
+            changedSize = true;
             theme.widgetLineSize = val;
         }
 
-        ImGui::ColorEdit4("Level Meter", theme.levelMeterColor.rgba);
-        ImGui::ColorEdit4("Level Meter Alternative", theme.levelMeterAlternativeColor.rgba);
-        ImGui::ColorEdit4("Widget Background", theme.widgetBackgroundColor.rgba);
-        ImGui::ColorEdit4("Widget Default Active", theme.widgetDefaultActiveColor.rgba);
-        ImGui::ColorEdit4("Widget Default Alternative", theme.widgetDefaultAlternativeColor.rgba);
-        ImGui::ColorEdit4("Widget Foreground", theme.widgetForegroundColor.rgba);
-        ImGui::ColorEdit4("Window Background", theme.windowBackgroundColor.rgba);
-        ImGui::ColorEdit4("Text Light", theme.textLightColor.rgba);
-        ImGui::ColorEdit4("Text Mid", theme.textMidColor.rgba);
-        ImGui::ColorEdit4("Text Dark", theme.textDarkColor.rgba);
+        changedColors |= ImGui::ColorEdit4("Level Meter", theme.levelMeterColor.rgba);
+        changedColors |= ImGui::ColorEdit4("Level Meter Alternative", theme.levelMeterAlternativeColor.rgba);
+        changedColors |= ImGui::ColorEdit4("Widget Background", theme.widgetBackgroundColor.rgba);
+        changedColors |= ImGui::ColorEdit4("Widget Default Active", theme.widgetDefaultActiveColor.rgba);
+        changedColors |= ImGui::ColorEdit4("Widget Default Alternative", theme.widgetDefaultAlternativeColor.rgba);
+        changedColors |= ImGui::ColorEdit4("Widget Foreground", theme.widgetForegroundColor.rgba);
+        changedColors |= ImGui::ColorEdit4("Window Background", theme.windowBackgroundColor.rgba);
+        changedColors |= ImGui::ColorEdit4("Text Light", theme.textLightColor.rgba);
+        changedColors |= ImGui::ColorEdit4("Text Mid", theme.textMidColor.rgba);
+        changedColors |= ImGui::ColorEdit4("Text Dark", theme.textDarkColor.rgba);
 
         ImGui::End();
 
-        if (changed)
+        if (changedSize || changedColors)
         {
             theme.windowPadding = theme.borderSize + theme.padding * 3;
-            themeChangeCallback->quantumThemeChanged();
+            themeChangeCallback->quantumThemeChanged(changedSize, changedColors);
         }
 
         /*
