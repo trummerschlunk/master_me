@@ -1,0 +1,163 @@
+declare name "expanders";
+declare version "0.1";
+declare author "Bart Brouns";
+declare license "GPLv3";
+
+
+import("stdfaust.lib");
+
+
+//==================================Expanders=============================================
+//========================================================================================
+
+//--------------------`(co.)peak_expansion_gain_N_chan_db`-------------------
+// N channel dynamic range expander gain computer.
+// `peak_expansion_gain_N_chan_db` is a standard Faust function.
+//
+// #### Usage
+//
+// ```
+// si.bus(N) : peak_expansion_gain_N_chan_db(strength,thresh,range,att,hold,rel,knee,prePost,link,maxHold,N) : si.bus(N)
+// ```
+//
+// Where:
+//
+// * `strength`: strength of the expansion (0 = no expansion, 100 means gating, <1 means upward compression)
+// * `thresh`: dB level threshold below which expansion kicks in
+// * `range`: maximum amount of expansion in dB
+// * `att`: attack time = time constant (sec) coming out of expansion
+// * `hold` : hold time (sec)
+// * `rel`: release time = time constant (sec) going into expansion
+// * `knee`: a gradual increase in gain reduction around the threshold:
+// Above thresh+(knee/2) there is no gain reduction,
+// below thresh-(knee/2) there is the same gain reduction as without a knee,
+// and in between there is a gradual increase in gain reduction.
+// * `prePost`: places the level detector either at the input or after the gain computer;
+// this turns it from a linear return-to-zero detector into a log  domain return-to-range detector
+// * `link`: the amount of linkage between the channels. 0 = each channel is independent, 1 = all channels have the same amount of gain reduction
+// * `maxHold`: the maximum hold time in samples; must be known at compile time
+// * `N`: the number of channels of the gain computer, must be known at compile time)
+//
+//------------------------------------------------------------
+
+declare peak_expansion_gain_N_chan_db author "Bart Brouns";
+declare peak_expansion_gain_N_chan_db license "GPLv3";
+
+// generalise expansion gains for N channels.
+// first we define a mono version:
+peak_expansion_gain_N_chan_db(strength,thresh,range,att,hold,rel,knee,prePost,link,maxHold,1) =
+  peak_expansion_gain_mono_db(maxHold,strength,thresh,range,att,hold,rel,knee,prePost);
+
+// The actual N-channels version:
+// Calculate the maximum gain reduction of N channels,
+// and then crossfade between that and each channel's own gain reduction,
+// to link/unlink channels
+peak_expansion_gain_N_chan_db(strength,thresh,range,att,hold,rel,knee,prePost,link,maxHold,N) =
+  par(i, N, peak_expansion_gain_mono_db(maxHold,strength,thresh,range,att,hold,rel,knee,prePost))
+
+  <: (si.bus(N),(ba.parallelMax(N) <: si.bus(N))) : ro.interleave(N,2) : par(i,N,(it.interpolate_linear(link)));
+
+
+peak_expansion_gain_mono_db(maxHold,strength,thresh,range,attack,hold,release,knee,prePost) =
+  level(hold,maxHold):ba.bypass1(prePost,si.lag_ud(attack,release)) :ba.linear2db : gain_computer(strength,thresh,range,knee) : ba.bypass1((prePost !=1),si.lag_ud(att,rel))
+with {
+  gain_computer(strength,thresh,range,knee,level) =
+    ( select3((level>(thresh-(knee/2)))+(level>(thresh+(knee/2)))
+             , (level-thresh)
+             , ((level-thresh-(knee/2)):pow(2) /(min(ma.EPSILON,knee*-2)))
+             , 0
+             )  *abs(strength):max(range)
+                               * (-1+(2*(strength>0)))
+    );
+  att = select2((strength>0),release,attack);
+  rel = select2((strength>0),attack,release);
+  level(hold,maxHold,x) =
+    x:abs:ba.slidingMax(hold*ma.SR,maxHold);
+};
+
+
+//--------------------`(co.)expander_N_chan`-------------------
+// feed forward N channel dynamic range expander.
+// `expander_N_chan` is a standard Faust function.
+//
+// #### Usage
+//
+// ```
+// si.bus(N) : expander_N_chan(strength,thresh,range,att,hold,rel,knee,prePost,link,meter,maxHold,N) : si.bus(N)
+// ```
+//
+// Where:
+//
+// * `strength`: strength of the expansion (0 = no expansion, 100 means gating, <1 means upward compression)
+// * `thresh`: dB level threshold below which expansion kicks in
+// * `range`: maximum amount of expansion in dB
+// * `att`: attack time = time constant (sec) coming out of expansion
+// * `hold` : hold time
+// * `rel`: release time = time constant (sec) going into expansion
+// * `knee`: a gradual increase in gain reduction around the threshold:
+// Above thresh+(knee/2) there is no gain reduction,
+// below thresh-(knee/2) there is the same gain reduction as without a knee,
+// and in between there is a gradual increase in gain reduction.
+// * `prePost`: places the level detector either at the input or after the gain computer;
+// this turns it from a linear return-to-zero detector into a log  domain return-to-range detector
+// * `link`: the amount of linkage between the channels. 0 = each channel is independent, 1 = all channels have the same amount of gain reduction
+// * `meter`: a gain reduction meter. It can be implemented like so:
+// meter = _<:(_, (ba.linear2db:max(maxGR):meter_group((hbargraph("[1][unit:dB][tooltip: gain reduction in dB]", maxGR, 0))))):attach;
+// * `maxHold`: the maximum hold time in samples; must be known at compile time
+// * `N`: the number of channels of the expander, must be known at compile time)
+//
+//------------------------------------------------------------
+
+declare expander_N_chan author "Bart Brouns";
+declare expander_N_chan license "GPLv3";
+
+// feed forward expander
+expander_N_chan(strength,thresh,range,att,hold,rel,knee,prePost,link,meter,maxHold,N) =
+  expanderSC_N_chan(strength,thresh,range,att,hold,rel,knee,prePost,link,meter,maxHold,N,_,0,0);
+
+//--------------------`(co.)expanderSC_N_chan`-------------------
+// feed forward N channel dynamic range expander with sidechain.
+// `expanderSC_N_chan` is a standard Faust function.
+//
+// #### Usage
+//
+// ```
+// si.bus(N) : expanderSC_N_chan(strength,thresh,range,att,hold,rel,knee,prePost,link,meter,maxHold,N,SCfunction,SCswitch,SCsignal) : si.bus(N)
+// ```
+//
+// Where:
+//
+// * `strength`: strength of the expansion (0 = no expansion, 100 means gating, <1 means upward compression)
+// * `thresh`: dB level threshold below which expansion kicks in
+// * `range`: maximum amount of expansion in dB
+// * `att`: attack time = time constant (sec) coming out of expansion
+// * `hold` : hold time
+// * `rel`: release time = time constant (sec) going into expansion
+// * `knee`: a gradual increase in gain reduction around the threshold:
+// Above thresh+(knee/2) there is no gain reduction,
+// below thresh-(knee/2) there is the same gain reduction as without a knee,
+// and in between there is a gradual increase in gain reduction.
+// * `prePost`: places the level detector either at the input or after the gain computer;
+// this turns it from a linear return-to-zero detector into a log  domain return-to-range detector
+// * `link`: the amount of linkage between the channels. 0 = each channel is independent, 1 = all channels have the same amount of gain reduction
+// * `meter`: a gain reduction meter. It can be implemented like so:
+// meter = _<:(_, (ba.linear2db:max(maxGR):meter_group((hbargraph("[1][unit:dB][tooltip: gain reduction in dB]", maxGR, 0))))):attach;
+// * `maxHold`: the maximum hold time in samples; must be known at compile time
+// * `N`: the number of channels of the expander, must be known at compile time)
+// * `SCfunction` : a function that get's placed before the level-detector; needs to have a single input and output
+// * `SCswitch` : use either the regular audio inout or the SCsignal as the input for the level detector
+// * `SCsignal` : An audiosignal, to be used as the inout for the level detector when SCswitch is 1
+//
+//------------------------------------------------------------
+
+declare expanderSC_N_chan author "Bart Brouns";
+declare expanderSC_N_chan license "GPLv3";
+
+// feed forward expander with sidechain
+expanderSC_N_chan(strength,thresh,range,att,hold,rel,knee,prePost,link,meter,maxHold,N,SCfunction,SCswitch,SCsignal) =
+  si.bus(N) <:
+  ((par(i, N, select2(SCswitch,_,SCsignal):SCfunction)
+    : peak_expansion_gain_N_chan_db(strength,thresh,range,att,hold,rel,knee,prePost,link,maxHold,N))
+  ,si.bus(N))
+  : ro.interleave(N,2)
+  : par(i,N,(meter:ba.db2linear)*_);
