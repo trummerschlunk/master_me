@@ -50,14 +50,13 @@ process =
     : dc_blocker_bp
     : mono_bp
          : (phase_invert_L , phase_invert_R)
-    //: correlate_meter
+           // : correlate_meter
     : correlate_correct_bp
 
-    : gate_bp
+           // : gate_bp
     : eq_bp
 
-    : (
-        leveler_sc(target)
+         : (leveler_sc(target)
 
         : (sc_compressor
 
@@ -130,7 +129,9 @@ peakmeter_out = out_meter_l,out_meter_r with {
 
 // GATE
 gate_bp = bp2(checkbox("v:soundsgood/t:expert/h:[2]gate/[1][symbol:gate_bypass]gate bypass"),gate);
-gate(x,y) = attach(x,gateview(abs(x)+abs(y))),y : ef.gate_stereo(gate_thresh,gate_att,gate_hold,gate_rel) with{
+gate(x,y) =
+  attach(x,gateview(abs(x)+abs(y))),y : ef.gate_stereo(gate_thresh,gate_att,gate_hold,gate_rel)
+with{
   gate_thresh = vslider("v:soundsgood/t:expert/h:[2]gate/[2][symbol:gate_threshold][unit:dB]gate threshold",-90,-90,0,1);
   gate_att = vslider("v:soundsgood/t:expert/h:[2]gate/[3][symbol:gate_attack][unit:ms]gate attack",0,0,100,1) *0.001;
   gate_hold = vslider("v:soundsgood/t:expert/h:[2]gate/[4][symbol:gate_hold][unit:ms]gate hold",50,0,500,1) *0.001;
@@ -234,7 +235,7 @@ eq = hp_eq : tilt_eq : side_eq_b with{
 
 
 leveler_sc(target,fl,fr,l,r) =
-  (calc(lk2(fl,fr),lk2_var(length,fl,fr))*(1-bp)+bp)
+  (calc(lk2(fl,fr),lk2_short(fl,fr))*(1-bp)+bp)
   <: (_*l,_*r)
 with {
 
@@ -252,15 +253,11 @@ with {
                 // : hbargraph("[2]long diff[unit:dB]", -30, 30)
     ;
     undead_att =
-      long_diff:min(0)/(0-deadzone):min(1):pow(0.5)
-                                           // : hbargraph("undead_att", 0, 1)
-    ;
+      long_diff:min(0)/(0-(deadzone:max(ma.EPSILON))):min(1):pow(0.5) ;
     undead_rel =
-      long_diff:max(0)/deadzone:min(1)
-                                // : hbargraph("undead_rel", 0, 1)
-    ;
-    attack = att/ ((speedfactor*(1-undead_att))+undead_att);
-    release = rel * (leveler_expander*ma.MAX+1) / ((speedfactor*(1-undead_rel))+undead_rel);
+      long_diff:max(0)/(deadzone:max(ma.EPSILON)):min(1) ;
+    attack = att / (((speedfactor*(1-undead_att))+undead_att):max(ma.EPSILON));
+    release = rel * (leveler_expander*ma.MAX+1) / (((speedfactor*(1-undead_rel))+undead_rel):max(ma.EPSILON));
     diff = abs(target - lufs);
     speedfactor = (autoSat((diff/(deadzone*0.5))-1)+1)*0.5;
   };
@@ -314,7 +311,7 @@ sc_compressor(fl,fr,l,r) =
   : feedforward_feedback
   : (ms_enc,ms_enc):
   (((RMS_compression_gain_N_chan_db(strength,thresh,att,rel,knee,0,link,N)),si.bus(N) )
-   : ro.interleave(N,2) : par(i,N,(meter : post_gain : ba.db2linear*(1-bypass)+bypass)*_))
+   : ro.interleave(N,2) : par(i,N,(meter(i) : post_gain : ba.db2linear*(1-bypass)+bypass)*_))
   : ms_dec
   : ((l,_,r,_):par(i, 2, it.interpolate_linear(dw)))
 
@@ -333,7 +330,11 @@ with {
 
 
 
-  meter = _<: _,( vbargraph("v:soundsgood/t:expert/h:[5]kneecomp/[unit:dB]",-6,0)) : attach;
+  meter(i) =
+    _<: attach(_, (max(-6):min(0):vbargraph(
+                     "v:soundsgood/t:expert/h:[5]kneecomp/[unit:dB]", -6, 0)
+                  ));
+
 
   feedforward_feedback = B,(B<:B,B) : par(i,2,_*fffb), par(i,2,_* (1-fffb)),B : (_,_,_,_:>_,_),_,_;
 
@@ -536,7 +537,7 @@ with {
 lk2_var(Tg)= par(i,2,kfilter : zi) :> 4.342944819 * log(max(1e-12)) : -(0.691) with {
   // maximum assumed sample rate is 192k
   maxSR = 192000;
-  sump(n) = ba.slidingSump(n, Tg*maxSR)/n;
+  sump(n) = ba.slidingSump(n, Tg*maxSR)/max(n,ma.EPSILON);
   envelope(period, x) = x * x :  sump(rint(period * ma.SR));
   //Tg = 0.4; // 3 second window for 'short-term' measurement
   zi = envelope(Tg); // mean square: average power = energy/Tg = integral of squared signal / Tg
