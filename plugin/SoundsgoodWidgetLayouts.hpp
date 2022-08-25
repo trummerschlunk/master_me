@@ -127,6 +127,7 @@ struct QuantumDualLabelWithCenterSpacer : HorizontalLayout
     void adjustSize()
     {
         labelL.adjustSize();
+        spacer.setSize(Size<uint>());
         labelR.adjustSize();
     }
 };
@@ -375,6 +376,7 @@ struct MultiBandCompressorValueMeters : HorizontalLayout
         m6.setSize(metrics.valueMeterVertical);
         m7.setSize(metrics.valueMeterVertical);
         m8.setSize(metrics.valueMeterVertical);
+        spacer.setSize(Size<uint>());
     }
 };
 
