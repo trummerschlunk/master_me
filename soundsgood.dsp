@@ -396,8 +396,8 @@ with {
   };
 
   /* Cross over frequency range */
-  fl = vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[7][symbol:mscomp_low_crossover][scale:log]low crossover", 60, 20, 4000, 1);
-  fh = vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[7][symbol:mscomp_high_crossover][scale:log]high crossover", 8000, 5000, 20000, 1);
+  fl = vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[7][symbol:mscomp_low_crossover][scale:log][unit:Hz]low crossover", 60, 20, 4000, 1);
+  fh = vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[7][symbol:mscomp_high_crossover][scale:log][unit:Hz]high crossover", 8000, 5000, 20000, 1);
 
   /* Compressor settings */
   strength_array = vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[1]low band/[1][unit:%][symbol:mscomp_low_strength]low strength", 10, 0, 100, 1)*0.01,vslider("v:soundsgood/t:expert/h:[5]mscomp/h:[2]high band/[1][unit:%][symbol:mscomp_high_strength]high strength", 10, 0, 100, 1)*0.01:LinArray(B);
