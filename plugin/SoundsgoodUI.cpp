@@ -66,12 +66,13 @@ struct InputMeterGroup : QuantumFrame
         slider.setCallback(cb);
         slider.setId(kParameter_target);
         slider.setName("Target");
-        // NOTE this slider widget assumes -50 to 0 dB range
-        // slider.setRange(kParameterRanges[kParameter_target].min, kParameterRanges[kParameter_target].max);
+        slider.setRange(kParameterRanges[kParameter_target].min, kParameterRanges[kParameter_target].max);
+        slider.setStep(1.f);
         slider.setValue(kParameterRanges[kParameter_target].def, false);
 
         levelerGain.setId(kParameter_leveler_gain);
         levelerGain.setName(kParameterNames[kParameter_leveler_gain]);
+        // NOTE this special meter assumes -50 to 50 dB range
         // levelerGain.setRange(kParameterRanges[kParameter_leveler_gain].min, kParameterRanges[kParameter_leveler_gain].max);
         // levelerGain.setUnitLabel(kParameterUnits[kParameter_leveler_gain]);
         levelerGain.setValue(kParameterRanges[kParameter_leveler_gain].def);
