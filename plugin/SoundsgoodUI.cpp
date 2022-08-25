@@ -637,8 +637,8 @@ class SoundsGoodUI : public UI,
           setupSlider(makeup, cb, kParameter_kneecomp_makeup, 9);
           setupSlider(drywet, cb, kParameter_kneecomp_drywet, 9);
           setupSeparatorLine(separator);
-          setupMeter(m1, kParameter_kneecomp_meter_0, 0);
-          setupMeter(m2, kParameter_kneecomp_meter_1, 0);
+          setupMeter(m1, kParameter_kneecomp_meter_0, 9);
+          setupMeter(m2, kParameter_kneecomp_meter_1, 9);
       }
 
       void adjustSize(const QuantumMetrics& metrics) override
