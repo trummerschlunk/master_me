@@ -370,9 +370,6 @@ class SoundsGoodUI : public UI,
   // easy mode labels
   QuantumLabel welcomeLabel;
 
-  // easy mode meters
-  SoundsgoodEasyMetersGroup easyMeters;
-
   // plugin name
   SoundsgoodNameWidget name;
 
@@ -1120,7 +1117,6 @@ public:
         contentGroup(this, theme, expertModeButton),
         outputGroup(this, theme),
         welcomeLabel(this, theme),
-        easyMeters(this, theme),
         name(this, this, theme),
         preProcessing(this, this, this, theme),
         gate(this, this, this, theme),
@@ -1166,23 +1162,6 @@ public:
     expertModeButton.setId(10002);
     expertModeButton.setLabel("Expert");
     expertModeButton.setName("Expert Mode Button");
-
-    easyMeters.setName("Easy meters");
-    easyMeters.addLabel("Gate meter");
-    easyMeters.addMeter(kParameter_gate_meter);
-    easyMeters.addSeparator();
-    easyMeters.addLabel("Leveler gate meter");
-    easyMeters.addMeter(kParameter_leveler_gate);
-    easyMeters.addSeparator();
-    easyMeters.addLabel("Knee compressor meters");
-    easyMeters.addMeter(kParameter_kneecomp_meter_0);
-    easyMeters.addMeter(kParameter_kneecomp_meter_1);
-    easyMeters.addSeparator();
-    easyMeters.addLabel("Limiter gain reduction");
-    easyMeters.addMeter(kParameter_limiter_gain_reduction);
-    easyMeters.addSeparator();
-    easyMeters.addLabel("Brickwall limiter");
-    easyMeters.addMeter(kParameter_brickwall_limit);
 
     static const char* const welcomeMessage = ""
         "Hi there,\n"
@@ -1246,11 +1225,8 @@ public:
       const uint contentGroupStartInnerX = contentGroup.getAbsoluteX() + borderSize + padding;
       welcomeLabel.setAbsolutePos(contentGroupStartInnerX, startY + borderSize + padding);
 
-      easyMeters.setAbsolutePos(contentGroup.getAbsoluteX() + contentGroup.getWidth() - easyMeters.getWidth() - borderSize - padding,
-                                contentGroup.getAbsoluteY() + borderSize + padding);
-
       presetButtons.setAbsolutePos(contentGroupStartInnerX,
-                                   easyMeters.getAbsoluteY() + easyMeters.getHeight() + padding);
+                                   startY + borderSize + padding);
 
       // 1st row
       const uint row1y = contentGroup.getAbsoluteY() + borderSize + padding;
@@ -1295,7 +1271,6 @@ public:
       topCenteredGroup.adjustSize(metrics, getWidth(), getHeight(), easyModeButton.getHeight());
 
       welcomeLabel.setSize(contentGroup.getWidth() - borderSize * 2 - padding * 2, contentHeight - borderSize * 2 - padding * 2);
-      easyMeters.adjustSize(metrics);
       presetButtons.adjustSize(metrics);
 
       preProcessing.adjustSize(metrics);
@@ -1601,19 +1576,6 @@ protected:
     case kParameterCount:
       break;
     }
-
-    // easy meters
-    switch (index)
-    {
-    case kParameter_leveler_gate:
-    case kParameter_gate_meter:
-    case kParameter_kneecomp_meter_0:
-    case kParameter_kneecomp_meter_1:
-    case kParameter_limiter_gain_reduction:
-    case kParameter_brickwall_limit:
-      easyMeters.setMeterValueById(index, value);
-      break;
-    }
   }
 
     void stateChanged(const char* key, const char* value) override
@@ -1790,7 +1752,6 @@ protected:
           expertModeButton.setChecked(false, false);
 
           welcomeLabel.show();
-          easyMeters.show();
           presetButtons.frame.show();
 
           for (NanoSubWidget* w : parameterGroups)
@@ -1802,7 +1763,6 @@ protected:
           expertModeButton.setChecked(true, false);
 
           welcomeLabel.hide();
-          easyMeters.hide();
           presetButtons.frame.hide();
 
           for (NanoSubWidget* w : parameterGroups)
