@@ -268,7 +268,7 @@ sc_compressor(fl,fr,l,r) =
   : feedforward_feedback
   : (ms_enc,ms_enc):
   (((RMS_compression_gain_N_chan_db(strength,thresh,att,rel,knee,0,link,N)),si.bus(N) )
-   : ro.interleave(N,2) : par(i,N,(meter : post_gain : ba.db2linear*(1-bypass)+bypass)*_))
+   : ro.interleave(N,2) : par(i,N,(meter(i) : post_gain : ba.db2linear*(1-bypass)+bypass)*_))
   : ms_dec
   : ((l,_,r,_):par(i, 2, it.interpolate_linear(dw)))
 
@@ -285,9 +285,10 @@ with {
   fffb = vslider ("v:soundsgood/t:expert/h:[5]kneecomp/[7][unit:%][symbol:kneecomp_fffb]kneecomp ff-fb",50,0,100,1) *0.01;
   dw = vslider ("v:soundsgood/t:expert/h:[5]kneecomp/[9][unit:%][symbol:kneecomp_drywet]kneecomp dry/wet",100,0,100,1) * 0.01:si.smoo;
 
-
-
-  meter = _<: _,( vbargraph("v:soundsgood/t:expert/h:[5]kneecomp/[unit:dB]",-6,0)) : attach;
+  meter(i) =
+    _<: attach(_, (max(-6):min(0):vbargraph(
+                     "v:soundsgood/t:expert/h:[5]kneecomp/[unit:dB]", -6, 0)
+                  ));
 
   feedforward_feedback = B,(B<:B,B) : par(i,2,_*fffb), par(i,2,_* (1-fffb)),B : (_,_,_,_:>_,_),_,_;
 
