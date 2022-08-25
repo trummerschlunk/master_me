@@ -1047,13 +1047,13 @@ class SoundsGoodUI : public UI,
   };
 
   struct PresetButtons : SoundsgoodPresetGroup {
-      QuantumButtonWithDescription b1, b2, b3, b4, b5;
+      QuantumButton b1, b2, b3, b4, b5;
       std::vector<QuantumButton*> buttonList = {
-          &b1.button,
-          &b2.button,
-          &b3.button,
-          &b4.button,
-          &b5.button,
+          &b1,
+          &b2,
+          &b3,
+          &b4,
+          &b5,
       };
 
       PresetButtons(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, const QuantumTheme& theme)
@@ -1066,44 +1066,37 @@ class SoundsGoodUI : public UI,
       {
           frame.setName("Easy Presets");
           frame.mainWidget.setLabel("Easy Presets");
-          setupButton(b1, bcb, "Speech Mild", "Use this for regular speech");
-          setupButton(b2, bcb, "Speech Medium", "Use this for regular speech");
-          setupButton(b3, bcb, "Speech Heavy", "Use this for loud speech");
-          setupButton(b4, bcb, "Music Mild", "For regular music");
-          setupButton(b5, bcb, "Music Heavy", "For heavy, loud music");
+          setupButton(b1, bcb, "Speech Mild");
+          setupButton(b2, bcb, "Speech Medium");
+          setupButton(b3, bcb, "Speech Heavy");
+          setupButton(b4, bcb, "Music Mild");
+          setupButton(b5, bcb, "Music Heavy");
       }
 
       void adjustSize(const QuantumMetrics& metrics)
       {
-          b1.button.adjustSize();
-          b1.label.adjustSize();
-          b2.button.adjustSize();
-          b2.label.adjustSize();
-          b3.button.adjustSize();
-          b3.label.adjustSize();
-          b4.button.adjustSize();
-          b4.label.adjustSize();
-          b5.button.adjustSize();
-          b5.label.adjustSize();
-          const uint normalWidth = std::max(b1.button.getWidth(), std::max(b2.button.getWidth(), std::max(b3.button.getWidth(), std::max(b4.button.getWidth(), b5.button.getWidth()))));
-          b1.button.setWidth(normalWidth);
-          b2.button.setWidth(normalWidth);
-          b3.button.setWidth(normalWidth);
-          b4.button.setWidth(normalWidth);
-          b5.button.setWidth(normalWidth);
-          SoundsgoodPresetGroup::adjustSize(metrics);
+          b1.adjustSize();
+          b2.adjustSize();
+          b3.adjustSize();
+          b4.adjustSize();
+          b5.adjustSize();
+          const uint normalWidth = std::max(b1.getWidth(), std::max(b2.getWidth(), std::max(b3.getWidth(), std::max(b4.getWidth(), b5.getWidth()))));
+          b1.setSize(normalWidth, normalWidth / 2);
+          b2.setSize(normalWidth, normalWidth / 2);
+          b3.setSize(normalWidth, normalWidth / 2);
+          b4.setSize(normalWidth, normalWidth / 2);
+          b5.setSize(normalWidth, normalWidth / 2);
+          SoundsgoodPresetGroup::adjustSize(normalWidth, metrics);
       }
 
-      inline void setupButton(QuantumButtonWithDescription& b, ButtonEventHandler::Callback* const bcb, const char* const label, const char* const description)
+      inline void setupButton(QuantumButton& b, ButtonEventHandler::Callback* const bcb, const char* const label)
       {
-          b.button.setCallback(bcb);
-          b.button.setCheckable(true);
-          b.button.setId(10003);
-          b.button.setLabel(label);
-          b.button.setName(label);
-          b.label.setLabel(description);
-          b.label.setName(String(label) + " [description]");
-          items.push_back(&b);
+          b.setCallback(bcb);
+          b.setCheckable(true);
+          b.setId(10003);
+          b.setLabel(label);
+          b.setName(label);
+          widgets.push_back({ &b, Fixed });
       }
   } presetButtons;
 
@@ -1225,8 +1218,8 @@ public:
       const uint contentGroupStartInnerX = contentGroup.getAbsoluteX() + borderSize + padding;
       welcomeLabel.setAbsolutePos(contentGroupStartInnerX, startY + borderSize + padding);
 
-      presetButtons.setAbsolutePos(contentGroupStartInnerX,
-                                   startY + borderSize + padding);
+      presetButtons.setAbsolutePos(contentGroup.getAbsoluteX() + (contentGroup.getWidth() - borderSize * 2 - padding * 2 - presetButtons.frame.getWidth()) / 2,
+                                   contentGroup.getAbsoluteY() + (contentGroup.getHeight() - borderSize * 2 - padding * 2 - presetButtons.frame.getHeight()) / 2);
 
       // 1st row
       const uint row1y = contentGroup.getAbsoluteY() + borderSize + padding;

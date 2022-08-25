@@ -139,7 +139,7 @@ typedef SoundsgoodParameterGroup<QuantumFrameWithSwitchMB> SoundsgoodParameterGr
 
 // --------------------------------------------------------------------------------------------------------------------
 
-struct SoundsgoodPresetGroup : VerticallyStackedHorizontalLayout
+struct SoundsgoodPresetGroup : HorizontalLayout
 {
     const QuantumTheme& theme;
     QuantumFrameWithLabel frame;
@@ -148,17 +148,19 @@ struct SoundsgoodPresetGroup : VerticallyStackedHorizontalLayout
         : theme(t),
           frame(parent, t) {}
 
-    void adjustSize(const QuantumMetrics& metrics)
+    void adjustSize(const uint buttonSize, const QuantumMetrics& metrics)
     {
         // adjust size of frame contents
-        Size<uint> frameSize = VerticallyStackedHorizontalLayout::adjustSize(theme.padding);
+        Size<uint> frameSize = Size<uint>(buttonSize * widgets.size() + theme.padding * (widgets.size() - 1), buttonSize / 2);
         frameSize += metrics.frame;
+
+        HorizontalLayout::setSize(buttonSize / 2, theme.padding);
 
         // adjust frame extra widget
         frame.adjustMainWidgetSize();
 
         // adjust size now
-        frame.setSize(frameSize.getWidth(), frameSize.getHeight() + frame.getOffset() + theme.padding);
+        frame.setSize(frameSize.getWidth(), frameSize.getHeight() + frame.getOffset());
     }
 
     void setAbsolutePos(const int x, const int y)
@@ -166,9 +168,9 @@ struct SoundsgoodPresetGroup : VerticallyStackedHorizontalLayout
         // move frame
         frame.setAbsolutePos(x, y);
         // move children
-        VerticallyStackedHorizontalLayout::setAbsolutePos(frame.getAbsoluteX() + theme.borderSize + theme.padding,
-                                                          frame.getAbsoluteY() + frame.getOffset() + theme.borderSize + theme.padding,
-                                                          theme.padding);
+        HorizontalLayout::setAbsolutePos(frame.getAbsoluteX() + theme.borderSize + theme.padding,
+                                         frame.getAbsoluteY() + frame.getOffset() + theme.borderSize + theme.padding,
+                                         theme.padding);
     }
 };
 
