@@ -194,6 +194,40 @@ correlate_correct(l,r) = out_pos1, out_neg1, out_0, out_pos, out_neg :> _,_ with
 mono_bp = bp2(1 - checkbox("v:soundsgood/t:expert/h:[1]pre-processing/[2][symbol:mono]mono"),mono);
 mono = _*0.5,_*0.5 <: +, +;
 
+// EQ with bypass
+eq_bp = bp2(checkbox("v:soundsgood/t:expert/h:[3]eq/[1][symbol:eq_bypass]eq bypass"),eq);
+eq = hp_eq : tilt_eq : side_eq_b with{
+  // HIGHPASS
+  hp_eq = par(i,2,fi.highpass(1,freq)) with {
+  freq = vslider("v:soundsgood/t:expert/h:[3]eq/h:[1]highpass/[1]eq highpass freq [unit:Hz] [scale:log] [symbol:eq_highpass_freq]", 5, 5, 1000,1);
+};
+
+  // TILT EQ STEREO
+  tilt_eq = par(i,2,_) : par(i,2, fi.lowshelf(N, -gain, freq) : fi.highshelf(N, gain, freq)) with{
+    N = 1;
+    gain = vslider("v:soundsgood/t:expert/h:[3]eq/h:[2]tilt eq/[1]eq tilt gain [unit:dB] [symbol:eq_tilt_gain]",0,-6,6,0.5);
+    freq = 630; //vslider("v:soundsgood/t:expert/h:[3]eq/h:[2]tilt eq/[2]eq tilt freq [unit:Hz] [scale:log] [symbol:eq_tilt_freq]", 630, 200, 2000,1);
+  };
+
+
+
+  // SIDE EQ
+  side_eq_b =  ms_enc : _,band_shelf(freq_low,freq_high,eq_side_gain) : ms_dec with{
+
+    //band_shelf(freq1 ,freq2 ,gain) = fi.low_shelf(0-gain,freq1): fi.low_shelf(gain,freq2);
+    band_shelf(freq1 ,freq2 ,gain) = fi.svf.ls(freq1,0.7,0-gain): fi.svf.ls(freq2,0.7,gain);
+
+    freq_low = eq_side_freq - eq_side_freq*eq_side_width : max(50);
+    freq_high = eq_side_freq + eq_side_freq*eq_side_width : min(8000);
+
+    eq_side_gain = vslider("v:soundsgood/t:expert/h:[3]eq/h:[3]side eq/[1]eq side gain [unit:dB] [symbol:eq_side_gain]",0,0,12,0.5);
+    eq_side_freq = vslider("v:soundsgood/t:expert/h:[3]eq/h:[3]side eq/[2]eq side freq [unit:Hz] [scale:log] [symbol:eq_side_freq]", 600,200,5000,1);
+    eq_side_width = vslider("v:soundsgood/t:expert/h:[3]eq/h:[3]side eq/[3]eq side bandwidth [symbol:eq_side_bandwidth]", 1,0.5,4,0.5);
+
+  };
+};
+
+
 
 // LEVELER
 
@@ -214,7 +248,7 @@ B = si.bus(N);
 
 calc(lufs,sc) = (lufs : (target - _) : lp1p(leveler_speed_gated(sc)) : limit(limit_neg,limit_pos) : leveler_meter_gain : ba.db2linear) , sc : _,!;
 
-bp = checkbox("v:soundsgood/t:expert/h:[3]leveler/[1]leveler bypass[symbol:leveler_bypass]") : si.smoo;
+bp = checkbox("v:soundsgood/t:expert/h:[4]leveler/[1]leveler bypass[symbol:leveler_bypass]") : si.smoo;
 
 limit(lo,hi) = min(hi) : max(lo);
 
@@ -223,50 +257,19 @@ leveler_speed_gated(sc) = (ef.gate_gain_mono(leveler_gate_thresh,0.1,0,0.1,abs(s
 
 //leveler_meter_lufs = vbargraph("v:soundsgood/h:easy/[1][unit:dB]leveler lufs-s",-70,0);
 leveler_meter_gain = vbargraph("v:soundsgood/h:easy/[4][unit:dB][symbol:leveler_gain]leveler gain",-50,50);
-meter_leveler_gate = _ * 100 : vbargraph("v:soundsgood/t:expert/h:[3]leveler/[6][unit:%]leveler gate[symbol:leveler_gate]",0,100) * 0.001;
+meter_leveler_gate = _ * 100 : vbargraph("v:soundsgood/t:expert/h:[4]leveler/[6][unit:%]leveler gate[symbol:leveler_gate]",0,100) * 0.001;
 
-leveler_speed = vslider("v:soundsgood/t:expert/h:[3]leveler/[4][unit:%][symbol:leveler_speed]leveler speed", init_leveler_speed, 0, 100, 1) * 0.0015; //.005, 0.15, .005);
-leveler_gate_thresh = vslider("v:soundsgood/t:expert/h:[3]leveler/[5][unit:dB][symbol:leveler_gate_threshold]leveler gate threshold", init_leveler_gatethreshold,-90,0,1);
-limit_pos = vslider("v:soundsgood/t:expert/h:[3]leveler/[7][symbol:leveler_max_plus][unit:dB]leveler max +", init_leveler_maxboost, 0, 60, 1);
-limit_neg = vslider("v:soundsgood/t:expert/h:[3]leveler/[8][symbol:leveler_max_minus][unit:dB]leveler max -", init_leveler_maxcut, 0, 60, 1) : ma.neg;
-fffb = 0; //vslider ("v:soundsgood/t:expert/h:[3]leveler/[9][symbol:leveler_fffb]leveler ff-fb",0,0,1,0.1);
+leveler_speed = vslider("v:soundsgood/t:expert/h:[4]leveler/[4][unit:%][symbol:leveler_speed]leveler speed", init_leveler_speed, 0, 100, 1) * 0.0015; //.005, 0.15, .005);
+leveler_gate_thresh = vslider("v:soundsgood/t:expert/h:[4]leveler/[5][unit:dB][symbol:leveler_gate_threshold]leveler gate threshold", init_leveler_gatethreshold,-90,0,1);
+limit_pos = vslider("v:soundsgood/t:expert/h:[4]leveler/[7][symbol:leveler_max_plus][unit:dB]leveler max +", init_leveler_maxboost, 0, 60, 1);
+limit_neg = vslider("v:soundsgood/t:expert/h:[4]leveler/[8][symbol:leveler_max_minus][unit:dB]leveler max -", init_leveler_maxcut, 0, 60, 1) : ma.neg;
+fffb = 0; //vslider ("v:soundsgood/t:expert/h:[4]leveler/[9][symbol:leveler_fffb]leveler ff-fb",0,0,1,0.1);
 lp1p(cf) = si.smooth(ba.tau2pole(1/(2*ma.PI*cf)));
 
 feedforward_feedback = B,(B<:B,B) : par(i,2,_*fffb), par(i,2,_* (1-fffb)),B : (_,_,_,_:>_,_),_,_;
 };
 
-// EQ with bypass
-eq_bp = bp2(checkbox("v:soundsgood/t:expert/h:[4]eq/[1][symbol:eq_bypass]eq bypass"),eq);
-eq = hp_eq : tilt_eq : side_eq_b with{
-  // HIGHPASS
-  hp_eq = par(i,2,fi.highpass(1,freq)) with {
-  freq = vslider("v:soundsgood/t:expert/h:[4]eq/h:[1]highpass/[1]eq highpass freq [unit:Hz] [scale:log] [symbol:eq_highpass_freq]", 5, 5, 1000,1);
-};
 
-  // TILT EQ STEREO
-  tilt_eq = par(i,2,_) : par(i,2, fi.lowshelf(N, -gain, freq) : fi.highshelf(N, gain, freq)) with{
-    N = 1;
-    gain = vslider("v:soundsgood/t:expert/h:[4]eq/h:[2]tilt eq/[1]eq tilt gain [unit:dB] [symbol:eq_tilt_gain]",0,-6,6,0.5);
-    freq = 630; //vslider("v:soundsgood/t:expert/h:[4]eq/h:[2]tilt eq/[2]eq tilt freq [unit:Hz] [scale:log] [symbol:eq_tilt_freq]", 630, 200, 2000,1);
-  };
-
-
-
-  // SIDE EQ
-  side_eq_b =  ms_enc : _,band_shelf(freq_low,freq_high,eq_side_gain) : ms_dec with{
-
-    //band_shelf(freq1 ,freq2 ,gain) = fi.low_shelf(0-gain,freq1): fi.low_shelf(gain,freq2);
-    band_shelf(freq1 ,freq2 ,gain) = fi.svf.ls(freq1,0.7,0-gain): fi.svf.ls(freq2,0.7,gain);
-
-    freq_low = eq_side_freq - eq_side_freq*eq_side_width : max(50);
-    freq_high = eq_side_freq + eq_side_freq*eq_side_width : min(8000);
-
-    eq_side_gain = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[1]eq side gain [unit:dB] [symbol:eq_side_gain]",0,0,12,0.5);
-    eq_side_freq = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[2]eq side freq [unit:Hz] [scale:log] [symbol:eq_side_freq]", 600,200,5000,1);
-    eq_side_width = vslider("v:soundsgood/t:expert/h:[4]eq/h:[3]side eq/[3]eq side bandwidth [symbol:eq_side_bandwidth]", 1,0.5,4,0.5);
-
-  };
-};
 
 
 
