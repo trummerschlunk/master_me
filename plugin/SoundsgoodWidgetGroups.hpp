@@ -75,6 +75,10 @@ struct SoundsgoodParameterGroup : VerticallyStackedHorizontalLayout
         w.label.setLabel(kParameterNames[id] + nameOffset);
         w.label.setName(String(kParameterNames[id]) + " [label]");
         items.push_back(&w);
+
+        // FIXME find the proper way faust exports this
+        if (kParameterUnits[id][0] == '%')
+            w.slider.setStep(1.f);
     }
 
     inline void setupDualSlider(QuantumDualValueSliderWithCenterLabel&w, KnobEventHandler::Callback* const cb, const int id, const uint idOffset, const uint nameOffset)
@@ -96,6 +100,13 @@ struct SoundsgoodParameterGroup : VerticallyStackedHorizontalLayout
         w.label.setLabel(kParameterNames[id] + nameOffset);
         w.label.setName(String(kParameterNames[id]) + " [label]");
         items.push_back(&w);
+
+        // FIXME find the proper way faust exports this
+        if (kParameterUnits[id][0] == '%')
+            w.sliderL.setStep(1.f);
+        // FIXME find the proper way faust exports this
+        if (kParameterUnits[id + idOffset][0] == '%')
+            w.sliderR.setStep(1.f);
     }
 
     inline void setupMeter(QuantumValueMeterWithLabel& w, const int id, const uint nameOffset)
