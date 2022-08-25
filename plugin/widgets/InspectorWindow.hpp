@@ -56,7 +56,8 @@ protected:
         if (!isOpen)
             return;
 
-        const double initialSize = 1200 * getScaleFactor();
+        const double scaleFactor = getScaleFactor();
+        const double initialSize = 1200 * scaleFactor;
 
         ImGui::SetNextWindowPos(ImVec2(initialSize / 4, initialSize / 16), ImGuiCond_Once);
         ImGui::SetNextWindowSize(ImVec2(initialSize / 2, initialSize / 3), ImGuiCond_Once);
@@ -71,44 +72,52 @@ protected:
         {
             changedSize = true;
             changedColors = true;
+
             theme = QuantumTheme();
+            theme.borderSize *= scaleFactor;
+            theme.padding *= scaleFactor;
+            theme.fontSize *= scaleFactor;
+            theme.textHeight *= scaleFactor;
+            theme.widgetLineSize *= scaleFactor;
+            theme.windowPadding *= scaleFactor;
+            theme.textPixelRatioWidthCompensation = static_cast<uint>(scaleFactor - 1.0 + 0.25);
         }
 
-        val = theme.borderSize;
+        val = theme.borderSize / scaleFactor;
         if (ImGui::SliderInt("Border Size", &val, 1, 20))
         {
             changedSize = true;
-            theme.borderSize = val;
+            theme.borderSize = val * scaleFactor;
         }
 
-        val = theme.padding;
+        val = theme.padding / scaleFactor;
         if (ImGui::SliderInt("Padding", &val, 0, 20))
         {
             changedSize = true;
-            theme.padding = val;
+            theme.padding = val * scaleFactor;
         }
 
-        val = theme.fontSize;
+        val = theme.fontSize / scaleFactor;
         if (ImGui::SliderInt("Font Size", &val, 8, 50))
         {
             changedSize = true;
-            theme.fontSize = val;
+            theme.fontSize = val * scaleFactor;
             if (theme.fontSize > theme.textHeight)
                 theme.textHeight = theme.fontSize;
         }
 
-        val = theme.textHeight;
-        if (ImGui::SliderInt("Text Height", &val, theme.fontSize, 60))
+        val = theme.textHeight / scaleFactor;
+        if (ImGui::SliderInt("Text Height", &val, theme.fontSize / scaleFactor, 60))
         {
             changedSize = true;
-            theme.textHeight = val;
+            theme.textHeight = val * scaleFactor;
         }
 
-        val = theme.widgetLineSize;
+        val = theme.widgetLineSize / scaleFactor;
         if (ImGui::SliderInt("Widget Line Size", &val, 1, 10))
         {
             changedSize = true;
-            theme.widgetLineSize = val;
+            theme.widgetLineSize = val * scaleFactor;
         }
 
         changedColors |= ImGui::ColorEdit4("Level Meter", theme.levelMeterColor.rgba);
