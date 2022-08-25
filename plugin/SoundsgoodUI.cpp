@@ -23,10 +23,6 @@ static_assert(kParameterRanges[kParameter_target].max == 0.f, "lufs target 0 dB 
 static_assert(kParameterRanges[kParameter_leveler_gain].min == -50.f, "leveler gain -50 dB min");
 static_assert(kParameterRanges[kParameter_leveler_gain].max == +50.f, "leveler gain +50 dB max");
 
-// FIXME define these properly
-#define kParameter_kneecomp_meter1 kParameter_71
-#define kParameter_kneecomp_meter2 kParameter_72
-
 // -----------------------------------------------------------------------------------------------------------
 
 // our custom metrics, making vertical sliders have less height
@@ -644,8 +640,8 @@ class SoundsGoodUI : public UI,
           setupSlider(makeup, cb, kParameter_kneecomp_makeup, 9);
           setupSlider(drywet, cb, kParameter_kneecomp_drywet, 9);
           setupSeparatorLine(separator);
-          setupMeter(m1, kParameter_kneecomp_meter1, 0);
-          setupMeter(m2, kParameter_kneecomp_meter2, 0);
+          setupMeter(m1, kParameter_kneecomp_meter_0, 0);
+          setupMeter(m2, kParameter_kneecomp_meter_1, 0);
       }
 
       void adjustSize(const QuantumMetrics& metrics) override
@@ -1179,8 +1175,8 @@ public:
     easyMeters.addMeter(kParameter_leveler_gate);
     easyMeters.addSeparator();
     easyMeters.addLabel("Knee compressor meters");
-    easyMeters.addMeter(kParameter_kneecomp_meter1);
-    easyMeters.addMeter(kParameter_kneecomp_meter2);
+    easyMeters.addMeter(kParameter_kneecomp_meter_0);
+    easyMeters.addMeter(kParameter_kneecomp_meter_1);
     easyMeters.addSeparator();
     easyMeters.addLabel("Limiter gain reduction");
     easyMeters.addMeter(kParameter_limiter_gain_reduction);
@@ -1541,10 +1537,10 @@ protected:
     case kParameter_gate_meter:
       gate.meter.meter.setValue(value);
       break;
-    case kParameter_kneecomp_meter1:
+    case kParameter_kneecomp_meter_0:
       kneeComp.m1.meter.setValue(value);
       break;
-    case kParameter_kneecomp_meter2:
+    case kParameter_kneecomp_meter_1:
       kneeComp.m2.meter.setValue(value);
       break;
     case kParameter_msredux11:
@@ -1611,8 +1607,8 @@ protected:
     {
     case kParameter_leveler_gate:
     case kParameter_gate_meter:
-    case kParameter_kneecomp_meter1:
-    case kParameter_kneecomp_meter2:
+    case kParameter_kneecomp_meter_0:
+    case kParameter_kneecomp_meter_1:
     case kParameter_limiter_gain_reduction:
     case kParameter_brickwall_limit:
       easyMeters.setMeterValueById(index, value);

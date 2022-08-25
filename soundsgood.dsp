@@ -287,7 +287,7 @@ with {
 
   meter(i) =
     _<: attach(_, (max(-6):min(0):vbargraph(
-                     "v:soundsgood/t:expert/h:[5]kneecomp/[unit:dB]", -6, 0)
+                     "v:soundsgood/t:expert/h:[5]kneecomp/[symbol:kneecomp_meter_%i][unit:dB]kneecomp meter %i", -6, 0)
                   ));
 
   feedforward_feedback = B,(B<:B,B) : par(i,2,_*fffb), par(i,2,_* (1-fffb)),B : (_,_,_,_:>_,_),_,_;
