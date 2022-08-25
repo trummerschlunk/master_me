@@ -232,47 +232,34 @@ eq = hp_eq : tilt_eq : side_eq_b with{
 // LEVELER
 
 
-leveler_sc(target) =
-
-//_,_,_,_ : !,!,_,_ <: _,_,_,_ :      //make ff
-
-feedforward_feedback :
-
-ro.crossnn(N)
-: B,(B <: B,B : (lk2 :max(-70)), + : (calc*(1-bp)+bp) : _ <: B)
-    :
-    ro.interleave(N,2) : par(i,N,*)
+leveler_sc(target,fl,fr,l,r) =
+  (calc(lk2_var(length,fl,fr))*(1-bp)+bp)
+  <: (_*l,_*r)
 with {
-N = 2;
-B = si.bus(N);
 
-calc(lufs,sc) = (lufs : (target - _) : lp1p(leveler_speed_gated(sc)) : limit(limit_neg,limit_pos) : leveler_meter_gain : ba.db2linear) , sc : _,!;
+  lp1p(cf) = si.smooth(ba.tau2pole(1/(2*ma.PI*cf)));
 
-bp = checkbox("v:soundsgood/t:expert/h:[4]leveler/[1]leveler bypass[symbol:leveler_bypass]") : si.smoo;
+  calc(lufs) = FB(lufs)~_: ba.db2linear;
+  FB(lufs,prev_gain) =
+    (target - lufs)
+    +(prev_gain )
+    :  limit(limit_neg,limit_pos)
+    : lp1p(leveler_speed_gated(fl+fr))
+    : leveler_meter_gain;
 
-limit(lo,hi) = min(hi) : max(lo);
+  bp = checkbox("v:soundsgood/t:expert/h:[3]leveler/[1]leveler bypass[symbol:leveler_bypass]") : si.smoo;
+  leveler_meter_gain = vbargraph("v:soundsgood/h:easy/[4][unit:dB][symbol:leveler_gain]leveler gain",-50,50);
+  meter_leveler_gate =  vbargraph("v:soundsgood/t:expert/h:[3]leveler/[6][unit:%]leveler gate[symbol:leveler_gate]",0,1);
 
-leveler_speed_gated(sc) = (ef.gate_gain_mono(leveler_gate_thresh,0.1,0,0.1,abs(sc)) <: attach(_, (1-_) : meter_leveler_gate)) : _ * leveler_speed;
+  leveler_speed = vslider("v:soundsgood/t:expert/h:[3]leveler/[4][unit:%][symbol:leveler_speed]leveler speed", init_leveler_speed, 0, 100, 1) * 0.0015; //.005, 0.15, .005);
+  leveler_gate_thresh = target + vslider("v:soundsgood/t:expert/h:[3]leveler/[5][unit:db][symbol:leveler_gate_threshold]leveler gate threshold", init_leveler_gatethreshold,-90,0,1);
 
-
-//leveler_meter_lufs = vbargraph("v:soundsgood/h:easy/[1][unit:dB]leveler lufs-s",-70,0);
-leveler_meter_gain = vbargraph("v:soundsgood/h:easy/[4][unit:dB][symbol:leveler_gain]leveler gain",-50,50);
-meter_leveler_gate = _ * 100 : vbargraph("v:soundsgood/t:expert/h:[4]leveler/[6][unit:%]leveler gate[symbol:leveler_gate]",0,100) * 0.001;
-
-leveler_speed = vslider("v:soundsgood/t:expert/h:[4]leveler/[4][unit:%][symbol:leveler_speed]leveler speed", init_leveler_speed, 0, 100, 1) * 0.0015; //.005, 0.15, .005);
-leveler_gate_thresh = vslider("v:soundsgood/t:expert/h:[4]leveler/[5][unit:dB][symbol:leveler_gate_threshold]leveler gate threshold", init_leveler_gatethreshold,-90,0,1);
-limit_pos = vslider("v:soundsgood/t:expert/h:[4]leveler/[7][symbol:leveler_max_plus][unit:dB]leveler max +", init_leveler_maxboost, 0, 60, 1);
-limit_neg = vslider("v:soundsgood/t:expert/h:[4]leveler/[8][symbol:leveler_max_minus][unit:dB]leveler max -", init_leveler_maxcut, 0, 60, 1) : ma.neg;
-fffb = 0; //vslider ("v:soundsgood/t:expert/h:[4]leveler/[9][symbol:leveler_fffb]leveler ff-fb",0,0,1,0.1);
-lp1p(cf) = si.smooth(ba.tau2pole(1/(2*ma.PI*cf)));
-
-feedforward_feedback = B,(B<:B,B) : par(i,2,_*fffb), par(i,2,_* (1-fffb)),B : (_,_,_,_:>_,_),_,_;
+  limit_pos = vslider("v:soundsgood/t:expert/h:[3]leveler/[7][symbol:leveler_max_plus][unit:db]leveler max +", init_leveler_maxboost, 0, 60, 1);
+  limit_neg = vslider("v:soundsgood/t:expert/h:[3]leveler/[8][symbol:leveler_max_minus][unit:db]leveler max -", init_leveler_maxcut, 0, 60, 1) : ma.neg;
+  limit(lo,hi) = min(hi) : max(lo);
+  leveler_speed_gated(sc) = (ef.gate_gain_mono(leveler_gate_thresh,0.1,0,0.1,abs(sc)) <: attach(_, (1-_) : meter_leveler_gate)) : _ * leveler_speed;
+  length = 0.4;
 };
-
-
-
-
-
 
 // SIDE CHAIN COMPRESSOR
 
@@ -515,6 +502,19 @@ lk2 = par(i,2,kfilter : zi) :> 4.342944819 * log(max(1e-12)) : -(0.691) with {
 lufs_meter_in(l,r) = l,r <: l, attach(r, (lk2 : vbargraph("v:soundsgood/h:easy/[2][unit:dB][symbol:lufs_in]in lufs-s",-70,0))) : _,_;
 lufs_meter_out(l,r) = l,r <: l, attach(r, (lk2 : vbargraph("v:soundsgood/h:easy/[7][unit:dB][symbol:lufs_out]out lufs-s",-70,0))) : _,_;
 
+lk2_var(length) =
+  par(i,2,kfilter : envelope(length)) :> 4.342944819 * log(max(1e-12)) : -(0.691) with {
+  // maximum assumed sample rate is 192k
+  maxSR = 192000;
+  sump(n) = ba.slidingSump(n, Tg*maxSR)/n;
+  // mean square: average power = energy/Tg = integral of squared signal / Tg
+  envelope(period, x) = x * x :  sump(rint(period * ma.SR));
+  //Tg = 0.4; // 3 second window for 'short-term' measurement
+  Tg = 3;
+
+
+  kfilter = ebu.prefilter;
+};
 
 /* ******* 8< *******/
 // TODO: use co.peak_compression_gain_N_chan_db when it arrives in the current faust version
