@@ -134,7 +134,7 @@ gate(x,y) = attach(x,gateview(abs(x)+abs(y))),y : ef.gate_stereo(gate_thresh,gat
   gate_att = vslider("v:soundsgood/t:expert/h:[2]gate/[3][symbol:gate_attack][unit:ms]gate attack",0,0,100,1) *0.001;
   gate_hold = vslider("v:soundsgood/t:expert/h:[2]gate/[4][symbol:gate_hold][unit:ms]gate hold",50,0,500,1) *0.001;
   gate_rel = vslider("v:soundsgood/t:expert/h:[2]gate/[5][symbol:gate_release][unit:ms]gate release",500,50,5000,1) *0.001;
-  gateview = ef.gate_gain_mono(gate_thresh,gate_att,gate_hold,gate_rel) : ba.linear2db :
+  gateview = ef.gate_gain_mono(gate_thresh,gate_att,gate_hold,gate_rel) : ba.linear2db : max(-70) :
       vbargraph("v:soundsgood/t:expert/h:[2]gate/[6][symbol:gate_meter][unit:dB]gate meter", -70,0);
 };
 
