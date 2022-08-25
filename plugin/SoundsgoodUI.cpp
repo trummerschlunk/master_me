@@ -203,8 +203,8 @@ protected:
 
         if (expertButton.isChecked())
         {
-            const int x = getAbsoluteX();
-            const int y = getAbsoluteY();
+            const int x = getAbsoluteX() + theme.borderSize;
+            const int y = getAbsoluteY() + theme.borderSize;
 
             const uint arrowSpacing = theme.textHeight;
             fillColor(theme.textVeryDarkColor);
@@ -213,8 +213,14 @@ protected:
             drawArrowLR(parameterGroups[2]->getAbsoluteX() - x - arrowSpacing, arrowSpacing * 2);
             drawArrowLR(parameterGroups[3]->getAbsoluteX() - x - arrowSpacing, arrowSpacing * 2);
 
+            drawArrowZ(parameterGroups[3]->getAbsoluteX() - x + arrowSpacing,
+                       parameterGroups[3]->getAbsoluteY() + parameterGroups[3]->getHeight() + theme.borderSize * 2 - y,
+                       parameterGroups[4]->getAbsoluteX() - x + arrowSpacing * 2, parameterGroups[4]->getAbsoluteY() - y);
+
             drawArrowLR(parameterGroups[5]->getAbsoluteX() - x - arrowSpacing, parameterGroups[5]->getAbsoluteY() - y + arrowSpacing * 2);
-            drawArrowLR(parameterGroups[6]->getAbsoluteX() - x - arrowSpacing, parameterGroups[5]->getAbsoluteY() - y + arrowSpacing * 2);
+            drawArrowLR(parameterGroups[6]->getAbsoluteX() - x - arrowSpacing, parameterGroups[6]->getAbsoluteY() - y + arrowSpacing * 2);
+
+            drawArrowTB(parameterGroups[7]->getAbsoluteX() - x + arrowSpacing * 2, parameterGroups[7]->getAbsoluteY() - y - arrowSpacing);
         }
         else
         {
@@ -246,16 +252,36 @@ private:
 
     inline void drawArrowTB(const int x, const int y)
     {
-        const uint b = theme.textHeight;
+        const uint b = theme.textHeight / 2;
 
         beginPath();
         moveTo(x, y);
-        lineTo(x + b, y);
-        lineTo(x + b, y - b);
-        lineTo(x + b + b, y + b / 2);
-        lineTo(x + b, y + b + b);
-        lineTo(x + b, y + b);
         lineTo(x, y + b);
+        lineTo(x + b, y + b);
+        lineTo(x - b / 2, y + b + b);
+        lineTo(x - b - b, y + b);
+        lineTo(x - b, y + b);
+        lineTo(x - b, y);
+        closePath();
+        fill();
+    }
+
+    inline void drawArrowZ(const int sx, const int sy, const int tx, const int ty)
+    {
+        const uint b = theme.textHeight / 2;
+
+        beginPath();
+        moveTo(sx + b, sy);
+        lineTo(sx + b, ty - b - b / 2);
+        lineTo(tx + b, ty - b - b / 2);
+        lineTo(tx + b, ty - b);
+        lineTo(tx + b + b, ty - b);
+        lineTo(tx + b / 2, ty);
+        lineTo(tx - b, ty - b);
+        lineTo(tx, ty - b);
+        lineTo(tx, ty - b * 4 / 2);
+        lineTo(sx, ty - b * 4 / 2);
+        lineTo(sx, sy);
         closePath();
         fill();
     }
