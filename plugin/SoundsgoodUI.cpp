@@ -1244,10 +1244,8 @@ public:
       topCenteredGroup.setAbsolutePos(name.getAbsoluteX() - topCenteredGroup.globalEnableSwitch.getWidth() - theme.padding * 8 - theme.borderSize,
                                       windowPadding + theme.borderSize);
 
-      const uint inputAreaCenter = inputGroup.getWidth() / 2;
-      const uint easyModeButtonOffset = inputAreaCenter - easyModeButton.getWidth() / 2;
-      easyModeButton.setAbsolutePos(windowPadding + easyModeButtonOffset, windowPadding);
-      expertModeButton.setAbsolutePos(contentGroup.getAbsoluteX() + easyModeButtonOffset, windowPadding);
+      easyModeButton.setAbsolutePos(inputGroup.getAbsoluteX(), windowPadding);
+      expertModeButton.setAbsolutePos(contentGroup.getAbsoluteX(), windowPadding);
 
       const uint contentGroupStartInnerX = contentGroup.getAbsoluteX() + borderSize + padding;
       welcomeLabel.setAbsolutePos(contentGroupStartInnerX, startY + borderSize + padding);
@@ -1288,6 +1286,11 @@ public:
 
       easyModeButton.adjustSize();
       expertModeButton.adjustSize();
+
+      const uint modeButtonWidth = std::max(easyModeButton.getWidth(), expertModeButton.getWidth());
+      easyModeButton.setWidth(modeButtonWidth);
+      expertModeButton.setWidth(modeButtonWidth);
+
       name.adjustSize();
 
       inputGroup.adjustSize(metrics, contentHeight);
