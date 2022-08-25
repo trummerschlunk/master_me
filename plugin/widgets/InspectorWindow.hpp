@@ -122,6 +122,10 @@ protected:
         changedColors |= ImGui::ColorEdit4("Text Mid", theme.textMidColor.rgba);
         changedColors |= ImGui::ColorEdit4("Text Dark", theme.textDarkColor.rgba);
 
+        ImGui::Separator();
+        ImGui::TextUnformatted("Widgets");
+        displaySubWidget(subwidgets);
+
         ImGui::End();
 
         if (changedSize || changedColors)
@@ -129,15 +133,8 @@ protected:
             theme.windowPadding = theme.borderSize + theme.padding * 3;
             themeChangeCallback->quantumThemeChanged(changedSize, changedColors);
         }
-
-        /*
-        ImGui::Begin("Widgets", &isOpen);
-        displaySubWidget(subwidgets);
-        ImGui::End();
-        */
     }
 
-    /*
 private:
     static void displaySubWidget(const std::list<SubWidget*>& subwidgets)
     {
@@ -185,7 +182,6 @@ private:
             }
         }
     }
-    */
 };
 
 // --------------------------------------------------------------------------------------------------------------------

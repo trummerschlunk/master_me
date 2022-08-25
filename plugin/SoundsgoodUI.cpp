@@ -692,7 +692,7 @@ class SoundsGoodUI : public UI,
       }
   } kneeComp;
 
-  struct MidSideCompressor : SoundsgoodParameterGroupWithBypassSwitch {
+  struct MidSideCompressor : SoundsgoodParameterGroupWithBypassSwitchMB {
       QuantumDualValueSliderWithCenterLabel strength;
       QuantumDualValueSliderWithCenterLabel threshold;
       QuantumDualValueSliderWithCenterLabel attack;
@@ -700,14 +700,14 @@ class SoundsGoodUI : public UI,
       QuantumDualValueSliderWithCenterLabel knee;
       QuantumDualValueSliderWithCenterLabel link;
       QuantumDualValueSliderWithCenterLabel crossover;
-      QuantumDualLabelWithCenterSpacer labelsTop;
-      MultiBandCompressorLabels labelsMid;
+      QuantumDualLabelWithCenterSpacer labelsLowHigh;
+      MultiBandCompressorLabels labelsNum;
       MultiBandCompressorValueMeters metersM;
       MultiBandCompressorValueMeters metersS;
       MultiBandCompressorOutputGainGroup outputGain;
 
       explicit MidSideCompressor(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
-          : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
+          : SoundsgoodParameterGroupWithBypassSwitchMB(parent, theme),
             strength(&frame, theme),
             threshold(&frame, theme),
             attack(&frame, theme),
@@ -715,13 +715,13 @@ class SoundsGoodUI : public UI,
             knee(&frame, theme),
             link(&frame, theme),
             crossover(&frame, theme),
-            labelsTop(&frame, theme),
-            labelsMid(&frame, theme),
+            labelsLowHigh(&frame, theme),
+            labelsNum(&frame, theme),
             metersM(&frame, theme),
             metersS(&frame, theme),
             outputGain(&frame, theme)
       {
-          frame.setName("MidSide Compressor");
+          frame.setName("Multiband MidSide Compressor");
           frame.mainWidget.setCallback(bcb);
           frame.mainWidget.setId(kParameter_mscomp_bypass);
           frame.mainWidget.setLabel("Multiband MidSide Compressor");
@@ -742,23 +742,37 @@ class SoundsGoodUI : public UI,
           setupDualSlider(link, cb, kParameter_mscomp_low_link, idOffset, 4);
           setupDualSlider(crossover, cb, kParameter_mscomp_low_crossover, idOffset, 4);
 
-          labelsTop.labelL.setLabel("Low");
-          labelsTop.labelR.setLabel("High");
-          items.push_back(&labelsTop);
+          labelsLowHigh.labelL.setLabel("Low");
+          labelsLowHigh.labelL.setName("Low Label");
+          labelsLowHigh.spacer.setName("Low-High spacer");
+          labelsLowHigh.labelR.setLabel("High");
+          labelsLowHigh.labelR.setName("High Label");
+          items.push_back(&labelsLowHigh);
 
-          labelsMid.label1.setLabel("1");
-          labelsMid.label2.setLabel("2");
-          labelsMid.label3.setLabel("3");
-          labelsMid.label4.setLabel("4");
-          labelsMid.label5.setLabel("5");
-          labelsMid.label6.setLabel("6");
-          labelsMid.label7.setLabel("7");
-          labelsMid.label8.setLabel("8");
-          items.push_back(&labelsMid);
+          labelsNum.spacer1.setName("num spacer1");
+          labelsNum.label1.setLabel("1");
+          labelsNum.label1.setName("1");
+          labelsNum.label2.setLabel("2");
+          labelsNum.label2.setName("2");
+          labelsNum.label3.setLabel("3");
+          labelsNum.label3.setName("3");
+          labelsNum.label4.setLabel("4");
+          labelsNum.label4.setName("4");
+          labelsNum.label5.setLabel("5");
+          labelsNum.label5.setName("5");
+          labelsNum.label6.setLabel("6");
+          labelsNum.label6.setName("6");
+          labelsNum.label7.setLabel("7");
+          labelsNum.label7.setName("7");
+          labelsNum.label8.setLabel("8");
+          labelsNum.label8.setName("8");
+          labelsNum.spacer2.setName("num spacer1");
+          items.push_back(&labelsNum);
 
           setupMeters(metersM, "  m  ", kParameter_msredux11);
           setupMeters(metersS, "  s  ", kParameter_msredux12);
 
+          outputGain.fixedSpace.setName(String(kParameterNames[kParameter_mscomp_output_gain]) + " [padding]");
           outputGain.slider.setCallback(cb);
           outputGain.slider.setId(kParameter_mscomp_output_gain);
           outputGain.slider.setName(kParameterNames[kParameter_mscomp_output_gain]);
@@ -780,21 +794,33 @@ class SoundsGoodUI : public UI,
           link.adjustSize(metrics);
           crossover.adjustSize(metrics);
           const Size<uint> labelsTopSize(metrics.valueSlider.getWidth(), theme.textHeight);
-          labelsTop.labelL.setSize(labelsTopSize);
-          labelsTop.labelR.setSize(labelsTopSize);
-          const Size<uint> labelsMidSize(metrics.valueMeterVertical.getWidth(), theme.textHeight);
-          labelsMid.label1.setSize(labelsMidSize);
-          labelsMid.label2.setSize(labelsMidSize);
-          labelsMid.label3.setSize(labelsMidSize);
-          labelsMid.label4.setSize(labelsMidSize);
-          labelsMid.label5.setSize(labelsMidSize);
-          labelsMid.label6.setSize(labelsMidSize);
-          labelsMid.label7.setSize(labelsMidSize);
-          labelsMid.label8.setSize(labelsMidSize);
+          labelsLowHigh.labelL.setSize(labelsTopSize);
+          labelsLowHigh.spacer.setSize(Size<uint>());
+          labelsLowHigh.labelR.setSize(labelsTopSize);
+          const Size<uint> labelsNumSize(metrics.valueMeterVertical.getWidth(), theme.textHeight);
+          labelsNum.spacer1.setSize(Size<uint>());
+          labelsNum.label1.setSize(labelsNumSize);
+          labelsNum.label2.setSize(labelsNumSize);
+          labelsNum.label3.setSize(labelsNumSize);
+          labelsNum.label4.setSize(labelsNumSize);
+          labelsNum.label5.setSize(labelsNumSize);
+          labelsNum.label6.setSize(labelsNumSize);
+          labelsNum.label7.setSize(labelsNumSize);
+          labelsNum.label8.setSize(labelsNumSize);
+          labelsNum.spacer2.setSize(Size<uint>());
           metersM.adjustSize(metrics);
           metersS.adjustSize(metrics);
           outputGain.adjustSize(metrics);
-          SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
+          SoundsgoodParameterGroupWithBypassSwitchMB::adjustSize(metrics);
+      }
+
+      void setAbsolutePos(const int x, const int y) override
+      {
+          SoundsgoodParameterGroupWithBypassSwitchMB::setAbsolutePos(x, y);
+
+          frame.setTickPos(metersM.spacer.getAbsoluteX() - x,
+                           metersM.m1.getAbsoluteY() - y,
+                           metersS.m1.getAbsoluteY() + metersS.m1.getHeight() - y);
       }
 
       void setEnabledColor(const bool enabled)
@@ -821,16 +847,16 @@ class SoundsGoodUI : public UI,
           link.label.setLabelColor(color);
           link.sliderL.setTextColor(color);
           link.sliderR.setTextColor(color);
-          labelsTop.labelL.setLabelColor(color);
-          labelsTop.labelR.setLabelColor(color);
-          labelsMid.label1.setLabelColor(color);
-          labelsMid.label2.setLabelColor(color);
-          labelsMid.label3.setLabelColor(color);
-          labelsMid.label4.setLabelColor(color);
-          labelsMid.label5.setLabelColor(color);
-          labelsMid.label6.setLabelColor(color);
-          labelsMid.label7.setLabelColor(color);
-          labelsMid.label8.setLabelColor(color);
+          labelsLowHigh.labelL.setLabelColor(color);
+          labelsLowHigh.labelR.setLabelColor(color);
+          labelsNum.label1.setLabelColor(color);
+          labelsNum.label2.setLabelColor(color);
+          labelsNum.label3.setLabelColor(color);
+          labelsNum.label4.setLabelColor(color);
+          labelsNum.label5.setLabelColor(color);
+          labelsNum.label6.setLabelColor(color);
+          labelsNum.label7.setLabelColor(color);
+          labelsNum.label8.setLabelColor(color);
           metersM.label.setLabelColor(color);
           metersS.label.setLabelColor(color);
           outputGain.label.setLabelColor(color);
@@ -894,6 +920,7 @@ class SoundsGoodUI : public UI,
 
           w.label.setLabel(label);
           w.label.setName(label);
+          w.spacer.setName(String(label) + " [padding]");
           items.push_back(&w);
       }
   } msCompressor;
@@ -1156,6 +1183,9 @@ public:
     easyMeters.addSeparator();
     easyMeters.addLabel("Limiter gain reduction");
     easyMeters.addMeter(kParameter_limiter_gain_reduction);
+    easyMeters.addSeparator();
+    easyMeters.addLabel("Brickwall limiter");
+    easyMeters.addMeter(kParameter_brickwall_limit);
 
     static const char* const welcomeMessage = ""
         "Hi there,\n"

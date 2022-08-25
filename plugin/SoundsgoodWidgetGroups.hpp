@@ -6,7 +6,9 @@
 #include "Layout.hpp"
 #include "NanoVG.hpp"
 #include "SoundsgoodWidgetLayouts.hpp"
+#include "widgets/QuantumFrameWithSwitchMB.hpp"
 #include "extra/String.hpp"
+
 #include "DistrhoPluginInfo.h"
 
 START_NAMESPACE_DGL
@@ -36,7 +38,7 @@ struct SoundsgoodParameterGroup : VerticallyStackedHorizontalLayout
         frame.setSize(frameSize.getWidth(), frameSize.getHeight() + frame.getOffset() + theme.padding);
     }
 
-    void setAbsolutePos(const int x, const int y)
+    virtual void setAbsolutePos(const int x, const int y)
     {
         // move frame
         frame.setAbsolutePos(x, y);
@@ -122,6 +124,7 @@ struct SoundsgoodParameterGroup : VerticallyStackedHorizontalLayout
 
 typedef SoundsgoodParameterGroup<QuantumFrameWithLabel> SoundsgoodParameterGroupWithoutBypassSwitch;
 typedef SoundsgoodParameterGroup<QuantumFrameWithSwitch> SoundsgoodParameterGroupWithBypassSwitch;
+typedef SoundsgoodParameterGroup<QuantumFrameWithSwitchMB> SoundsgoodParameterGroupWithBypassSwitchMB;
 
 // --------------------------------------------------------------------------------------------------------------------
 
