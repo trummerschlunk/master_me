@@ -351,7 +351,7 @@ class SoundsGoodUI : public UI,
                      public KnobEventHandler::Callback,
                      public QuantumThemeCallback
 {
-  static const uint kInitialWidth = 1023;
+  static const uint kInitialWidth = 1025;
   static const uint kInitialHeight = 600;
 
   QuantumTheme theme;
@@ -1608,11 +1608,13 @@ protected:
   {
       if (resizeOnNextIdle)
       {
+          const int maxX = std::max(leveler.threshold.label.getAbsoluteX() + leveler.threshold.label.getWidth(),
+                                    limiter.gainReduction.label.getAbsoluteX() + limiter.gainReduction.label.getWidth());
           const int maxY = std::max(msCompressor.outputGain.label.getAbsoluteY() + msCompressor.outputGain.label.getHeight(),
                                     brickwall.limit.label.getAbsoluteY() + brickwall.limit.label.getHeight());
 
-          setSize(theme.borderSize * 4 + theme.padding * 6 + leveler.threshold.label.getAbsoluteX() + leveler.threshold.label.getWidth() + outputGroup.getWidth(),
-                  theme.borderSize * 4 + theme.padding * 6 + maxY);
+          setSize(theme.borderSize * 3 + theme.padding * 7 + maxX + outputGroup.getWidth(),
+                  theme.borderSize * 3 + theme.padding * 7 + maxY);
           resizeOnNextIdle = false;
       }
 
