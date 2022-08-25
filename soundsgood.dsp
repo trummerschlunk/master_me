@@ -216,6 +216,7 @@ FB(lufs,short_lufs,prev_gain) =
   +(prev_gain )
   // : hbargraph("[1]+prev_gain[unit:dB]", -30, 30)
   :  limit(limit_neg,limit_pos)
+     // : fadeToZero
   : si.onePoleSwitching(release,attack)
     // : hbargraph("[2]env fol[unit:dB]", -30, 30)
   : leveler_meter_gain
@@ -241,6 +242,7 @@ with {
     long_diff:max(0)/deadzone:min(1):pow(rel_power)
                                      // : hbargraph("undead_rel", 0, 1)
   ;
+  fadeToZero = _* pow((1-lev_gate(fl+fr)),0.1);
 };
 
 
@@ -249,8 +251,19 @@ bp = checkbox("v:soundsgood/t:expert/h:[3]leveler/[1]leveler bypass[symbol:level
 
 limit(lo,hi) = min(hi) : max(lo);
 
-rel_gated(sc) = max((60 * lev_gate(sc)), rel);
-// lev_gate(sc) = 1-(ef.gate_gain_mono(leveler_gate_thresh,0.1,0,0.1,abs(sc)) <: attach(_, (1-_) : meter_leveler_gate));
+rel_gated(sc) = max((gatedSpeed(sc)  * lev_gate(sc)), rel);
+gatedSpeed(sc) = it.interpolate_linear(
+                   (lev_gate(sc))
+                   // :hbargraph("fade", 0, 1)
+                  ,rel,slowspeed(sc));
+slowspeed(sc) = select2(
+                  lev_gate(sc)<=0.8
+                  // :hbargraph("gate",0,1)
+                 ,ma.INFINITY
+                 ,rel*slow);
+slow = 90;//hslider("slow[unit:x]", 90, 1, 600,1 );
+
+       // lev_gate(sc) = 1-(ef.gate_gain_mono(leveler_gate_thresh,0.1,0,0.1,abs(sc)) <: attach(_, (1-_) : meter_leveler_gate));
 lev_gate(sc) =
   1-(ex.peak_expansion_gain_mono_db(maxHold,strength,leveler_gate_thresh,range,gate_att,hold,gate_rel,knee,prePost,(sc))
      : ba.db2linear
@@ -259,12 +272,14 @@ lev_gate(sc) =
      : meter_leveler_gate);
 // <: attach(_, (1-_) : meter_leveler_gate));
 maxHold = 1;
-strength = hslider("strength", 2, 0, 100, 0.01);
+strength = 2;//hslider("strength", 2, 0, 100, 0.01);
 range = -120;
 gate_att = 0.1;
 hold = 0.1;
 gate_rel = 0.1;
-knee = hslider("knee", 30, 0, 60, 1);
+knee =
+  30;
+// hslider("knee", 30, 0, 60, 1);
 prePost = 1;
 
 leveler_meter_gain = vbargraph("v:soundsgood/h:easy/[4][unit:dB][symbol:leveler_gain]leveler gain",-50,50);
@@ -275,6 +290,9 @@ leveler_gate_thresh = target + vslider("v:soundsgood/t:expert/h:[3]leveler/[5][u
 
 limit_pos = vslider("v:soundsgood/t:expert/h:[3]leveler/[7][symbol:leveler_max_plus][unit:db]leveler max +", init_leveler_maxboost, 0, 60, 1);
 limit_neg = vslider("v:soundsgood/t:expert/h:[3]leveler/[8][symbol:leveler_max_minus][unit:db]leveler max -", init_leveler_maxcut, 0, 60, 1) : ma.neg;
+powerX =
+  // 0.5;
+  hslider("[2]powerX[unit:*]", 0.5, 0, 2, 0.001);
 att_power =
   0.5;
 // hslider("[2]att power[unit:*]", 0.5, 0, 2, 0.001);
@@ -296,8 +314,7 @@ length =
 // hslider("[99]length[unit:s]", 0.4, 0, 3, 0.01);
 long_length =
   (1-leveler_speed):pow(power)*24+6
-                    // : hbargraph("long length[unit:dB]", 0, 36)
-;
+                  ;
 // undead_att =
 // hslider("[12]undead attack[unit:*]", 0.15 , 0, 1, 0.001);
 // undead_rel =
