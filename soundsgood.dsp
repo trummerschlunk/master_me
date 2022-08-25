@@ -234,23 +234,52 @@ eq = hp_eq : tilt_eq : side_eq_b with{
 
 
 leveler_sc(target,fl,fr,l,r) =
-  (calc(lk2_var(length,fl,fr))*(1-bp)+bp)
+  (calc(lk2(fl,fr),lk2_var(length,fl,fr))*(1-bp)+bp)
   <: (_*l,_*r)
 with {
 
-  calc(lufs) = FB(lufs)~_: ba.db2linear;
-  FB(lufs,prev_gain) =
+  calc(lufs,short_lufs) = FB(lufs,short_lufs)~_: ba.db2linear;
+  FB(lufs,short_lufs,prev_gain) =
     (target - lufs)
     +(prev_gain )
     :  limit(limit_neg,limit_pos)
     : si.onePoleSwitching(release,attack)
-    : leveler_meter_gain;
+    : leveler_meter_gain
+  with {
+    long_lufs = short_lufs:si.onePoleSwitching(long_length*0.22,long_length)
+    ;
+    long_diff = (target-long_lufs)
+                // : hbargraph("[2]long diff[unit:dB]", -30, 30)
+    ;
+    undead_att =
+      long_diff:min(0)/(0-deadzone):min(1):pow(0.5)
+                                           // : hbargraph("undead_att", 0, 1)
+    ;
+    undead_rel =
+      long_diff:max(0)/deadzone:min(1)
+                                // : hbargraph("undead_rel", 0, 1)
+    ;
+    attack = att/ ((speedfactor*(1-undead_att))+undead_att);
+    release = rel * (leveler_expander*ma.MAX+1) / ((speedfactor*(1-undead_rel))+undead_rel);
+    diff = abs(target - lufs);
+    speedfactor = (autoSat((diff/(deadzone*0.5))-1)+1)*0.5;
+  };
+
 
   limit(lo,hi) = min(hi) : max(lo);
 
-  attack = leveler_speed * 12 +3;
-  release = (leveler_expander*ma.MAX+1) *8 +6;
-
+  speed_scale = 0.25+(1-leveler_speed);
+  att = speed_scale *
+        3;
+  // hslider("[98]att[unit:s]", 3, 0, 10, 0.1);
+  rel = speed_scale *
+        12;
+  long_length =
+    (1-leveler_speed):pow(3)*24+6;
+  deadzone =
+    long_length;
+  // from: https://github.com/zamaudio/zam-plugins/blob/8cd23d781018e3ec84159958d3d2dc7038a82736/plugins/ZamAutoSat/ZamAutoSatPlugin.cpp#L71
+  autoSat(x) = x:min(1):max(-1)<:2.0*_ * (1.0-abs(_)*0.5);
   leveler_expander =
     1-(ex.peak_expansion_gain_mono_db(maxHold,strength,leveler_gate_thresh,range,gate_att,hold,gate_rel,knee,prePost,abs(fl)+abs(fr))
        : ba.db2linear
@@ -259,8 +288,8 @@ with {
        : meter_leveler_gate);
   maxHold = hold*192000;
   strength = 2;
-  range = -120;
-  gate_att = 0.1;
+  range = 0-ma.MAX;
+  gate_att = 0;
   hold = 0.1;
   gate_rel = 0.1;
   knee = 30;
@@ -504,13 +533,12 @@ with {
 
 // +++++++++++++++++++++++++ LUFS METER +++++++++++++++++++++++++
 
-lk2 = par(i,2,kfilter : zi) :> 4.342944819 * log(max(1e-12)) : -(0.691) with {
+lk2_var(Tg)= par(i,2,kfilter : zi) :> 4.342944819 * log(max(1e-12)) : -(0.691) with {
   // maximum assumed sample rate is 192k
   maxSR = 192000;
   sump(n) = ba.slidingSump(n, Tg*maxSR)/n;
   envelope(period, x) = x * x :  sump(rint(period * ma.SR));
   //Tg = 0.4; // 3 second window for 'short-term' measurement
-  Tg = 3;
   zi = envelope(Tg); // mean square: average power = energy/Tg = integral of squared signal / Tg
 
   kfilter = ebu.prefilter;
@@ -519,19 +547,8 @@ lk2 = par(i,2,kfilter : zi) :> 4.342944819 * log(max(1e-12)) : -(0.691) with {
 lufs_meter_in(l,r) = l,r <: l, attach(r, (lk2 : vbargraph("v:soundsgood/h:easy/[2][unit:dB][symbol:lufs_in]in lufs-s",-70,0))) : _,_;
 lufs_meter_out(l,r) = l,r <: l, attach(r, (lk2 : vbargraph("v:soundsgood/h:easy/[7][unit:dB][symbol:lufs_out]out lufs-s",-70,0))) : _,_;
 
-lk2_var(length) =
-  par(i,2,kfilter : envelope(length)) :> 4.342944819 * log(max(1e-12)) : -(0.691) with {
-  // maximum assumed sample rate is 192k
-  maxSR = 192000;
-  sump(n) = ba.slidingSump(n, Tg*maxSR)/n;
-  // mean square: average power = energy/Tg = integral of squared signal / Tg
-  envelope(period, x) = x * x :  sump(rint(period * ma.SR));
-  //Tg = 0.4; // 3 second window for 'short-term' measurement
-  Tg = 3;
-
-
-  kfilter = ebu.prefilter;
-};
+lk2 = lk2_var(3);
+lk2_short = lk2_var(0.4);
 
 /* ******* 8< *******/
 // TODO: use co.peak_compression_gain_N_chan_db when it arrives in the current faust version
