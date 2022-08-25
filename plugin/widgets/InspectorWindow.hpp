@@ -17,8 +17,10 @@
 #pragma once
 
 #include "DearImGui.hpp"
-#include "Application.hpp"
 #include "DearImGui/imgui.h"
+#include "Quantum.hpp"
+
+#include "Application.hpp"
 #include "extra/String.hpp"
 
 #include <list>
@@ -31,12 +33,17 @@ class InspectorWindow : public ImGuiTopLevelWidget
 {
     std::list<SubWidget*> subwidgets;
 
+    QuantumTheme& theme;
+    QuantumThemeCallback* const themeChangeCallback;
+
 public:
     bool isOpen = true;
 
-    explicit InspectorWindow(TopLevelWidget* const tlw)
+    explicit InspectorWindow(TopLevelWidget* const tlw, QuantumTheme& t, QuantumThemeCallback* const cb)
         : ImGuiTopLevelWidget(tlw->getWindow()),
-          subwidgets(tlw->getChildren())
+          subwidgets(tlw->getChildren()),
+          theme(t),
+          themeChangeCallback(cb)
     {
         ResizeEvent ev;
         ev.size = tlw->getSize();
@@ -49,18 +56,84 @@ protected:
         if (!isOpen)
             return;
 
-        const double initialSize = 600 * getScaleFactor();
+        const double initialSize = 1200 * getScaleFactor();
 
-        ImGui::SetNextWindowPos(ImVec2(initialSize / 4, initialSize / 4), ImGuiCond_Once);
-        ImGui::SetNextWindowSize(ImVec2(initialSize, initialSize / 2), ImGuiCond_Once);
+        ImGui::SetNextWindowPos(ImVec2(initialSize / 4, initialSize / 16), ImGuiCond_Once);
+        ImGui::SetNextWindowSize(ImVec2(initialSize / 2, initialSize / 3), ImGuiCond_Once);
 
-        ImGui::Begin("Widgets", &isOpen);
+        ImGui::Begin("Theme", &isOpen, ImGuiWindowFlags_NoCollapse);
 
-        displaySubWidget(subwidgets);
+        int val;
+        bool changed = false;
+
+        if (ImGui::Button("Reset"))
+        {
+            changed = true;
+            theme = QuantumTheme();
+        }
+
+        val = theme.borderSize;
+        if (ImGui::SliderInt("Border Size", &val, 1, 20))
+        {
+            changed = true;
+            theme.borderSize = val;
+        }
+
+        val = theme.padding;
+        if (ImGui::SliderInt("Padding", &val, 0, 20))
+        {
+            changed = true;
+            theme.padding = val;
+        }
+
+        val = theme.fontSize;
+        if (ImGui::SliderInt("Font Size", &val, 8, 50))
+        {
+            changed = true;
+            theme.fontSize = val;
+        }
+
+        val = theme.textHeight;
+        if (ImGui::SliderInt("Text Height", &val, theme.fontSize, 60))
+        {
+            changed = true;
+            theme.textHeight = val;
+        }
+
+        val = theme.widgetLineSize;
+        if (ImGui::SliderInt("Widget Line Size", &val, 1, 10))
+        {
+            changed = true;
+            theme.widgetLineSize = val;
+        }
+
+        ImGui::ColorEdit4("Level Meter", theme.levelMeterColor.rgba);
+        ImGui::ColorEdit4("Level Meter Alternative", theme.levelMeterAlternativeColor.rgba);
+        ImGui::ColorEdit4("Widget Background", theme.widgetBackgroundColor.rgba);
+        ImGui::ColorEdit4("Widget Default Active", theme.widgetDefaultActiveColor.rgba);
+        ImGui::ColorEdit4("Widget Default Alternative", theme.widgetDefaultAlternativeColor.rgba);
+        ImGui::ColorEdit4("Widget Foreground", theme.widgetForegroundColor.rgba);
+        ImGui::ColorEdit4("Window Background", theme.windowBackgroundColor.rgba);
+        ImGui::ColorEdit4("Text Light", theme.textLightColor.rgba);
+        ImGui::ColorEdit4("Text Mid", theme.textMidColor.rgba);
+        ImGui::ColorEdit4("Text Dark", theme.textDarkColor.rgba);
 
         ImGui::End();
+
+        if (changed)
+        {
+            theme.windowPadding = theme.borderSize + theme.padding * 3;
+            themeChangeCallback->quantumThemeChanged();
+        }
+
+        /*
+        ImGui::Begin("Widgets", &isOpen);
+        displaySubWidget(subwidgets);
+        ImGui::End();
+        */
     }
 
+    /*
 private:
     static void displaySubWidget(const std::list<SubWidget*>& subwidgets)
     {
@@ -108,6 +181,7 @@ private:
             }
         }
     }
+    */
 };
 
 // --------------------------------------------------------------------------------------------------------------------

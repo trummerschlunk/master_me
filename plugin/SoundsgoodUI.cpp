@@ -207,7 +207,7 @@ protected:
             const int y = getAbsoluteY() + theme.borderSize;
 
             const uint arrowSpacing = theme.textHeight;
-            fillColor(theme.textVeryDarkColor);
+            fillColor(Color(theme.widgetBackgroundColor, theme.textDarkColor, 0.5f));
 
             drawArrowLR(parameterGroups[1]->getAbsoluteX() - x - arrowSpacing, arrowSpacing * 2);
             drawArrowLR(parameterGroups[2]->getAbsoluteX() - x - arrowSpacing, arrowSpacing * 2);
@@ -290,15 +290,17 @@ private:
 // custom widget for drawing plugin name (so it appears on top of other widgets if needed)
 class SoundsgoodNameWidget : public NanoSubWidget
 {
-    const QuantumTheme& theme;
+    QuantumTheme& theme;
+    QuantumThemeCallback* const callback;
     ScopedPointer<InspectorWindow> inspectorWindow;
 
     static constexpr const char* const kText = "master_me";
 
 public:
-    explicit SoundsgoodNameWidget(TopLevelWidget* const parent, const QuantumTheme& t)
+    explicit SoundsgoodNameWidget(TopLevelWidget* const parent, QuantumThemeCallback* const cb, QuantumTheme& t)
         : NanoSubWidget(parent),
-          theme(t)
+          theme(t),
+          callback(cb)
     {
         loadSharedResources();
         setName("Name");
@@ -331,7 +333,7 @@ protected:
         if (ev.button == 1 && ev.press && contains(ev.pos))
         {
             if (inspectorWindow == nullptr)
-                inspectorWindow = new InspectorWindow(getTopLevelWidget());
+                inspectorWindow = new InspectorWindow(getTopLevelWidget(), theme, callback);
 
             inspectorWindow->isOpen = true;
         }
@@ -344,7 +346,8 @@ protected:
 
 class SoundsGoodUI : public UI,
                      public ButtonEventHandler::Callback,
-                     public KnobEventHandler::Callback
+                     public KnobEventHandler::Callback,
+                     public QuantumThemeCallback
 {
   static const uint kInitialWidth = 1023;
   static const uint kInitialHeight = 600;
@@ -367,6 +370,9 @@ class SoundsGoodUI : public UI,
 
   // plugin name
   SoundsgoodNameWidget name;
+
+  // for when theme changes
+  bool resizeOnNextIdle = false;
 
   struct PreProcessing : SoundsgoodParameterGroupWithoutBypassSwitch {
       QuantumValueSliderWithLabel inputGain;
@@ -1083,7 +1089,7 @@ public:
         outputGroup(this, theme),
         easyMetering(this, theme),
         welcomeLabel(this, theme),
-        name(this, theme),
+        name(this, this, theme),
         preProcessing(this, this, this, theme),
         gate(this, this, this, theme),
         eq(this, this, this, theme),
@@ -1153,7 +1159,7 @@ public:
     topCenteredGroup.toBottom();
 
     // initial resize and reposition
-    resizeWidgets(scaleFactor, getWidth(), getHeight());
+    resizeWidgets(getWidth(), getHeight());
 
     // load initial state, easy mode is default
     easyModeButton.setChecked(true, false);
@@ -1182,7 +1188,7 @@ public:
       outputGroup.setAbsolutePos(width - windowPadding - outputGroup.getWidth(), startY);
 
       name.setAbsolutePos(outputGroup.getAbsoluteX() - (name.getWidth() - padding) / 2,
-                          outputGroup.getAbsoluteY() - padding - name.getHeight());
+                          (outputGroup.getAbsoluteY() - name.getHeight()) / 2);
 
       topCenteredGroup.setAbsolutePos(name.getAbsoluteX() - topCenteredGroup.globalEnableSwitch.getWidth() - theme.padding * 8 - theme.borderSize,
                                       windowPadding + theme.borderSize);
@@ -1217,13 +1223,13 @@ public:
       brickwall.setAbsolutePos(limiter.frame.getAbsoluteX(), limiter.frame.getAbsoluteY() + limiter.frame.getHeight() + arrowSpacing + padding);
   }
 
-  void resizeWidgets(const double scaleFactor, const uint width, const uint height)
+  void resizeWidgets(const uint width, const uint height)
   {
       const SoundsGoodMetrics metrics(theme);
 
-      const uint padding = theme.padding * scaleFactor;
-      const uint borderSize = theme.borderSize * scaleFactor;
-      const uint windowPadding = theme.windowPadding * scaleFactor;
+      const uint padding = theme.padding;
+      const uint borderSize = theme.borderSize;
+      const uint windowPadding = theme.windowPadding;
       const uint startY = windowPadding * 2 + metrics.button.getHeight();
       const uint contentHeight = height - startY - windowPadding;
 
@@ -1237,7 +1243,7 @@ public:
       topCenteredGroup.adjustSize(metrics, getWidth(), getHeight(), easyModeButton.getHeight());
 
       welcomeLabel.setSize(contentGroup.getWidth() - borderSize * 2 - padding * 2, contentHeight - borderSize * 2 - padding * 2);
-      easyMetering.setSize(300 * scaleFactor, contentGroup.getHeight() / 2 - padding);
+      easyMetering.setSize(300 * getScaleFactor(), contentGroup.getHeight() / 2 - padding);
 
       presetButtons.adjustSize(metrics);
 
@@ -1592,19 +1598,23 @@ protected:
 
   void onResize(const ResizeEvent& ev) override
   {
-      resizeWidgets(getScaleFactor(), ev.size.getWidth(), ev.size.getHeight());
+      resizeWidgets(ev.size.getWidth(), ev.size.getHeight());
       UI::onResize(ev);
-  }
-
-#if 0 // FOR TESTING
-  static float randomMeterValue()
-  {
-      const double r = static_cast<double>(std::rand()) / RAND_MAX;
-      return r * -70.0;
   }
 
   void uiIdle() override
   {
+      if (resizeOnNextIdle)
+      {
+          const int maxY = std::max(msCompressor.outputGain.label.getAbsoluteY() + msCompressor.outputGain.label.getHeight(),
+                                    brickwall.limit.label.getAbsoluteY() + brickwall.limit.label.getHeight());
+
+          setSize(theme.borderSize * 4 + theme.padding * 6 + leveler.threshold.label.getAbsoluteX() + leveler.threshold.label.getWidth() + outputGroup.getWidth(),
+                  theme.borderSize * 4 + theme.padding * 6 + maxY);
+          resizeOnNextIdle = false;
+      }
+
+#if 0 // FOR TESTING
       /*
       static int doit = 0;
       if (++doit != 5)
@@ -1634,6 +1644,14 @@ protected:
          }
       }
       inputGroup.levelerGain.setValue(f);
+#endif
+  }
+
+#if 0 // FOR TESTING
+  static float randomMeterValue()
+  {
+      const double r = static_cast<double>(std::rand()) / RAND_MAX;
+      return r * -70.0;
   }
 #endif
 
@@ -1748,6 +1766,12 @@ protected:
   void knobValueChanged(SubWidget *const widget, const float value) override
   {
     setParameterValue(widget->getId(), value);
+  }
+  
+  void quantumThemeChanged() override
+  {
+      resizeWidgets(getWidth(), getHeight());
+      resizeOnNextIdle = true;
   }
 
   DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SoundsGoodUI)
