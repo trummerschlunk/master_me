@@ -180,6 +180,44 @@ struct QuantumSingleSeparatorLine : HorizontalLayout
 };
 
 // --------------------------------------------------------------------------------------------------------------------
+// single expanding label
+
+struct QuantumSingleLabel : HorizontalLayout
+{
+    QuantumLabel label;
+
+    explicit QuantumSingleLabel(NanoSubWidget* const parent, const QuantumTheme& theme)
+        : label(parent, theme)
+    {
+        widgets.push_back({ &label, Expanding });
+    }
+
+    void adjustSize()
+    {
+        label.adjustSize();
+    }
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+// single expanding value meter
+
+struct QuantumSingleValueMeter : HorizontalLayout
+{
+    QuantumValueMeter meter;
+
+    explicit QuantumSingleValueMeter(NanoSubWidget* const parent, const QuantumTheme& theme)
+        : meter(parent, theme)
+    {
+        widgets.push_back({ &meter, Expanding });
+    }
+
+    void adjustSize(const QuantumMetrics& metrics)
+    {
+        meter.setSize(metrics.valueMeterHorizontal);
+    }
+};
+
+// --------------------------------------------------------------------------------------------------------------------
 // single expanding switch
 
 struct QuantumSingleSwitch : HorizontalLayout

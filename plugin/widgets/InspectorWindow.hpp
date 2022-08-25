@@ -93,6 +93,8 @@ protected:
         {
             changedSize = true;
             theme.fontSize = val;
+            if (theme.fontSize > theme.textHeight)
+                theme.textHeight = theme.fontSize;
         }
 
         val = theme.textHeight;

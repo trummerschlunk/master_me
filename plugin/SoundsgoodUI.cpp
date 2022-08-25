@@ -23,6 +23,10 @@ static_assert(kParameterRanges[kParameter_target].max == 0.f, "lufs target 0 dB 
 static_assert(kParameterRanges[kParameter_leveler_gain].min == -50.f, "leveler gain -50 dB min");
 static_assert(kParameterRanges[kParameter_leveler_gain].max == +50.f, "leveler gain +50 dB max");
 
+// FIXME define these properly
+#define kParameter_kneecomp_meter1 kParameter_71
+#define kParameter_kneecomp_meter2 kParameter_72
+
 // -----------------------------------------------------------------------------------------------------------
 
 // our custom metrics, making vertical sliders have less height
@@ -367,8 +371,10 @@ class SoundsGoodUI : public UI,
   OutputMeterGroup outputGroup;
 
   // easy mode labels
-  QuantumValueMeter18 easyMetering;
   QuantumLabel welcomeLabel;
+
+  // easy mode meters
+  SoundsgoodEasyMetersGroup easyMeters;
 
   // plugin name
   SoundsgoodNameWidget name;
@@ -637,8 +643,8 @@ class SoundsGoodUI : public UI,
           setupSlider(makeup, cb, kParameter_kneecomp_makeup, 9);
           setupSlider(drywet, cb, kParameter_kneecomp_drywet, 9);
           setupSeparatorLine(separator);
-          setupMeter(m1, kParameter_71, 0);
-          setupMeter(m2, kParameter_72, 0);
+          setupMeter(m1, kParameter_kneecomp_meter1, 0);
+          setupMeter(m2, kParameter_kneecomp_meter2, 0);
       }
 
       void adjustSize(const QuantumMetrics& metrics) override
@@ -1089,8 +1095,8 @@ public:
         inputGroup(this, this, theme),
         contentGroup(this, theme, expertModeButton),
         outputGroup(this, theme),
-        easyMetering(this, theme),
         welcomeLabel(this, theme),
+        easyMeters(this, theme),
         name(this, this, theme),
         preProcessing(this, this, this, theme),
         gate(this, this, this, theme),
@@ -1137,7 +1143,19 @@ public:
     expertModeButton.setLabel("Expert");
     expertModeButton.setName("Expert Mode Button");
 
-    easyMetering.setName("Easy metering for testing");
+    easyMeters.setName("Easy meters");
+    easyMeters.addLabel("Gate meter");
+    easyMeters.addMeter(kParameter_gate_meter);
+    easyMeters.addSeparator();
+    easyMeters.addLabel("Leveler gate meter");
+    easyMeters.addMeter(kParameter_leveler_gate);
+    easyMeters.addSeparator();
+    easyMeters.addLabel("Knee compressor meters");
+    easyMeters.addMeter(kParameter_kneecomp_meter1);
+    easyMeters.addMeter(kParameter_kneecomp_meter2);
+    easyMeters.addSeparator();
+    easyMeters.addLabel("Limiter gain reduction");
+    easyMeters.addMeter(kParameter_limiter_gain_reduction);
 
     static const char* const welcomeMessage = ""
         "Hi there,\n"
@@ -1195,21 +1213,23 @@ public:
       topCenteredGroup.setAbsolutePos(name.getAbsoluteX() - topCenteredGroup.globalEnableSwitch.getWidth() - theme.padding * 8 - theme.borderSize,
                                       windowPadding + theme.borderSize);
 
-      presetButtons.setAbsolutePos(contentGroup.getAbsoluteX() + contentGroup.getWidth() - presetButtons.frame.getWidth() - borderSize - padding,
-                                   contentGroup.getAbsoluteY() + borderSize + padding);
-
       const uint inputAreaCenter = inputGroup.getWidth() / 2;
       const uint easyModeButtonOffset = inputAreaCenter - easyModeButton.getWidth() / 2;
       easyModeButton.setAbsolutePos(windowPadding + easyModeButtonOffset, windowPadding);
       expertModeButton.setAbsolutePos(contentGroup.getAbsoluteX() + easyModeButtonOffset, windowPadding);
 
-      welcomeLabel.setAbsolutePos(contentGroup.getAbsoluteX() + borderSize + padding, startY + borderSize + padding);
-      easyMetering.setAbsolutePos(contentGroup.getAbsoluteX() + borderSize + padding,
-                                  startY + contentGroup.getHeight() - easyMetering.getHeight() - padding);
+      const uint contentGroupStartInnerX = contentGroup.getAbsoluteX() + borderSize + padding;
+      welcomeLabel.setAbsolutePos(contentGroupStartInnerX, startY + borderSize + padding);
+
+      easyMeters.setAbsolutePos(contentGroup.getAbsoluteX() + contentGroup.getWidth() - easyMeters.getWidth() - borderSize - padding,
+                                contentGroup.getAbsoluteY() + borderSize + padding);
+
+      presetButtons.setAbsolutePos(contentGroupStartInnerX,
+                                   easyMeters.getAbsoluteY() + easyMeters.getHeight() + padding);
 
       // 1st row
       const uint row1y = contentGroup.getAbsoluteY() + borderSize + padding;
-      preProcessing.setAbsolutePos(contentGroup.getAbsoluteX() + borderSize + padding, row1y);
+      preProcessing.setAbsolutePos(contentGroupStartInnerX, row1y);
       gate.setAbsolutePos(preProcessing.frame.getAbsoluteX() + preProcessing.frame.getWidth() + arrowSpacing + padding, row1y);
       eq.setAbsolutePos(gate.frame.getAbsoluteX() + gate.frame.getWidth() + arrowSpacing + padding, row1y);
       leveler.setAbsolutePos(eq.frame.getAbsoluteX() + eq.frame.getWidth() + arrowSpacing + padding, row1y);
@@ -1217,7 +1237,7 @@ public:
       // 2nd row
       const uint highestOf1stRow = std::max(preProcessing.frame.getHeight(), std::max(gate.frame.getHeight(), std::max(leveler.frame.getHeight(), eq.frame.getHeight())));
       const uint row2y = contentGroup.getAbsoluteY() + borderSize + arrowSpacing + padding * 3 + highestOf1stRow;
-      kneeComp.setAbsolutePos(preProcessing.frame.getAbsoluteX(), row2y);
+      kneeComp.setAbsolutePos(contentGroupStartInnerX, row2y);
       msCompressor.setAbsolutePos(kneeComp.frame.getAbsoluteX() + kneeComp.frame.getWidth() + arrowSpacing + padding, row2y);
       limiter.setAbsolutePos(msCompressor.frame.getAbsoluteX() + msCompressor.frame.getWidth() + arrowSpacing + padding, row2y);
 
@@ -1245,8 +1265,7 @@ public:
       topCenteredGroup.adjustSize(metrics, getWidth(), getHeight(), easyModeButton.getHeight());
 
       welcomeLabel.setSize(contentGroup.getWidth() - borderSize * 2 - padding * 2, contentHeight - borderSize * 2 - padding * 2);
-      easyMetering.setSize(300 * getScaleFactor(), contentGroup.getHeight() / 2 - padding);
-
+      easyMeters.adjustSize(metrics);
       presetButtons.adjustSize(metrics);
 
       preProcessing.adjustSize(metrics);
@@ -1488,10 +1507,10 @@ protected:
     case kParameter_gate_meter:
       gate.meter.meter.setValue(value);
       break;
-    case kParameter_71:
+    case kParameter_kneecomp_meter1:
       kneeComp.m1.meter.setValue(value);
       break;
-    case kParameter_72:
+    case kParameter_kneecomp_meter2:
       kneeComp.m2.meter.setValue(value);
       break;
     case kParameter_msredux11:
@@ -1554,8 +1573,17 @@ protected:
     }
 
     // easy meters
-    if (index >= kParameter_71 && index <= kParameter_msredux82)
-      easyMetering.setValue(index - kParameter_71, value);
+    switch (index)
+    {
+    case kParameter_leveler_gate:
+    case kParameter_gate_meter:
+    case kParameter_kneecomp_meter1:
+    case kParameter_kneecomp_meter2:
+    case kParameter_limiter_gain_reduction:
+    case kParameter_brickwall_limit:
+      easyMeters.setMeterValueById(index, value);
+      break;
+    }
   }
 
     void stateChanged(const char* key, const char* value) override
@@ -1731,8 +1759,8 @@ protected:
           easyModeButton.setChecked(true, false);
           expertModeButton.setChecked(false, false);
 
-          easyMetering.show();
           welcomeLabel.show();
+          easyMeters.show();
           presetButtons.frame.show();
 
           for (NanoSubWidget* w : parameterGroups)
@@ -1743,8 +1771,8 @@ protected:
           easyModeButton.setChecked(false, false);
           expertModeButton.setChecked(true, false);
 
-          easyMetering.hide();
           welcomeLabel.hide();
+          easyMeters.hide();
           presetButtons.frame.hide();
 
           for (NanoSubWidget* w : parameterGroups)
