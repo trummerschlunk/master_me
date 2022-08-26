@@ -218,7 +218,7 @@ protected:
 
             drawArrowZ(parameterGroups[3]->getAbsoluteX() - x + arrowSpacing,
                        parameterGroups[3]->getAbsoluteY() + parameterGroups[3]->getHeight() + theme.borderSize * 2 - y,
-                       parameterGroups[4]->getAbsoluteX() - x + arrowSpacing * 2, parameterGroups[4]->getAbsoluteY() - y);
+                       parameterGroups[4]->getAbsoluteY() - y);
 
             drawArrowLR(parameterGroups[5]->getAbsoluteX() - x - arrowSpacing, parameterGroups[5]->getAbsoluteY() - y + arrowSpacing * 2);
             drawArrowLR(parameterGroups[6]->getAbsoluteX() - x - arrowSpacing, parameterGroups[6]->getAbsoluteY() - y + arrowSpacing * 2);
@@ -245,8 +245,8 @@ private:
         moveTo(x, y);
         lineTo(x + b, y);
         lineTo(x + b, y - b);
-        lineTo(x + b + b, y + b / 2);
-        lineTo(x + b, y + b + b);
+        lineTo(x + b * 2, y + b * 0.5f);
+        lineTo(x + b, y + b * 2);
         lineTo(x + b, y + b);
         lineTo(x, y + b);
         closePath();
@@ -261,29 +261,27 @@ private:
         moveTo(x, y);
         lineTo(x, y + b);
         lineTo(x + b, y + b);
-        lineTo(x - b / 2, y + b + b);
-        lineTo(x - b - b, y + b);
+        lineTo(x - b * 0.5f, y + b * 2);
+        lineTo(x - b * 2, y + b);
         lineTo(x - b, y + b);
         lineTo(x - b, y);
         closePath();
         fill();
     }
 
-    inline void drawArrowZ(const int sx, const int sy, const int tx, const int ty)
+    inline void drawArrowZ(const int sx, const int sy, const int ty)
     {
         const uint b = theme.textHeight / 2;
 
         beginPath();
         moveTo(sx + b, sy);
-        lineTo(sx + b, ty - b - b / 2);
-        lineTo(tx + b, ty - b - b / 2);
-        lineTo(tx + b, ty - b);
-        lineTo(tx + b + b, ty - b);
-        lineTo(tx + b / 2, ty);
-        lineTo(tx - b, ty - b);
-        lineTo(tx, ty - b);
-        lineTo(tx, ty - b * 4 / 2);
-        lineTo(sx, ty - b * 4 / 2);
+        lineTo(sx + b, ty - b * 0.5f);
+        lineTo(sx -b, ty - b * 0.5f);
+        lineTo(sx - b, ty + b * 0.5f);
+        lineTo(sx - b - b, ty - b);
+        lineTo(sx - b, ty - b * 2.5f);
+        lineTo(sx - b, ty - b * 1.5f);
+        lineTo(sx, ty - b * 1.5f);
         lineTo(sx, sy);
         closePath();
         fill();
