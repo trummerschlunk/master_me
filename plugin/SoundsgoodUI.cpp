@@ -1222,7 +1222,7 @@ public:
       welcomeLabel.setAbsolutePos(contentGroupStartInnerX, startY + borderSize + padding);
 
       presetButtons.setAbsolutePos(contentGroup.getAbsoluteX() + (contentGroup.getWidth() - borderSize * 2 - padding * 2 - presetButtons.frame.getWidth()) / 2,
-                                   contentGroup.getAbsoluteY() + (contentGroup.getHeight() - borderSize * 2 - padding * 2 - presetButtons.frame.getHeight()) / 2);
+                                   contentGroup.getAbsoluteY() + borderSize - padding + (contentGroup.getHeight() - borderSize * 2 - padding * 2) / 3);
 
       // 1st row
       const uint row1y = contentGroup.getAbsoluteY() + borderSize + padding;

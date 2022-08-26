@@ -1,13 +1,22 @@
-# soundsgood
+# master_me
 
 Better sound for live-streaming.
 
-![soundsgood on Gnome desktop](/img/soundsgood-gui.png "soundsgood on Gnome desktop")
+![screenshot](./img/screenshot.png "master_me screenshot")
 
-![DSP signal flow](/img/soundsgood-process.png "DSP signal flow")
+![DSP signal flow](./img/soundsgood-process.png "DSP signal flow")
 
 
-## Build for JACK and run
+## Build LADSPA, LV2, VST2 and JACK Standalone
+
+Requirements: OpenGL2 capable graphics card (or software rendering via MESA on Linux)
+
+```
+git submodule update --init --recursive
+make
+```
+
+## Build "legacy" generic faust UI for JACK and run
 
 ```
 $ faust2jack soundsgood.dsp
