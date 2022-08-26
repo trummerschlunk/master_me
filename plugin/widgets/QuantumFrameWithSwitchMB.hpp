@@ -5,7 +5,15 @@
 
 #include "Quantum.hpp"
 
+#include "DistrhoPluginInfo.h"
+
 START_NAMESPACE_DGL
+
+// -----------------------------------------------------------------------------------------------------------
+
+// make sure our expectations match
+static_assert(kParameterRanges[kParameter_msredux11].min == -3.f, "mscomp meters -3 dB min");
+static_assert(kParameterRanges[kParameter_msredux11].max == 0.f, "mscomp meters 0 dB max");
 
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -38,17 +46,34 @@ protected:
     {
         QuantumFrameWithSwitch::onNanoDisplay();
 
+        const float midTick = topMeterTick + (bottomMeterTick - topMeterTick) * 0.5f;
+        const float textCenterX = xOffset + (getWidth() - theme.borderSize - theme.padding - xOffset) * 0.5f;
+
         fillColor(theme.textLightColor);
         fontSize(theme.fontSize);
+        textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
 
-        textAlign(ALIGN_LEFT|ALIGN_TOP);
-        text(xOffset, topMeterTick, "3dB", nullptr);
+        strokeColor(theme.widgetBackgroundColor);
+        strokeWidth(theme.widgetLineSize);
 
-        textAlign(ALIGN_LEFT|ALIGN_MIDDLE);
-        text(xOffset, topMeterTick + (bottomMeterTick - topMeterTick) * 0.5f, "0dB", nullptr);
+        beginPath();
+        moveTo(xOffset - theme.fontSize * 0.25f, topMeterTick + static_cast<int>(theme.widgetLineSize * 0.5f));
+        lineTo(xOffset + theme.fontSize * 0.25f, topMeterTick + static_cast<int>(theme.widgetLineSize * 0.5f));
+        stroke();
 
-        textAlign(ALIGN_LEFT|ALIGN_BOTTOM);
-        text(xOffset, bottomMeterTick, "3dB", nullptr);
+        beginPath();
+        moveTo(xOffset - theme.fontSize * 0.25f, midTick);
+        lineTo(xOffset + theme.fontSize * 0.25f, midTick);
+        stroke();
+
+        beginPath();
+        moveTo(xOffset - theme.fontSize * 0.25f, bottomMeterTick - static_cast<int>(theme.widgetLineSize * 0.5f));
+        lineTo(xOffset + theme.fontSize * 0.25f, bottomMeterTick - static_cast<int>(theme.widgetLineSize * 0.5f));
+        stroke();
+
+        text(textCenterX, topMeterTick, "0dB", nullptr);
+        text(textCenterX, midTick, "-3dB", nullptr);
+        text(textCenterX, bottomMeterTick, "0dB", nullptr);
     }
 };
 

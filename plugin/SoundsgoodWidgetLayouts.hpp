@@ -181,6 +181,20 @@ struct QuantumSingleSeparatorLine : HorizontalLayout
 };
 
 // --------------------------------------------------------------------------------------------------------------------
+// single spacer
+
+struct QuantumSingleSpacer : HorizontalLayout
+{
+    QuantumSpacer spacer;
+
+    explicit QuantumSingleSpacer(NanoSubWidget* const parent)
+        : spacer(parent)
+    {
+        widgets.push_back({ &spacer, Fixed });
+    }
+};
+
+// --------------------------------------------------------------------------------------------------------------------
 // single expanding label
 
 struct QuantumSingleLabel : HorizontalLayout
@@ -330,7 +344,7 @@ struct MultiBandCompressorValueMeters : HorizontalLayout
     QuantumValueMeter m1, m2, m3, m4, m5, m6, m7, m8;
     QuantumSpacer spacer;
 
-    explicit MultiBandCompressorValueMeters(NanoSubWidget* const parent, const QuantumTheme& theme)
+    explicit MultiBandCompressorValueMeters(NanoSubWidget* const parent, const QuantumTheme& theme, const QuantumValueMeter::Orientation orientation)
         : label(parent, theme),
           m1(parent, theme),
           m2(parent, theme),
@@ -344,14 +358,14 @@ struct MultiBandCompressorValueMeters : HorizontalLayout
     {
         label.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_MIDDLE);
 
-        m1.setOrientation(QuantumValueMeter::TopToBottom);
-        m2.setOrientation(QuantumValueMeter::TopToBottom);
-        m3.setOrientation(QuantumValueMeter::TopToBottom);
-        m4.setOrientation(QuantumValueMeter::TopToBottom);
-        m5.setOrientation(QuantumValueMeter::TopToBottom);
-        m6.setOrientation(QuantumValueMeter::TopToBottom);
-        m7.setOrientation(QuantumValueMeter::TopToBottom);
-        m8.setOrientation(QuantumValueMeter::TopToBottom);
+        m1.setOrientation(orientation);
+        m2.setOrientation(orientation);
+        m3.setOrientation(orientation);
+        m4.setOrientation(orientation);
+        m5.setOrientation(orientation);
+        m6.setOrientation(orientation);
+        m7.setOrientation(orientation);
+        m8.setOrientation(orientation);
 
         widgets.push_back({ &label, Expanding });
         widgets.push_back({ &m1, Fixed });
@@ -376,7 +390,7 @@ struct MultiBandCompressorValueMeters : HorizontalLayout
         m6.setSize(metrics.valueMeterVertical);
         m7.setSize(metrics.valueMeterVertical);
         m8.setSize(metrics.valueMeterVertical);
-        spacer.setSize(Size<uint>());
+        spacer.setSize(label.getSize());
     }
 };
 

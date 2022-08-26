@@ -1,7 +1,6 @@
 /*
  */
 
-#include "DistrhoPluginInfo.h"
 #include "DistrhoUI.hpp"
 
 #include "Quantum.hpp"
@@ -351,7 +350,7 @@ class SoundsGoodUI : public UI,
                      public QuantumThemeCallback
 {
   static const uint kInitialWidth = 1025;
-  static const uint kInitialHeight = 600;
+  static const uint kInitialHeight = 610;
 
   QuantumTheme theme;
 
@@ -696,6 +695,7 @@ class SoundsGoodUI : public UI,
       MultiBandCompressorLabels labelsNum;
       MultiBandCompressorValueMeters metersM;
       MultiBandCompressorValueMeters metersS;
+      QuantumSingleSpacer spacer;
       MultiBandCompressorOutputGainGroup outputGain;
 
       explicit MidSideCompressor(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
@@ -709,8 +709,9 @@ class SoundsGoodUI : public UI,
             crossover(&frame, theme),
             labelsLowHigh(&frame, theme),
             labelsNum(&frame, theme),
-            metersM(&frame, theme),
-            metersS(&frame, theme),
+            metersM(&frame, theme, QuantumValueMeter::BottomToTop),
+            metersS(&frame, theme, QuantumValueMeter::TopToBottom),
+            spacer(&frame),
             outputGain(&frame, theme)
       {
           frame.setName("Multiband MidSide Compressor");
@@ -761,8 +762,11 @@ class SoundsGoodUI : public UI,
           labelsNum.spacer2.setName("num spacer1");
           items.push_back(&labelsNum);
 
-          setupMeters(metersM, "  m  ", kParameter_msredux11);
-          setupMeters(metersS, "  s  ", kParameter_msredux12);
+          setupMeters(metersM, "   m   ", kParameter_msredux11);
+          setupMeters(metersS, "   s   ", kParameter_msredux12);
+
+          spacer.spacer.setName("+ spacer");
+          items.push_back(&spacer);
 
           outputGain.fixedSpace.setName(String(kParameterNames[kParameter_mscomp_output_gain]) + " [padding]");
           outputGain.slider.setCallback(cb);
@@ -802,6 +806,7 @@ class SoundsGoodUI : public UI,
           labelsNum.spacer2.setSize(Size<uint>());
           metersM.adjustSize(metrics);
           metersS.adjustSize(metrics);
+          spacer.spacer.setSize(0, theme.fontSize / 2);
           outputGain.adjustSize(metrics);
           SoundsgoodParameterGroupWithBypassSwitchMB::adjustSize(metrics);
       }
@@ -810,7 +815,7 @@ class SoundsGoodUI : public UI,
       {
           SoundsgoodParameterGroupWithBypassSwitchMB::setAbsolutePos(x, y);
 
-          frame.setTickPos(metersM.spacer.getAbsoluteX() - x,
+          frame.setTickPos(metersM.m8.getAbsoluteX() - x + metersM.m8.getWidth(),
                            metersM.m1.getAbsoluteY() - y,
                            metersS.m1.getAbsoluteY() + metersS.m1.getHeight() - y);
       }
