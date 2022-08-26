@@ -258,7 +258,7 @@ with {
   limit_neg = vslider("v:soundsgood/t:expert/h:[3]leveler/[8][symbol:leveler_max_minus][unit:db]leveler max -", init_leveler_maxcut, 0, 60, 1) : ma.neg;
   limit(lo,hi) = min(hi) : max(lo);
   leveler_speed_gated(sc) = (ef.gate_gain_mono(leveler_gate_thresh,0.1,0,0.1,abs(sc)) <: attach(_, (1-_) : meter_leveler_gate)) : _ * leveler_speed;
-  length = 3;
+  length = 0.4;
 };
 
 // SIDE CHAIN COMPRESSOR
