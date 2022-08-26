@@ -7,7 +7,7 @@ Better sound for live-streaming.
 ![DSP signal flow](./img/soundsgood-process.png "DSP signal flow")
 
 
-## Build LADSPA, LV2, VST2 and JACK Standalone
+## Build LADSPA, LV2, VST2, VST3 and JACK Standalone
 
 Requirements: OpenGL2 capable graphics card (or software rendering via MESA on Linux)
 

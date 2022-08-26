@@ -6,6 +6,7 @@
 #include "Quantum.hpp"
 #include "SoundsgoodWidgetGroups.hpp"
 #include "extra/ScopedPointer.hpp"
+#include "widgets/DoubleClickHelper.hpp"
 #include "widgets/InspectorWindow.hpp"
 
 #include "BuildInfo.hpp"
@@ -347,6 +348,7 @@ protected:
 class SoundsGoodUI : public UI,
                      public ButtonEventHandler::Callback,
                      public KnobEventHandler::Callback,
+                     public DoubleClickHelper::Callback,
                      public QuantumThemeCallback
 {
   static const uint kInitialWidth = 1025;
@@ -372,6 +374,9 @@ class SoundsGoodUI : public UI,
 
   // for when theme changes
   bool resizeOnNextIdle = false;
+
+  // little helper for text input on double click
+  ScopedPointer<DoubleClickHelper> doubleClickHelper;
 
   struct PreProcessing : SoundsgoodParameterGroupWithoutBypassSwitch {
       QuantumValueSliderWithLabel inputGain;
@@ -1771,21 +1776,60 @@ protected:
       }
   }
 
-  void knobDragStarted(SubWidget *const widget) override
+  void knobDragStarted(SubWidget* const widget) override
   {
-    editParameter(widget->getId(), true);
+      editParameter(widget->getId(), true);
   }
 
-  void knobDragFinished(SubWidget *const widget) override
+  void knobDragFinished(SubWidget* const widget) override
   {
-    editParameter(widget->getId(), false);
+      editParameter(widget->getId(), false);
   }
 
-  void knobValueChanged(SubWidget *const widget, const float value) override
+  void knobValueChanged(SubWidget* const widget, const float value) override
   {
-    setParameterValue(widget->getId(), value);
+      setParameterValue(widget->getId(), value);
   }
   
+  void knobDoubleClicked(SubWidget* const widget) override
+  {
+      doubleClickHelper = nullptr;
+
+      QuantumValueSlider* const slider = dynamic_cast<QuantumValueSlider*>(widget);
+      DISTRHO_SAFE_ASSERT_RETURN(slider != nullptr,);
+
+      doubleClickHelper = new DoubleClickHelper(this, this, widget);
+
+      String s;
+      if (slider->isInteger())
+          s = String(static_cast<int>(slider->getValue()));
+      else
+          s = String(slider->getValue());
+
+      doubleClickHelper->setText(s.buffer());
+  }
+
+  void doubleClickHelperDone(SubWidget* const widget, const char* const text) override
+  {
+      doubleClickHelper = nullptr;
+      repaint();
+
+      QuantumValueSlider* const slider = dynamic_cast<QuantumValueSlider*>(widget);
+      DISTRHO_SAFE_ASSERT_RETURN(slider != nullptr,);
+
+      float value;
+      const uint id = slider->getId();
+
+      {
+          const ScopedSafeLocale csl;
+          value = std::max(kParameterRanges[id].min,
+                  std::min(kParameterRanges[id].max,
+                  static_cast<float>(slider->isInteger() ? std::atoi(text) : std::atof(text))));
+      }
+
+      slider->setValue(value, true);
+  }
+
   void quantumThemeChanged(const bool size, const bool colors) override
   {
       if (colors)

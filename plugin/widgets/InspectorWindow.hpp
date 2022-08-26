@@ -17,7 +17,6 @@
 #pragma once
 
 #include "DearImGui.hpp"
-#include "DearImGui/imgui.h"
 #include "Quantum.hpp"
 
 #include "Application.hpp"
