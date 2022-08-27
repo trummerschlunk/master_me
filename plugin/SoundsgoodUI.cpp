@@ -10,6 +10,7 @@
 #include "widgets/InspectorWindow.hpp"
 
 #include "BuildInfo.hpp"
+#include "Logo.hpp"
 
 #include <functional>
 
@@ -293,9 +294,8 @@ class SoundsgoodNameWidget : public NanoSubWidget
 {
     QuantumTheme& theme;
     QuantumThemeCallback* const callback;
+    NanoImage image;
     ScopedPointer<InspectorWindow> inspectorWindow;
-
-    static constexpr const char* const kText = "master_me";
 
 public:
     explicit SoundsgoodNameWidget(TopLevelWidget* const parent, QuantumThemeCallback* const cb, QuantumTheme& t)
@@ -303,30 +303,26 @@ public:
           theme(t),
           callback(cb)
     {
-        loadSharedResources();
         setName("Name");
+
+        image = createImageFromMemory(Logo::master_me_white_2xData, Logo::master_me_white_2xDataSize, 0);
     }
 
-    // based on QuantumLabel::adjustSize()
     void adjustSize()
     {
-        Rectangle<float> bounds;
-        fontSize(theme.fontSize * 2);
+        const double imgScaleFactor = getTopLevelWidget()->getScaleFactor() / 2; // 2x is the known image scale
+        const Size<uint> imgSize = image.getSize();
 
-        textBounds(0, 0, kText, nullptr, bounds);
-        const uint width = std::max(static_cast<uint>(bounds.getWidth() + 0.5f), theme.padding) + theme.textPixelRatioWidthCompensation;
-        const uint height = std::max(static_cast<uint>(bounds.getHeight() + 0.5f), theme.fontSize * 2);
-
-        setSize(width, height);
+        setSize(imgSize.getWidth() * imgScaleFactor, imgSize.getHeight() * imgScaleFactor);
     }
 
 protected:
     void onNanoDisplay() override
     {
-        fillColor(theme.textLightColor);
-        fontSize(theme.fontSize * 2);
-        textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
-        text(getWidth() / 2, getHeight() / 2, kText, nullptr);
+        beginPath();
+        rect(0, 0, getWidth(), getHeight());
+        fillPaint(imagePattern(0, 0, getWidth(), getHeight(), 0, image, 1));
+        fill();
     }
 
     bool onMouse(const MouseEvent& ev) override

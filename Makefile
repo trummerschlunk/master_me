@@ -54,6 +54,7 @@ PLUGIN_GENERATED_FILES += bin/master_me.lv2/manifest.ttl
 PLUGIN_GENERATED_FILES += bin/master_me.lv2/plugin.ttl
 PLUGIN_GENERATED_FILES += bin/master_me.lv2/ui.ttl
 PLUGIN_GENERATED_FILES += build/BuildInfo.hpp
+PLUGIN_GENERATED_FILES += build/Logo.hpp
 
 gen: $(PLUGIN_GENERATED_FILES)
 
@@ -105,6 +106,10 @@ build/BuildInfo.hpp: soundsgood.dsp plugin/* template/* template/LV2/*
 	echo '"Using `$(shell git branch --show-current)` branch, with commit:\\n"' >> $@
 	echo '"$(shell git log -n 1 --decorate=no --pretty=oneline --abbrev-commit)\\n"' >> $@
 	echo ';' >> $@
+
+build/Logo.hpp: img/logo/master_me_white@2x.png
+	mkdir -p build
+	./dpf/utils/res2c.py Logo img/logo/ build/
 
 # ---------------------------------------------------------------------------------------------------------------------
 # rules for custom faustpp build
