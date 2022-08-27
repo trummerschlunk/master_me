@@ -271,7 +271,7 @@ public:
            #ifdef DISTRHO_OS_WINDOWS
             ::UnmapViewOfFile(ptr);
             ::CloseHandle(handle);
-            map = INVALID_HANDLE_VALUE;
+            handle = INVALID_HANDLE_VALUE;
            #else
             try {
                 ::munmap(ptr, sizeof(S));
