@@ -113,7 +113,7 @@ protected:
             |ImGuiWindowFlags_NoDecoration
             |ImGuiWindowFlags_NoMove
             |ImGuiWindowFlags_NoScrollWithMouse
-            //|ImGuiWindowFlags_AlwaysAutoResize
+            |ImGuiWindowFlags_AlwaysAutoResize
             |ImGuiWindowFlags_NoBackground;
 
         ImGui::Begin("Histogram", nullptr, windowFlags);
@@ -131,13 +131,10 @@ protected:
             constexpr const ImPlotAxisFlags axisFlags = 0
                 |ImPlotAxisFlags_NoMenus
                 |ImPlotAxisFlags_NoSideSwitch
-                // |ImPlotAxisFlags_NoHighlight
-                // |ImPlotAxisFlags_Opposite
-                // |ImPlotAxisFlags_Lock
-                ;
+                |ImPlotAxisFlags_NoHighlight
+                |ImPlotAxisFlags_Lock;
             constexpr const ImPlotLegendFlags legendFlags = 0
                 |ImPlotLegendFlags_NoMenus
-                // |ImPlotLegendFlags_Outside
                 |ImPlotLegendFlags_Horizontal;
             ImPlot::SetupAxis(ImAxis_X1, "Time (s)", axisFlags | ImPlotAxisFlags_NoLabel);
             ImPlot::SetupAxis(ImAxis_Y1, "dB", axisFlags | ImPlotAxisFlags_Opposite);
