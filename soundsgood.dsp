@@ -7,8 +7,9 @@ declare license "GPLv3";
 
 // double precision -double needed!
 
-ebu = library("lib/ebur128.dsp");
 import("stdfaust.lib");
+ebu = library("lib/ebur128.dsp");
+ex = library("expanders.lib");
 
 // init values
 
@@ -237,7 +238,7 @@ leveler_sc(target,fl,fr,l,r) =
   <: (_*l,_*r)
 with {
 
-  lp1p(cf) = si.smooth(ba.tau2pole(1/(2*ma.PI*cf)));
+  // lp1p(cf) = si.smooth(ba.tau2pole(1/(2*ma.PI*cf)));
 
   calc(lufs) = FB(lufs)~_: ba.db2linear;
   FB(lufs,prev_gain) =
@@ -253,11 +254,11 @@ with {
   meter_leveler_gate = _*100 : vbargraph("v:soundsgood/t:expert/h:[3]leveler/[6][unit:%]leveler gate[symbol:leveler_gate]",0,100);
 
   leveler_speed = vslider("v:soundsgood/t:expert/h:[3]leveler/[4][unit:%][symbol:leveler_speed]leveler speed", init_leveler_speed, 0, 100, 1) * 0.01; //.005, 0.15, .005);
-  leveler_gate_thresh = target + vslider("v:soundsgood/t:expert/h:[3]leveler/[5][unit:db][symbol:leveler_gate_threshold]leveler gate threshold", init_leveler_gatethreshold,-90,0,1);
+  leveler_gate_thresh = /*target + */vslider("v:soundsgood/t:expert/h:[3]leveler/[5][unit:db][symbol:leveler_gate_threshold]leveler gate threshold", init_leveler_gatethreshold,-90,0,1);
 
   limit_pos = vslider("v:soundsgood/t:expert/h:[3]leveler/[7][symbol:leveler_max_plus][unit:db]leveler max +", init_leveler_maxboost, 0, 60, 1);
   limit_neg = vslider("v:soundsgood/t:expert/h:[3]leveler/[8][symbol:leveler_max_minus][unit:db]leveler max -", init_leveler_maxcut, 0, 60, 1) : ma.neg;
-  limit(lo,hi) = min(hi) : max(lo);
+
   leveler_speed_gated(sc) = (ef.gate_gain_mono(leveler_gate_thresh,0.1,0,0.1,abs(sc)) <: attach(_, (1-_) : meter_leveler_gate)) : _ * leveler_speed;
   length = 0.4;
 
