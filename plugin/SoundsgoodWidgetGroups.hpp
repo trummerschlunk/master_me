@@ -109,11 +109,12 @@ struct SoundsgoodParameterGroup : VerticallyStackedHorizontalLayout
             w.sliderR.setStep(1.f);
     }
 
-    inline void setupMeter(QuantumValueMeterWithLabel& w, const int id, const uint nameOffset)
+    inline void setupMeter(QuantumValueMeterWithLabel& w, const int id, const uint nameOffset,
+                           const QuantumValueMeter::Orientation orientation = QuantumValueMeter::RightToLeft)
     {
         w.meter.setId(id);
         w.meter.setName(kParameterNames[id]);
-        w.meter.setOrientation(QuantumValueMeter::RightToLeft);
+        w.meter.setOrientation(orientation);
         w.meter.setRange(kParameterRanges[id].min, kParameterRanges[id].max);
         w.meter.setUnitLabel(kParameterUnits[id]);
         w.meter.setValue(kParameterRanges[id].def);
