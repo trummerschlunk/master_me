@@ -71,9 +71,9 @@ protected:
         lineTo(xOffset + theme.fontSize * 0.25f, bottomMeterTick - static_cast<int>(theme.widgetLineSize * 0.5f));
         stroke();
 
-        text(textCenterX, topMeterTick, "0dB", nullptr);
-        text(textCenterX, midTick, "-3dB", nullptr);
-        text(textCenterX, bottomMeterTick, "0dB", nullptr);
+        text(textCenterX, topMeterTick, "-3dB", nullptr);
+        text(textCenterX, midTick, "0dB", nullptr);
+        text(textCenterX, bottomMeterTick, "-3dB", nullptr);
     }
 };
 

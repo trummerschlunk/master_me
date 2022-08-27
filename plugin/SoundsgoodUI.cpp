@@ -605,8 +605,8 @@ class SoundsGoodUI : public UI,
       QuantumValueSliderWithLabel makeup;
       QuantumValueSliderWithLabel drywet;
       QuantumSingleSeparatorLine separator;
-      QuantumValueMeterWithLabel m1; // FIXME name this
-      QuantumValueMeterWithLabel m2; // FIXME name this
+      QuantumValueMeterWithLabel mid;
+      QuantumValueMeterWithLabel side;
 
       explicit KneeCompressor(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
           : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
@@ -620,8 +620,8 @@ class SoundsGoodUI : public UI,
             makeup(&frame, theme),
             drywet(&frame, theme),
             separator(&frame, theme),
-            m1(&frame, theme),
-            m2(&frame, theme)
+            mid(&frame, theme),
+            side(&frame, theme)
       {
           frame.setName("Knee Compressor");
           frame.mainWidget.setCallback(bcb);
@@ -638,8 +638,11 @@ class SoundsGoodUI : public UI,
           setupSlider(makeup, cb, kParameter_kneecomp_makeup, 9);
           setupSlider(drywet, cb, kParameter_kneecomp_drywet, 9);
           setupSeparatorLine(separator);
-          setupMeter(m1, kParameter_kneecomp_meter_0, 9);
-          setupMeter(m2, kParameter_kneecomp_meter_1, 9);
+          setupMeter(mid, kParameter_kneecomp_meter_0, 9);
+          setupMeter(side, kParameter_kneecomp_meter_1, 9);
+          // custom name
+          mid.label.setLabel("mid");
+          side.label.setLabel("side");
       }
 
       void adjustSize(const QuantumMetrics& metrics) override
@@ -654,8 +657,8 @@ class SoundsGoodUI : public UI,
           makeup.adjustSize(metrics);
           drywet.adjustSize(metrics);
           separator.adjustSize(metrics);
-          m1.adjustSize(metrics);
-          m2.adjustSize(metrics);
+          mid.adjustSize(metrics);
+          side.adjustSize(metrics);
           SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
 
@@ -680,10 +683,10 @@ class SoundsGoodUI : public UI,
           makeup.slider.setTextColor(color);
           drywet.label.setLabelColor(color);
           drywet.slider.setTextColor(color);
-          m1.label.setLabelColor(color);
-          m1.meter.setTextColor(color);
-          m2.label.setLabelColor(color);
-          m2.meter.setTextColor(color);
+          mid.label.setLabelColor(color);
+          mid.meter.setTextColor(color);
+          side.label.setLabelColor(color);
+          side.meter.setTextColor(color);
       }
   } kneeComp;
 
@@ -1513,10 +1516,10 @@ protected:
       gate.meter.meter.setValue(value);
       break;
     case kParameter_kneecomp_meter_0:
-      kneeComp.m1.meter.setValue(value);
+      kneeComp.mid.meter.setValue(value);
       break;
     case kParameter_kneecomp_meter_1:
-      kneeComp.m2.meter.setValue(value);
+      kneeComp.side.meter.setValue(value);
       break;
     case kParameter_msredux11:
       msCompressor.metersM.m1.setValue(value);
