@@ -1,18 +1,22 @@
 /*
  */
 
+#include "Base.hpp"
 #include "DistrhoUI.hpp"
 
 #include "Quantum.hpp"
 #include "SoundsgoodWidgetGroups.hpp"
 #include "extra/ScopedPointer.hpp"
 #include "widgets/DoubleClickHelper.hpp"
+#include "widgets/Histogram.hpp"
 #include "widgets/InspectorWindow.hpp"
 
 #include "BuildInfo.hpp"
 #include "Logo.hpp"
 
 #include <functional>
+
+#include "utils/SharedMemory.hpp"
 
 START_NAMESPACE_DISTRHO
 
@@ -376,6 +380,13 @@ class SoundsGoodUI : public UI,
 
   // little helper for text input on double click
   ScopedPointer<DoubleClickHelper> doubleClickHelper;
+
+  // histogram stuff
+  bool firstIdle = true;
+  MasterMeFifoControl lufsInFifo;
+  MasterMeFifoControl lufsOutFifo;
+  SharedMemory<MasterMeHistogramFifos> histogramSharedData;
+  Histogram histogram;
 
   struct PreProcessing : SoundsgoodParameterGroupWithoutBypassSwitch {
       QuantumValueSliderWithLabel inputGain;
@@ -1121,6 +1132,7 @@ public:
         outputGroup(this, theme),
         welcomeLabel(this, theme),
         name(this, this, theme),
+        histogram(this),
         preProcessing(this, this, this, theme),
         gate(this, this, this, theme),
         eq(this, this, this, theme),
@@ -1199,6 +1211,11 @@ public:
 
   ~SoundsGoodUI() override
   {
+      if (histogramSharedData.isCreatedOrConnected())
+      {
+          histogramSharedData.getDataPointer()->closed = true;
+          histogramSharedData.close();
+      }
   }
 
   void repositionWidgets()
@@ -1230,6 +1247,8 @@ public:
 
       presetButtons.setAbsolutePos(contentGroup.getAbsoluteX() + (contentGroup.getWidth() - borderSize * 2 - padding * 2 - presetButtons.frame.getWidth()) / 2,
                                    contentGroup.getAbsoluteY() + borderSize - padding + (contentGroup.getHeight() - borderSize * 2 - padding * 2) / 3);
+
+      histogram.setAbsolutePos(contentGroupStartInnerX, presetButtons.frame.getAbsoluteY() + presetButtons.frame.getHeight() + padding);
 
       // 1st row
       const uint row1y = contentGroup.getAbsoluteY() + borderSize + padding;
@@ -1276,6 +1295,8 @@ public:
       welcomeLabel.setSize(contentGroup.getWidth() - borderSize * 2 - padding * 2, contentHeight - borderSize * 2 - padding * 2);
       presetButtons.adjustSize(metrics);
 
+      histogram.setSize(contentGroup.getWidth() - borderSize * 2 - padding * 2, contentHeight * 3 / 8);
+
       preProcessing.adjustSize(metrics);
       gate.adjustSize(metrics);
       leveler.adjustSize(metrics);
@@ -1294,6 +1315,17 @@ protected:
 
   void parameterChanged(const uint32_t index, const float value) override
   {
+      if (index >= kParameterCount)
+      {
+          switch (index - kParameterCount)
+          {
+          case kExtraParameterHistogramBufferSize:
+              histogram.setup(value, getSampleRate());
+              break;
+          }
+          return;
+      }
+
     switch (static_cast<Parameters>(index))
     {
     // inputs
@@ -1590,6 +1622,11 @@ protected:
         }
     }
 
+    void sampleRateChanged(const double newSampleRate) override
+    {
+        histogram.setSampleRate(newSampleRate);
+    }
+
   /* --------------------------------------------------------------------------------------------------------
    * Widget Callbacks */
 
@@ -1629,6 +1666,39 @@ protected:
 
   void uiIdle() override
   {
+      if (firstIdle)
+      {
+          firstIdle = false;
+
+          if (histogramSharedData.create())
+          {
+              MasterMeHistogramFifos* const fifos = histogramSharedData.getDataPointer();
+              lufsInFifo.setFloatFifo(&fifos->lufsIn, true);
+              lufsOutFifo.setFloatFifo(&fifos->lufsOut, true);
+
+              setState("histogram", histogramSharedData.getDataFilename());
+          }
+      }
+      else
+      {
+          bool shouldRepaint = false;
+
+          for (int i=0; i<1000 && lufsInFifo.canRead(); ++i)
+          {
+              histogram.tick(false, lufsInFifo.read());
+              shouldRepaint = true;
+          }
+
+          for (int i=0; i<1000 && lufsOutFifo.canRead(); ++i)
+          {
+              histogram.tick(true, lufsOutFifo.read());
+              shouldRepaint = true;
+          }
+
+          if (shouldRepaint)
+              repaint();
+      }
+
       if (resizeOnNextIdle)
       {
           const int maxX = std::max(leveler.threshold.label.getAbsoluteX() + leveler.threshold.label.getWidth(),

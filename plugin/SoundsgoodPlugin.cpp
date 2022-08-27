@@ -2,9 +2,14 @@
  */
 
 #include "DistrhoPlugin.hpp"
+
+// faustpp generated plugin template
 #include "DistrhoPluginInfo.h"
 #include "Plugin.cpp"
-#include "ExtraProperties.h"
+
+// leaving for last, includes windows.h
+#include "src/DistrhoDefines.h"
+#include "utils/SharedMemory.hpp"
 
 // checks to ensure things are still as we expect them to be from faust dsp side
 static_assert(DISTRHO_PLUGIN_NUM_INPUTS == 2, "has 2 audio inputs");
@@ -16,12 +21,21 @@ START_NAMESPACE_DISTRHO
 
 class SoundsgoodPlugin : public FaustGeneratedPlugin
 {
-    // bool isBypassed = false;
+    uint bufferSizeForHistogram;
+    uint numFramesSoFar = 0;
+
+    MasterMeFifoControl lufsInFifo;
+    MasterMeFifoControl lufsOutFifo;
+    SharedMemory<MasterMeHistogramFifos> histogramSharedData;
+    bool histogramActive = false;
+
+    static constexpr const uint kMinimumHistogramBufferSize = 4096;
 
 public:
     SoundsgoodPlugin()
         : FaustGeneratedPlugin(kExtraParameterCount, kExtraProgramCount, kExtraStateCount)
     {
+        bufferSizeForHistogram = std::max(kMinimumHistogramBufferSize, getBufferSize());
     }
 
 protected:
@@ -47,13 +61,31 @@ protected:
 
     void initParameter(const uint32_t index, Parameter& param) override
     {
-        switch (index)
+        if (index < kParameterCount)
         {
-        case kParameter_global_bypass:
-            param.initDesignation(kParameterDesignationBypass);
-            break;
-        default:
-            FaustGeneratedPlugin::initParameter(index, param);
+            switch (index)
+            {
+            case kParameter_global_bypass:
+                param.initDesignation(kParameterDesignationBypass);
+                break;
+            default:
+                FaustGeneratedPlugin::initParameter(index, param);
+                break;
+            }
+            return;
+        }
+
+        switch (index - kParameterCount)
+        {
+        case kExtraParameterHistogramBufferSize:
+            param.hints = kParameterIsAutomatable|kParameterIsOutput|kParameterIsInteger;
+            param.name = "Histogram Buffer Size";
+            param.unit = "frames";
+            param.symbol = "histo_buffer_size";
+            param.shortName = "HistBufSize";
+            param.ranges.def = kMinimumHistogramBufferSize;
+            param.ranges.min = kMinimumHistogramBufferSize;
+            param.ranges.max = 16384;
             break;
         }
     }
@@ -78,7 +110,6 @@ protected:
    /* -----------------------------------------------------------------------------------------------------------------
     * Internal data */
 
-#if 0
     float getParameterValue(const uint32_t index) const override
     {
         if (index < kParameterCount)
@@ -86,41 +117,74 @@ protected:
 
         switch (index - kParameterCount)
         {
-        case kExtraParameterBypass:
-            return isBypassed ? 1.f : 0.f;
+        case kExtraParameterHistogramBufferSize:
+            return bufferSizeForHistogram;
         default:
             return 0.0f;
         }
     }
 
-    void setParameterValue(const uint32_t index, const float value) override
+    void setState(const char* const key, const char* const value) override
     {
-        if (index < kParameterCount)
-            return FaustGeneratedPlugin::setParameterValue(index, value);
-        
-        switch (index - kParameterCount)
+        if (std::strcmp(key, "histogram") == 0)
         {
-        case kExtraParameterBypass:
-            isBypassed = value > 0.5f;
-            break;
-        }
-    }
-#endif
+            if (histogramSharedData.isCreatedOrConnected())
+            {
+                DISTRHO_SAFE_ASSERT(! histogramActive);
+                lufsInFifo.setFloatFifo(nullptr);
+                lufsOutFifo.setFloatFifo(nullptr);
+                histogramSharedData.close();
+            }
 
-    void setState(const char*, const char*) override
-    {
+            if (MasterMeHistogramFifos* const fifos = histogramSharedData.connect(value))
+            {
+                lufsInFifo.setFloatFifo(&fifos->lufsIn);
+                lufsOutFifo.setFloatFifo(&fifos->lufsOut);
+                histogramActive = true;
+            }
+        }
     }
 
    /* -----------------------------------------------------------------------------------------------------------------
     * Audio/MIDI Processing */
 
-#if 0
+    void activate() override
+    {
+        numFramesSoFar = 0;
+    }
+
     void run(const float** const inputs, float** const outputs, const uint32_t frames) override
     {
-        // TODO custom bypass
         dsp->compute(frames, const_cast<float**>(inputs), outputs);
+
+        numFramesSoFar += frames;
+
+        if (numFramesSoFar >= bufferSizeForHistogram)
+        {
+            numFramesSoFar -= bufferSizeForHistogram;
+
+            if (histogramActive)
+            {
+                MasterMeHistogramFifos* const data = histogramSharedData.getDataPointer();
+                DISTRHO_SAFE_ASSERT_RETURN(data != nullptr,);
+
+                if (data->closed)
+                {
+                    histogramActive = false;
+                }
+                else
+                {
+                    lufsInFifo.write(FaustGeneratedPlugin::getParameterValue(kParameter_lufs_in));
+                    lufsOutFifo.write(FaustGeneratedPlugin::getParameterValue(kParameter_lufs_out));
+                }
+            }
+        }
     }
-#endif
+
+    void bufferSizeChanged(const uint newBufferSize) override
+    {
+        bufferSizeForHistogram = std::max(kMinimumHistogramBufferSize, newBufferSize);
+    }
 
     // ----------------------------------------------------------------------------------------------------------------
 

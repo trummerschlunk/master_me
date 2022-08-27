@@ -3,6 +3,8 @@
 NAME = master_me
 FILES_DSP = SoundsgoodPlugin.cpp
 FILES_UI = SoundsgoodUI.cpp
+FILES_UI += widgets/implot/implot.cpp
+FILES_UI += widgets/implot/implot_items.cpp
 FILES_UI += ../build/Logo.cpp
 FILES_UI += ../dpf-widgets/opengl/DearImGui.cpp
 FILES_UI += ../dpf-widgets/opengl/Quantum.cpp
