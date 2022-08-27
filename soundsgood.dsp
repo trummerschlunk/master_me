@@ -244,14 +244,15 @@ with {
     (target - lufs)
     +(prev_gain )
     :  limit(limit_neg,limit_pos)
-    : lp1p(leveler_speed_gated(l+r))
+    //: lp1p(leveler_speed_gated(l+r))
+    : si.onePoleSwitching(release,attack)
     : leveler_meter_gain;
 
   bp = checkbox("v:soundsgood/t:expert/h:[3]leveler/[1]leveler bypass[symbol:leveler_bypass]") : si.smoo;
   leveler_meter_gain = vbargraph("v:soundsgood/h:easy/[4][unit:dB][symbol:leveler_gain]leveler gain",-50,50);
   meter_leveler_gate = _*100 : vbargraph("v:soundsgood/t:expert/h:[3]leveler/[6][unit:%]leveler gate[symbol:leveler_gate]",0,100);
 
-  leveler_speed = vslider("v:soundsgood/t:expert/h:[3]leveler/[4][unit:%][symbol:leveler_speed]leveler speed", init_leveler_speed, 0, 100, 1) * 0.0015; //.005, 0.15, .005);
+  leveler_speed = vslider("v:soundsgood/t:expert/h:[3]leveler/[4][unit:%][symbol:leveler_speed]leveler speed", init_leveler_speed, 0, 100, 1) * 0.01; //.005, 0.15, .005);
   leveler_gate_thresh = target + vslider("v:soundsgood/t:expert/h:[3]leveler/[5][unit:db][symbol:leveler_gate_threshold]leveler gate threshold", init_leveler_gatethreshold,-90,0,1);
 
   limit_pos = vslider("v:soundsgood/t:expert/h:[3]leveler/[7][symbol:leveler_max_plus][unit:db]leveler max +", init_leveler_maxboost, 0, 60, 1);
@@ -259,6 +260,26 @@ with {
   limit(lo,hi) = min(hi) : max(lo);
   leveler_speed_gated(sc) = (ef.gate_gain_mono(leveler_gate_thresh,0.1,0,0.1,abs(sc)) <: attach(_, (1-_) : meter_leveler_gate)) : _ * leveler_speed;
   length = 0.4;
+
+  limit(lo,hi) = min(hi) : max(lo);
+
+  attack = leveler_speed * 12 +3;
+  release = (leveler_expander*ma.MAX+1) *8 +6;
+
+  leveler_expander =
+    1-(ex.peak_expansion_gain_mono_db(maxHold,strength,leveler_gate_thresh,range,gate_att,hold,gate_rel,knee,prePost,abs(l)+abs(r))
+       : ba.db2linear
+       :max(0)
+       :min(1)
+       : meter_leveler_gate);
+  maxHold = hold*192000;
+  strength = 2;
+  range = -120;
+  gate_att = 0.1;
+  hold = 0.1;
+  gate_rel = 0.1;
+  knee = 30;
+  prePost = 1;
 };
 
 // SIDE CHAIN COMPRESSOR
