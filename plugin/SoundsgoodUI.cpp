@@ -24,7 +24,7 @@ START_NAMESPACE_DISTRHO
 
 // make sure our expectations match
 static_assert(kParameterRanges[kParameter_target].min == -50.f, "lufs target -50 dB min");
-static_assert(kParameterRanges[kParameter_target].max == 0.f, "lufs target 0 dB max");
+static_assert(kParameterRanges[kParameter_target].max == -2.f, "lufs target -2 dB max");
 static_assert(kParameterRanges[kParameter_leveler_gain].min == -50.f, "leveler gain -50 dB min");
 static_assert(kParameterRanges[kParameter_leveler_gain].max == +50.f, "leveler gain +50 dB max");
 
@@ -1826,6 +1826,7 @@ protected:
 
           welcomeLabel.show();
           presetButtons.frame.show();
+          histogram.show();
 
           for (NanoSubWidget* w : parameterGroups)
               w->hide();
@@ -1837,6 +1838,7 @@ protected:
 
           welcomeLabel.hide();
           presetButtons.frame.hide();
+          histogram.hide();
 
           for (NanoSubWidget* w : parameterGroups)
               w->show();
