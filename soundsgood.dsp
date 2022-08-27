@@ -33,7 +33,7 @@ init_brickwall_ceiling = -1;
 init_brickwall_release = 75;
 
 
-target = vslider("v:soundsgood/h:easy/[3]Target[unit:dB][symbol:target]", init_leveler_target,-50,0,1);
+target = vslider("v:soundsgood/h:easy/[3]Target[unit:dB][symbol:target]", init_leveler_target,-50,-2,1);
 
 
 // main
