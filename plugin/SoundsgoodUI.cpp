@@ -294,7 +294,7 @@ class SoundsgoodNameWidget : public NanoSubWidget
 {
     QuantumTheme& theme;
     QuantumThemeCallback* const callback;
-    NanoImage image;
+    NanoImage image, image2x;
     ScopedPointer<InspectorWindow> inspectorWindow;
 
 public:
@@ -305,23 +305,26 @@ public:
     {
         setName("Name");
 
-        image = createImageFromMemory(Logo::master_me_white_2xData, Logo::master_me_white_2xDataSize, 0);
+        image = createImageFromMemory(Logo::master_me_whiteData, Logo::master_me_whiteDataSize, 0);
+        image2x = createImageFromMemory(Logo::master_me_white_2xData, Logo::master_me_white_2xDataSize, 0);
     }
 
     void adjustSize()
     {
-        const double imgScaleFactor = getTopLevelWidget()->getScaleFactor() / 2; // 2x is the known image scale
+        const double scaleFactor = getTopLevelWidget()->getScaleFactor();
         const Size<uint> imgSize = image.getSize();
 
-        setSize(imgSize.getWidth() * imgScaleFactor, imgSize.getHeight() * imgScaleFactor);
+        setSize(imgSize.getWidth() * scaleFactor, imgSize.getHeight() * scaleFactor);
     }
 
 protected:
     void onNanoDisplay() override
     {
+        const double scaleFactor = getTopLevelWidget()->getScaleFactor();
+
         beginPath();
         rect(0, 0, getWidth(), getHeight());
-        fillPaint(imagePattern(0, 0, getWidth(), getHeight(), 0, image, 1));
+        fillPaint(imagePattern(0, 0, getWidth(), getHeight(), 0, scaleFactor >= 1.5 ? image2x : image, 1));
         fill();
     }
 

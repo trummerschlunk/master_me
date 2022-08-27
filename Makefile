@@ -107,7 +107,7 @@ build/BuildInfo.hpp: soundsgood.dsp plugin/* template/* template/LV2/*
 	echo '"$(shell git log -n 1 --decorate=no --pretty=oneline --abbrev-commit)\\n"' >> $@
 	echo ';' >> $@
 
-build/Logo.hpp: img/logo/master_me_white@2x.png
+build/Logo.hpp: img/logo/master_me_white.png img/logo/master_me_white@2x.png
 	mkdir -p build
 	./dpf/utils/res2c.py Logo img/logo/ build/
 
