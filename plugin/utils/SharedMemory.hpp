@@ -270,7 +270,7 @@ public:
         {
            #ifdef DISTRHO_OS_WINDOWS
             ::UnmapViewOfFile(ptr);
-            ::CloseHandle(map);
+            ::CloseHandle(handle);
             map = INVALID_HANDLE_VALUE;
            #else
             try {
