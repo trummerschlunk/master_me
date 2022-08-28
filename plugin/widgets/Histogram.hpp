@@ -47,6 +47,8 @@ public:
         : ImGuiSubWidget(parent),
           context(ImPlot::CreateContext())
     {
+        setName("Histogram");
+
         ImGuiStyle& style(ImGui::GetStyle());
         style.WindowPadding = ImVec2();
         style.WindowRounding = style.WindowBorderSize = 0.f;
