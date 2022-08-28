@@ -380,7 +380,7 @@ with {
    * meanwhile this is safe since there are only 8 bands (1..9) and 2 channels.
    */
   meter(b,c) =
-    _<: attach(_, (max(-3):min(0):vbargraph(
+    _<: attach(_, (max(-6):min(0):vbargraph(
                      // "v:soundsgood/t:expert/h:[6]mscomp_meter/[%b.%c][unit:dB][tooltip: gain reduction in db][symbol:msredux%b%c]mscomp redux band %b chn %c", -3, 0)
                      "v:soundsgood/t:expert/h:[6]mscomp_meter/[%b.%c][unit:dB][tooltip: gain reduction in db][symbol:msredux%b%c]", -6, 0)
                   ));
