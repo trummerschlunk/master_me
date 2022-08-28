@@ -27,9 +27,9 @@ class SoundsgoodPlugin : public FaustGeneratedPlugin
     MasterMeFifoControl lufsInFifo;
     MasterMeFifoControl lufsOutFifo;
     SharedMemory<MasterMeHistogramFifos> histogramSharedData;
+    float highestLufsInValue = -70.f;
+    float highestLufsOutValue = -70.f;
     bool histogramActive = false;
-
-    static constexpr const uint kMinimumHistogramBufferSize = 4096;
 
 public:
     SoundsgoodPlugin()
@@ -81,7 +81,7 @@ protected:
             param.hints = kParameterIsAutomatable|kParameterIsOutput|kParameterIsInteger;
             param.name = "Histogram Buffer Size";
             param.unit = "frames";
-            param.symbol = "histo_buffer_size";
+            param.symbol = "histogram_buffer_size";
             param.shortName = "HistBufSize";
             param.ranges.def = kMinimumHistogramBufferSize;
             param.ranges.min = kMinimumHistogramBufferSize;
@@ -136,12 +136,12 @@ protected:
                 histogramSharedData.close();
             }
 
-            if (MasterMeHistogramFifos* const fifos = histogramSharedData.connect(value))
-            {
-                lufsInFifo.setFloatFifo(&fifos->lufsIn);
-                lufsOutFifo.setFloatFifo(&fifos->lufsOut);
-                histogramActive = true;
-            }
+            MasterMeHistogramFifos* const fifos = histogramSharedData.connect(value);
+            DISTRHO_SAFE_ASSERT_RETURN(fifos != nullptr,);
+
+            lufsInFifo.setFloatFifo(&fifos->lufsIn);
+            lufsOutFifo.setFloatFifo(&fifos->lufsOut);
+            histogramActive = true;
         }
     }
 
@@ -156,6 +156,9 @@ protected:
     void run(const float** const inputs, float** const outputs, const uint32_t frames) override
     {
         dsp->compute(frames, const_cast<float**>(inputs), outputs);
+
+        highestLufsInValue = std::max(highestLufsInValue, FaustGeneratedPlugin::getParameterValue(kParameter_lufs_in));
+        highestLufsOutValue = std::max(highestLufsOutValue, FaustGeneratedPlugin::getParameterValue(kParameter_lufs_out));
 
         numFramesSoFar += frames;
 
@@ -174,10 +177,12 @@ protected:
                 }
                 else
                 {
-                    lufsInFifo.write(FaustGeneratedPlugin::getParameterValue(kParameter_lufs_in));
-                    lufsOutFifo.write(FaustGeneratedPlugin::getParameterValue(kParameter_lufs_out));
+                    lufsInFifo.write(highestLufsInValue);
+                    lufsOutFifo.write(highestLufsOutValue);
                 }
             }
+
+            highestLufsInValue = highestLufsOutValue = -70.f;
         }
     }
 

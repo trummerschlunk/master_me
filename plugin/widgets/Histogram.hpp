@@ -65,6 +65,10 @@ public:
     void setup(const uint bufSize, const double srate)
     {
         DISTRHO_SAFE_ASSERT_RETURN(bufSize != 0,);
+        DISTRHO_SAFE_ASSERT_RETURN(d_isNotZero(srate),);
+
+        if (bufferSize == bufSize && d_isEqual(sampleRate, srate))
+            return;
 
         delete[] dataLufsIn.buffer;
         delete[] dataLufsOut.buffer;
@@ -87,8 +91,7 @@ public:
 
     void tick(const bool output, const float value)
     {
-        if (numPointsInDataBuffer == 0)
-            return;
+        DISTRHO_SAFE_ASSERT_RETURN(numPointsInDataBuffer != 0,);
 
         Data& d(output ? dataLufsOut : dataLufsIn);
 

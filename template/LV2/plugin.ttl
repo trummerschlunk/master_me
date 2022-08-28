@@ -114,7 +114,7 @@
     lv2:port [
         a lv2:InputPort, lv2:ControlPort ;
         lv2:index {{inputs+outputs+loop.index0+2}} ;
-        {% if loop.index0 == 0 %}
+    {% if loop.index0 == 0 %}
         lv2:name "Enabled" ;
         lv2:symbol "lv2_enabled" ;
         lv2:default 1 ;
@@ -122,7 +122,7 @@
         lv2:maximum 1 ;
         lv2:portProperty lv2:toggled , lv2:integer ;
         lv2:designation lv2:enabled ;
-        {% else %}
+    {% else %}
         lv2:name {{cstr(p.label)}} ;
         lv2:symbol {{cstr(cid(p.meta.symbol|default("lv2_port_" ~ (inputs+outputs+loop.index0))))}} ;
         lv2:default {{p.init}} ;
@@ -146,7 +146,13 @@
         {% if p.unit == "Hz" %}
         unit:unit unit:hz ;
         {% endif %}
+        {% if p.unit == "ms" %}
+        unit:unit unit:ms ;
         {% endif %}
+        {% if p.unit == "%" %}
+        unit:unit unit:pc ;
+        {% endif %}
+    {% endif %}
     ] ;
     {% endfor %}
 
@@ -156,7 +162,6 @@
         lv2:index {{inputs+outputs+active|length+loop.index0+2}} ;
         lv2:name {{cstr(p.label)}} ;
         lv2:symbol {{cstr(cid(p.meta.symbol|default("lv2_port_" ~ (inputs+outputs+active|length+loop.index0))))}} ;
-        lv2:default {{p.init}} ;
         lv2:minimum {{p.min}} ;
         lv2:maximum {{p.max}} ;
         {% if p.type in ["button", "checkbox"] or p.meta.boolean is defined %}
@@ -174,8 +179,31 @@
         {% if p.unit == "Hz" %}
         unit:unit unit:hz ;
         {% endif %}
+        {% if p.unit == "ms" %}
+        unit:unit unit:ms ;
+        {% endif %}
+        {% if p.unit == "%" %}
+        unit:unit unit:pc ;
+        {% endif %}
     ] ;
     {% endfor %}
+
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index {{inputs+outputs+active|length+passive|length+2}} ; ;
+        lv2:name "Histogram Buffer Size" ;
+        lv2:symbol "histogram_buffer_size" ;
+        lv2:shortName "HistBufSize" ;
+        lv2:minimum 4096 ;
+        lv2:maximum 16384 ;
+        unit:unit [
+            a unit:Unit ;
+            rdfs:label  "frames" ;
+            unit:symbol "frames" ;
+            unit:render "%d frames" ;
+        ] ;
+        lv2:portProperty lv2:integer ;
+    ] ;
 
     doap:name {{cstr(name)}} ;
 

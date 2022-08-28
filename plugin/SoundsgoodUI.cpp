@@ -1200,6 +1200,8 @@ public:
     // load initial state, easy mode is default
     easyModeButton.setChecked(true, false);
 
+    histogram.setup(kMinimumHistogramBufferSize, getSampleRate());
+
     for (NanoSubWidget* w : parameterGroups)
         w->hide();
   }
@@ -1208,7 +1210,9 @@ public:
   {
       if (histogramSharedData.isCreatedOrConnected())
       {
-          histogramSharedData.getDataPointer()->closed = true;
+          if (MasterMeHistogramFifos* const data = histogramSharedData.getDataPointer())
+              data->closed = true;
+
           histogramSharedData.close();
       }
   }
@@ -1766,52 +1770,55 @@ protected:
 
       const bool enabled = qswitch->isChecked();
 
-      switch (id)
+      if (id < 1000)
       {
-      // bypass switches, inverted operation
-      case kParameter_global_bypass:
-          reportGroupBypassChanged(id, enabled);
-          break;
-      case kParameter_gate_bypass:
-          gate.setEnabledColor(enabled);
-          reportGroupBypassChanged(id, enabled);
-          break;
-      case kParameter_leveler_bypass:
-          leveler.setEnabledColor(enabled);
-          // inputGroup.levelerGain.label.setLabelColor(enabled ? theme.textLightColor : theme.textDarkColor);
-          // inputGroup.levelerGain.setTextColor(enabled ? theme.textLightColor : theme.textDarkColor);
-          reportGroupBypassChanged(id, enabled);
-          break;
-      case kParameter_eq_bypass:
-          eq.setEnabledColor(enabled);
-          reportGroupBypassChanged(id, enabled);
-          break;
-      case kParameter_kneecomp_bypass:
-          kneeComp.setEnabledColor(enabled);
-          reportGroupBypassChanged(id, enabled);
-          break;
-      case kParameter_mscomp_bypass:
-          msCompressor.setEnabledColor(enabled);
-          reportGroupBypassChanged(id, enabled);
-          break;
-      case kParameter_limiter_bypass:
-          limiter.setEnabledColor(enabled);
-          reportGroupBypassChanged(id, enabled);
-          break;
-      case kParameter_brickwall_bypass:
-          brickwall.setEnabledColor(enabled);
-          reportGroupBypassChanged(id, enabled);
-          break;
-      // regular switches, normal operation
-      case kParameter_mono:
-      case kParameter_phase_l:
-      case kParameter_phase_r:
-      case kParameter_dc_blocker:
-      case kParameter_stereo_correct:
-          editParameter(id, true);
-          setParameterValue(id, qswitch->isChecked() ? 1.f : 0.f);
-          editParameter(id, false);
-          break;
+          switch (id)
+          {
+          // bypass switches, inverted operation
+          case kParameter_global_bypass:
+              reportGroupBypassChanged(id, enabled);
+              break;
+          case kParameter_gate_bypass:
+              gate.setEnabledColor(enabled);
+              reportGroupBypassChanged(id, enabled);
+              break;
+          case kParameter_leveler_bypass:
+              leveler.setEnabledColor(enabled);
+              // inputGroup.levelerGain.label.setLabelColor(enabled ? theme.textLightColor : theme.textDarkColor);
+              // inputGroup.levelerGain.setTextColor(enabled ? theme.textLightColor : theme.textDarkColor);
+              reportGroupBypassChanged(id, enabled);
+              break;
+          case kParameter_eq_bypass:
+              eq.setEnabledColor(enabled);
+              reportGroupBypassChanged(id, enabled);
+              break;
+          case kParameter_kneecomp_bypass:
+              kneeComp.setEnabledColor(enabled);
+              reportGroupBypassChanged(id, enabled);
+              break;
+          case kParameter_mscomp_bypass:
+              msCompressor.setEnabledColor(enabled);
+              reportGroupBypassChanged(id, enabled);
+              break;
+          case kParameter_limiter_bypass:
+              limiter.setEnabledColor(enabled);
+              reportGroupBypassChanged(id, enabled);
+              break;
+          case kParameter_brickwall_bypass:
+              brickwall.setEnabledColor(enabled);
+              reportGroupBypassChanged(id, enabled);
+              break;
+          // regular switches, normal operation
+          case kParameter_mono:
+          case kParameter_phase_l:
+          case kParameter_phase_r:
+          case kParameter_dc_blocker:
+          case kParameter_stereo_correct:
+              editParameter(id, true);
+              setParameterValue(id, qswitch->isChecked() ? 1.f : 0.f);
+              editParameter(id, false);
+              break;
+          }
       }
 
       if (widget == &easyModeButton)
