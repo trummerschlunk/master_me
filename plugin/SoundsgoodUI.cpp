@@ -1228,7 +1228,7 @@ public:
       contentGroup.setAbsolutePos(windowPadding + inputGroup.getWidth() + padding * 2, startY);
       outputGroup.setAbsolutePos(width - windowPadding - outputGroup.getWidth(), startY);
 
-      name.setAbsolutePos(outputGroup.getAbsoluteX() - (name.getWidth() - padding) / 2,
+      name.setAbsolutePos(outputGroup.getAbsoluteX() + outputGroup.getWidth() - name.getWidth(),
                           (outputGroup.getAbsoluteY() - name.getHeight()) / 2);
 
       topCenteredGroup.setAbsolutePos(name.getAbsoluteX() - topCenteredGroup.globalEnableSwitch.getWidth() - theme.padding * 8 - theme.borderSize,
