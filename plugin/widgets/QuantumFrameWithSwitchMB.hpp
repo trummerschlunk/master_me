@@ -12,7 +12,7 @@ START_NAMESPACE_DGL
 // -----------------------------------------------------------------------------------------------------------
 
 // make sure our expectations match
-static_assert(kParameterRanges[kParameter_msredux11].min == -3.f, "mscomp meters -3 dB min");
+static_assert(kParameterRanges[kParameter_msredux11].min == -6.f, "mscomp meters -6 dB min");
 static_assert(kParameterRanges[kParameter_msredux11].max == 0.f, "mscomp meters 0 dB max");
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -71,9 +71,9 @@ protected:
         lineTo(xOffset + theme.fontSize * 0.25f, bottomMeterTick - static_cast<int>(theme.widgetLineSize * 0.5f));
         stroke();
 
-        text(textCenterX, topMeterTick, "-3dB", nullptr);
+        text(textCenterX, topMeterTick, "-6dB", nullptr);
         text(textCenterX, midTick, "0dB", nullptr);
-        text(textCenterX, bottomMeterTick, "-3dB", nullptr);
+        text(textCenterX, bottomMeterTick, "-6dB", nullptr);
     }
 };
 

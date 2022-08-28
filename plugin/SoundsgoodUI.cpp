@@ -548,7 +548,7 @@ class SoundsGoodUI : public UI,
       QuantumValueSliderWithLabel max_plus;
       QuantumValueSliderWithLabel max_minus;
       QuantumSingleSeparatorLine separator;
-      QuantumValueMeterWithLabel gate;
+      QuantumValueMeterWithLabel brake;
 
       explicit Leveler(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
           : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
@@ -557,7 +557,7 @@ class SoundsGoodUI : public UI,
             max_plus(&frame, theme),
             max_minus(&frame, theme),
             separator(&frame, theme),
-            gate(&frame, theme)
+            brake(&frame, theme)
       {
           frame.setName("Leveler");
           frame.mainWidget.setCallback(bcb);
@@ -565,11 +565,11 @@ class SoundsGoodUI : public UI,
           frame.mainWidget.setLabel("Leveler");
 
           setupSlider(speed, cb, kParameter_leveler_speed, 8);
-          setupSlider(threshold, cb, kParameter_leveler_gate_threshold, 8);
+          setupSlider(threshold, cb, kParameter_leveler_brake_threshold, 8);
           setupSlider(max_plus, cb, kParameter_leveler_max_plus, 8);
           setupSlider(max_minus, cb, kParameter_leveler_max_minus, 8);
           setupSeparatorLine(separator);
-          setupMeter(gate, kParameter_leveler_gate, 8, QuantumValueMeter::LeftToRight);
+          setupMeter(brake, kParameter_leveler_brake, 8);
       }
 
       void adjustSize(const QuantumMetrics& metrics) override
@@ -579,7 +579,7 @@ class SoundsGoodUI : public UI,
           max_plus.adjustSize(metrics);
           max_minus.adjustSize(metrics);
           separator.adjustSize(metrics);
-          gate.adjustSize(metrics);
+          brake.adjustSize(metrics);
           SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
 
@@ -594,8 +594,8 @@ class SoundsGoodUI : public UI,
           max_plus.slider.setTextColor(color);
           max_minus.label.setLabelColor(color);
           max_minus.slider.setTextColor(color);
-          gate.label.setLabelColor(color);
-          gate.meter.setTextColor(color);
+          brake.label.setLabelColor(color);
+          brake.meter.setTextColor(color);
       }
   } leveler;
 
@@ -1375,7 +1375,7 @@ protected:
     case kParameter_leveler_speed:
       leveler.speed.slider.setValue(value, false);
       break;
-    case kParameter_leveler_gate_threshold:
+    case kParameter_leveler_brake_threshold:
       leveler.threshold.slider.setValue(value, false);
       break;
     case kParameter_leveler_max_plus:
@@ -1540,8 +1540,8 @@ protected:
     case kParameter_peakmeter_out_r:
       outputGroup.meter.setValueR(value);
       break;
-    case kParameter_leveler_gate:
-      leveler.gate.meter.setValue(value);
+    case kParameter_leveler_brake:
+      leveler.brake.meter.setValue(value);
       break;
     case kParameter_gate_meter:
       gate.meter.meter.setValue(value);
@@ -1705,9 +1705,13 @@ protected:
           const int maxY = std::max(msCompressor.outputGain.label.getAbsoluteY() + msCompressor.outputGain.label.getHeight(),
                                     brickwall.limit.label.getAbsoluteY() + brickwall.limit.label.getHeight());
 
-          setSize(theme.borderSize * 3 + theme.padding * 7 + maxX + outputGroup.getWidth(),
-                  theme.borderSize * 3 + theme.padding * 7 + maxY);
+          const uint nextWidth = theme.borderSize * 3 + theme.padding * 7 + maxX + outputGroup.getWidth();
+          const uint nextHeight = theme.borderSize * 3 + theme.padding * 7 + maxY;
+          setSize(nextWidth, nextHeight);
+
           resizeOnNextIdle = false;
+
+          d_stdout("master_me new size is %u %u", nextWidth, nextHeight);
       }
 
 #if 0 // FOR TESTING
