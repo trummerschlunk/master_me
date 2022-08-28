@@ -351,9 +351,6 @@ class SoundsGoodUI : public UI,
                      public DoubleClickHelper::Callback,
                      public QuantumThemeCallback
 {
-  static const uint kInitialWidth = 1025;
-  static const uint kInitialHeight = 610;
-
   QuantumTheme theme;
 
   // easy vs expert mode switch buttons
@@ -1121,7 +1118,7 @@ class SoundsGoodUI : public UI,
 
 public:
   SoundsGoodUI()
-      : UI(kInitialWidth, kInitialHeight),
+      : UI(DISTRHO_UI_DEFAULT_WIDTH, DISTRHO_UI_DEFAULT_HEIGHT),
         easyModeButton(this, theme),
         expertModeButton(this, theme),
         topCenteredGroup(this, this, theme),
@@ -1147,8 +1144,8 @@ public:
 
     if (d_isNotEqual(scaleFactor, 1.0))
     {
-        setSize(kInitialWidth * scaleFactor, kInitialHeight * scaleFactor);
-        setGeometryConstraints(kInitialWidth * scaleFactor / 2, kInitialHeight * scaleFactor / 2, false);
+        setSize(DISTRHO_UI_DEFAULT_WIDTH * scaleFactor, DISTRHO_UI_DEFAULT_HEIGHT * scaleFactor);
+        setGeometryConstraints(DISTRHO_UI_DEFAULT_WIDTH * scaleFactor / 2, DISTRHO_UI_DEFAULT_HEIGHT * scaleFactor / 2, false);
 
         theme.borderSize *= scaleFactor;
         theme.padding *= scaleFactor;
@@ -1160,7 +1157,7 @@ public:
     }
     else
     {
-        setGeometryConstraints(kInitialWidth / 2, kInitialHeight / 2, false);
+        setGeometryConstraints(DISTRHO_UI_DEFAULT_WIDTH / 2, DISTRHO_UI_DEFAULT_HEIGHT / 2, false);
     }
 
     // setup widget properties
