@@ -90,6 +90,10 @@ public:
     {
         dsp = new mydsp;
         dsp->init(getSampleRate());
+
+        // passive controls are only updated on first run, make sure they have valid values now
+        {% for p in passive %}dsp->{{p.var}} = {{p.init}};
+        {% endfor %}
     }
 
 protected:
