@@ -21,7 +21,7 @@ init_noisegate_threshold = -70; // not used in voc version
 init_leveler_target = -18;
 init_leveler_maxboost = 20;
 init_leveler_maxcut = 20;
-init_leveler_gatethreshold = -14;
+init_leveler_brake_threshold = -14;
 init_leveler_speed = 20;
 
 init_kneecomp_thresh = -6;
@@ -250,10 +250,10 @@ with {
 
   bp = checkbox("v:soundsgood/t:expert/h:[3]leveler/[1]leveler bypass[symbol:leveler_bypass]") : si.smoo;
   leveler_meter_gain = vbargraph("v:soundsgood/h:easy/[4][unit:dB][symbol:leveler_gain]leveler gain",-50,50);
-  meter_leveler_brake = _*100 : vbargraph("v:soundsgood/t:expert/h:[3]leveler/[6][unit:%]leveler gate[symbol:leveler_gate]",0,100);
+  meter_leveler_brake = _*100 : vbargraph("v:soundsgood/t:expert/h:[3]leveler/[6][unit:%]leveler brake[symbol:leveler_brake]",0,100);
 
   leveler_speed = vslider("v:soundsgood/t:expert/h:[3]leveler/[4][unit:%][symbol:leveler_speed]leveler speed", init_leveler_speed, 0, 100, 1) * 0.0015; //.005, 0.15, .005);
-  leveler_gate_thresh = /*target + */vslider("v:soundsgood/t:expert/h:[3]leveler/[5][unit:dB][symbol:leveler_gate_threshold]leveler gate threshold", init_leveler_gatethreshold,-90,0,1);
+  leveler_brake_thresh = /*target + */vslider("v:soundsgood/t:expert/h:[3]leveler/[5][unit:dB][symbol:leveler_brake_threshold]leveler brake threshold", init_leveler_brake_threshold,-90,0,1);
 
   limit_pos = vslider("v:soundsgood/t:expert/h:[3]leveler/[7][symbol:leveler_max_plus][unit:dB]leveler max +", init_leveler_maxboost, 0, 60, 1);
   limit_neg = vslider("v:soundsgood/t:expert/h:[3]leveler/[8][symbol:leveler_max_minus][unit:dB]leveler max -", init_leveler_maxcut, 0, 60, 1) : ma.neg;
@@ -262,7 +262,7 @@ with {
   leveler_speed_brake(sc) = (expander(abs(sc)) <: attach(_, (1-_) : meter_leveler_brake)) : _ * leveler_speed;
   length = 0.4;
 
-  expander(x) = (ex.peak_expansion_gain_mono_db(maxHold,strength,leveler_gate_thresh,range,gate_att,hold,gate_rel,knee,prePost,x)
+  expander(x) = (ex.peak_expansion_gain_mono_db(maxHold,strength,leveler_brake_thresh,range,gate_att,hold,gate_rel,knee,prePost,x)
        : ba.db2linear
        :max(0)
        :min(1));
