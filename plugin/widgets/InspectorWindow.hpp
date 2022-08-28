@@ -37,6 +37,7 @@ class InspectorWindow : public ImGuiTopLevelWidget
 
 public:
     bool isOpen = true;
+    double userScaling = 1;
 
     explicit InspectorWindow(TopLevelWidget* const tlw, QuantumTheme& t, QuantumThemeCallback* const cb)
         : ImGuiTopLevelWidget(tlw->getWindow()),
@@ -55,7 +56,7 @@ protected:
         if (!isOpen)
             return;
 
-        const double scaleFactor = getScaleFactor();
+        double scaleFactor = getScaleFactor() * userScaling;
         const double initialSize = 1200 * scaleFactor;
 
         ImGui::SetNextWindowPos(ImVec2(initialSize / 4, initialSize / 16), ImGuiCond_Once);
@@ -66,12 +67,46 @@ protected:
         int val;
         bool changedSize = false;
         bool changedColors = false;
+        bool changedScale = false;
 
         if (ImGui::Button("Reset"))
         {
+            changedScale = true;
+            userScaling = 1;
+        }
+
+        ImGui::SameLine();
+
+        if (ImGui::SmallButton("150% Zoom"))
+        {
+            changedScale = true;
+            userScaling = 1.5;
+        }
+
+        ImGui::SameLine();
+
+        if (ImGui::SmallButton("200% Zoom"))
+        {
+            changedScale = true;
+            userScaling = 2;
+        }
+
+        ImGui::SameLine();
+
+        if (ImGui::SmallButton("300% Zoom"))
+        {
+            changedScale = true;
+            userScaling = 3;
+        }
+
+        ImGui::SameLine();
+        ImGui::TextUnformatted("(zoom changes reset colors)");
+
+        if (changedScale)
+        {
             changedSize = true;
             changedColors = true;
-
+            scaleFactor = getScaleFactor() * userScaling;
             theme = QuantumTheme();
             theme.borderSize *= scaleFactor;
             theme.padding *= scaleFactor;
@@ -82,21 +117,21 @@ protected:
             theme.textPixelRatioWidthCompensation = static_cast<uint>(scaleFactor - 1.0 + 0.25);
         }
 
-        val = theme.borderSize / scaleFactor;
-        if (ImGui::SliderInt("Border Size", &val, 1, 20))
+        val = static_cast<int>(theme.borderSize / scaleFactor + 0.5f);
+        if (ImGui::SliderInt("Border Size", &val, 1, 10))
         {
             changedSize = true;
             theme.borderSize = val * scaleFactor;
         }
 
-        val = theme.padding / scaleFactor;
+        val = static_cast<int>(theme.padding / scaleFactor + 0.5f);
         if (ImGui::SliderInt("Padding", &val, 0, 20))
         {
             changedSize = true;
             theme.padding = val * scaleFactor;
         }
 
-        val = theme.fontSize / scaleFactor;
+        val = static_cast<int>(theme.fontSize / scaleFactor + 0.5f);
         if (ImGui::SliderInt("Font Size", &val, 8, 50))
         {
             changedSize = true;
@@ -105,14 +140,14 @@ protected:
                 theme.textHeight = theme.fontSize;
         }
 
-        val = theme.textHeight / scaleFactor;
+        val = static_cast<int>(theme.textHeight / scaleFactor + 0.5f);
         if (ImGui::SliderInt("Text Height", &val, theme.fontSize / scaleFactor, 60))
         {
             changedSize = true;
             theme.textHeight = val * scaleFactor;
         }
 
-        val = theme.widgetLineSize / scaleFactor;
+        val = static_cast<int>(theme.widgetLineSize / scaleFactor + 0.5f);
         if (ImGui::SliderInt("Widget Line Size", &val, 1, 10))
         {
             changedSize = true;
