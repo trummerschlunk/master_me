@@ -787,6 +787,7 @@ class SoundsGoodUI : public UI,
           outputGain.slider.setCallback(cb);
           outputGain.slider.setId(kParameter_mscomp_output_gain);
           outputGain.slider.setName(kParameterNames[kParameter_mscomp_output_gain]);
+          outputGain.slider.setDefault(kParameterRanges[kParameter_mscomp_output_gain].def);
           outputGain.slider.setRange(kParameterRanges[kParameter_mscomp_output_gain].min, kParameterRanges[kParameter_mscomp_output_gain].max);
           outputGain.slider.setUnitLabel(kParameterUnits[kParameter_mscomp_output_gain]);
           outputGain.slider.setValue(kParameterRanges[kParameter_mscomp_output_gain].def, false);
