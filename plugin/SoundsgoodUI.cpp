@@ -77,9 +77,6 @@ struct InputMeterGroup : QuantumFrame
         // levelerGain.setRange(kParameterRanges[kParameter_leveler_gain].min, kParameterRanges[kParameter_leveler_gain].max);
         // levelerGain.setUnitLabel(kParameterUnits[kParameter_leveler_gain]);
         levelerGain.setValue(kParameterRanges[kParameter_leveler_gain].def);
-
-        // levelerGain.label.setLabel("Leveler Gain:");
-        // levelerGain.label.setName(kParameterNames[kParameter_leveler_gain]);
     }
 
     void adjustSize(const SoundsGoodMetrics& metrics, const uint height)
