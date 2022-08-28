@@ -1,7 +1,6 @@
 /*
  */
 
-#include "Base.hpp"
 #include "DistrhoUI.hpp"
 
 #include "Quantum.hpp"
@@ -67,6 +66,7 @@ struct InputMeterGroup : QuantumFrame
         slider.setCallback(cb);
         slider.setId(kParameter_target);
         slider.setName("Target");
+        slider.setDefault(kParameterRanges[kParameter_target].def);
         slider.setRange(kParameterRanges[kParameter_target].min, kParameterRanges[kParameter_target].max);
         slider.setStep(1.f);
         slider.setValue(kParameterRanges[kParameter_target].def, false);
@@ -1865,6 +1865,10 @@ protected:
   void knobDoubleClicked(SubWidget* const widget) override
   {
       doubleClickHelper = nullptr;
+
+      // target slider has a knob event handler but is not a value slider widget
+      if (widget->getId() == kParameter_target)
+          return;
 
       QuantumValueSlider* const slider = dynamic_cast<QuantumValueSlider*>(widget);
       DISTRHO_SAFE_ASSERT_RETURN(slider != nullptr,);
