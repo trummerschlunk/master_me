@@ -5,6 +5,7 @@
 
 #define DISTRHO_PLUGIN_WANT_STATE 1
 #define DISTRHO_PLUGIN_HAS_UI     1
+#define DISTRHO_UI_FILE_BROWSER   0
 #define DISTRHO_UI_USE_NANOVG     1
 #define DISTRHO_UI_USER_RESIZABLE 0
 
@@ -35,3 +36,5 @@ struct MasterMeHistogramFifos {
     MasterMeFloatFifo lufsOut;
     bool closed;
 };
+
+static constexpr const uint kMinimumHistogramBufferSize = 4096;

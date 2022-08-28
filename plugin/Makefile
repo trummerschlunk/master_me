@@ -13,7 +13,9 @@ DPF_TARGET_DIR = ../bin
 DPF_BUILD_DIR = ../build
 DPF_PATH = ../dpf
 
-# force pixel-perfect font positioning
+# tweak DPF build
+export DGL_NAMESPACE = MasterMeDGL
+export FILE_BROWSER_DISABLED = true
 export NVG_FONT_TEXTURE_FLAGS = NVG_IMAGE_NEAREST
 
 include $(DPF_PATH)/Makefile.plugins.mk

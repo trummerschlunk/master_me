@@ -42,8 +42,12 @@ endif
 # ---------------------------------------------------------------------------------------------------------------------
 # dgl target, building the dpf little graphics library
 
+DPF_EXTRA_ARGS  = DGL_NAMESPACE=MasterMeDGL
+DPF_EXTRA_ARGS += FILE_BROWSER_DISABLED=true
+DPF_EXTRA_ARGS += NVG_FONT_TEXTURE_FLAGS=NVG_IMAGE_NEAREST
+
 dgl:
-	$(MAKE) -C dpf/dgl opengl NVG_FONT_TEXTURE_FLAGS=NVG_IMAGE_NEAREST
+	$(MAKE) -C dpf/dgl opengl $(DPF_EXTRA_ARGS)
 
 # ---------------------------------------------------------------------------------------------------------------------
 # list of plugin source code files to generate, converted from faust dsp files
