@@ -569,7 +569,7 @@ class SoundsGoodUI : public UI,
           setupSlider(max_plus, cb, kParameter_leveler_max_plus, 8);
           setupSlider(max_minus, cb, kParameter_leveler_max_minus, 8);
           setupSeparatorLine(separator);
-          setupMeter(brake, kParameter_leveler_brake, 8);
+          setupMeter(brake, kParameter_leveler_brake, 8, QuantumValueMeter::LeftToRight);
       }
 
       void adjustSize(const QuantumMetrics& metrics) override
