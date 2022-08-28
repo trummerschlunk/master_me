@@ -1612,7 +1612,7 @@ protected:
     }
   }
 
-    void stateChanged(const char* key, const char* value) override
+    void stateChanged(const char* const key, const char* const value) override
     {
         if (std::strcmp(key, "mode") == 0)
         {
@@ -1832,6 +1832,8 @@ protected:
 
           for (NanoSubWidget* w : parameterGroups)
               w->hide();
+
+          setState("mode", "easy");
       }
       else if (widget == &expertModeButton)
       {
@@ -1844,6 +1846,8 @@ protected:
 
           for (NanoSubWidget* w : parameterGroups)
               w->show();
+
+          setState("mode", "expert");
       }
       else if (std::find(presetButtons.buttonList.begin(), presetButtons.buttonList.end(), widget) != presetButtons.buttonList.end())
       {
