@@ -40,6 +40,32 @@ faustpp:
 endif
 
 # ---------------------------------------------------------------------------------------------------------------------
+# bench target, for testing
+
+BENCH_CMD = ./bench/faustbench -fast -notrace $(CURDIR)/soundsgood.dsp
+BENCH_FLAGS = $(BUILD_CXX_FLAGS) -Ibench/soundsgood -w -DFAST_TESTS $(LINK_FLAGS)
+BENCH_TARGETS = normal vec prefetch all
+
+bench: $(BENCH_TARGETS:%=bench/soundsgood/bench.%$(APP_EXT))
+
+bench/soundsgood/bench.normal$(APP_EXT): bench/soundsgood/faustbench.cpp
+	$(CXX) $(BENCH_FLAGS) $< -o $@
+
+bench/soundsgood/bench.vec$(APP_EXT): bench/soundsgood/faustbench.cpp
+	$(CXX) $(BENCH_FLAGS) -ftree-vectorize $< -o $@
+
+bench/soundsgood/bench.prefetch$(APP_EXT): bench/soundsgood/faustbench.cpp
+	$(CXX) $(BENCH_FLAGS) -fprefetch-loop-arrays $< -o $@
+
+bench/soundsgood/bench.all$(APP_EXT): bench/soundsgood/faustbench.cpp
+	$(CXX) $(BENCH_FLAGS) -fomit-frame-pointer -fprefetch-loop-arrays -ftree-vectorize -funroll-loops -funsafe-loop-optimizations $< -o $@
+
+bench/soundsgood/faustbench.cpp:
+	$(BENCH_CMD) -source
+
+.PHONY: bench
+
+# ---------------------------------------------------------------------------------------------------------------------
 # dgl target, building the dpf little graphics library
 
 DPF_EXTRA_ARGS  = DGL_NAMESPACE=MasterMeDGL
@@ -91,6 +117,8 @@ FAUSTPP_ARGS += -Duitype=HWND
 else ifeq ($(HAVE_DGL),true)
 FAUSTPP_ARGS += -Duitype=X11
 endif
+
+FAUSTPP_ARGS += -X-scal
 
 bin/master_me.lv2/%: soundsgood.dsp template/LV2/% faustpp
 	mkdir -p bin/master_me.lv2

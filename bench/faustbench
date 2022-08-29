@@ -1,0 +1,242 @@
+#!/bin/bash
+
+#####################################################################
+#                                                                   #
+#               Bench several versions of a Faust DSP program       #
+#               usign different compilation options                 #
+#               (c) Grame, 2020-2021                                #
+#                                                                   #
+#####################################################################
+
+cd $(dirname $0)
+FAUSTLIB="$(pwd)"
+
+FILES=""
+IOS="0"
+DOUBLE="0"
+OPTIONS=""
+LIBS=""
+TESTS="all"
+RUN=1
+BUFFER_SIZE=512
+CONTROL=false
+OPT=-1
+NOTRACE=false
+GENERIC=false
+SOURCE=false
+US="0"
+DS="0"
+FILTER="0"
+
+# Set default value for CXX
+if [ "$CXX" = "" ]; then
+    CXX=g++
+fi
+
+while [ $1 ]
+do
+    p=$1
+
+    if [ $p = "-help" ] || [ $p = "-h" ]; then
+        echo "faustbench [-notrace] [-control] [-generic] [-ios] [-single] [-fast] [-run <num>] [-bs <frames>] [-source] [-double] [-opt <level(0..3|-1)>] [-us <factor>] [-ds <factor>] [-filter <filter(0..4)>] [additional Faust options (-vec -vs 8...)] foo.dsp"
+        echo "Use '-notrace' to only generate the best compilation parameters"
+        echo "Use '-control' to update all controllers with random values at each cycle"
+        echo "Use '-generic' to compile for a generic processor, otherwise -march=native will be used"
+        echo "Use '-ios' to generate an iOS project"
+        echo "Use '-single' to only execute the one test (scalar by default)"
+        echo "Use '-fast' to only execute some tests"
+        echo "Use '-run <num>' to execute each test <num> times"
+        echo "Use '-bs <frames>' to set the buffer-size in frames"
+        echo "Use '-source' to keep the intermediate source folder and exit"
+        echo "Use '-double' to compile DSP in double and set FAUSTFLOAT to double"
+        echo "Use '-opt <level (0..3|-1)>' to pass an optimisation level to C++ (-1 means 'maximal level =-Ofast for now' but may change in the future)"
+        echo "Use '-us <factor>' to upsample the DSP by a factor"
+        echo "Use '-ds <factor>' to downsample the DSP by a factor"
+        echo "Use '-filter <filter>' for upsampling or downsampling [0..4]"
+        echo ""
+        echo "Use 'export CXX=/path/to/compiler' before running faustbench to change the C++ compiler"
+        echo "Use 'export CXXFLAGS=options' before running faustbench to change the C++ compiler options"
+        exit
+    fi
+
+    if [ "$p" = "-ios" ]; then
+        IOS="1"
+    elif [ "$p" = "-notrace" ]; then
+        NOTRACE=true
+    elif [ "$p" = "-control" ]; then
+        CONTROL=true
+    elif [ "$p" = "-generic" ]; then
+        GENERIC=true
+    elif [ "$p" = "-fast" ]; then
+        TESTS="fast"
+    elif [ "$p" = "-single" ]; then
+        TESTS="single"
+    elif [ "$p" = "-run" ]; then
+        shift
+        RUN=$1
+    elif [ "$p" = "-bs" ]; then
+        shift
+        BUFFER_SIZE=$1
+    elif [ "$p" = "-source" ]; then
+        SOURCE=true
+    elif [ "$p" = "-opt" ]; then
+        shift
+        OPT=$1
+    elif [ $p = "-us" ]; then
+        shift
+        US=$1
+    elif [ $p = "-ds" ]; then
+        shift
+        DS=$1
+    elif [ $p = "-filter" ]; then
+        shift
+        FILTER=$1
+    elif [ "$p" = "-double" ]; then
+        DOUBLE="1"
+        OPTIONS="$OPTIONS $p"
+    elif [[ -f "$p" ]]; then
+        FILES="$FILES $p"
+    elif [ ${p:0:1} = "-" ]; then
+        OPTIONS="$OPTIONS $p"
+    else
+        OPTIONS="$OPTIONS $p"
+    fi
+
+shift
+
+done
+
+# Set default value for CXXFLAGS
+if [ "$CXXFLAGS" = "" ]; then
+    if $GENERIC; then
+        if [ $OPT = -1 ]; then
+            CXXFLAGS="-Ofast"
+        else
+            CXXFLAGS="-O$OPT"
+        fi
+    else
+        if [ $OPT = -1 ]; then
+            # -march=native does not work yet on M1
+            if [ $(uname) == Darwin ] && [ $(uname -p) == arm ]; then
+                CXXFLAGS="-Ofast"
+            else 
+                CXXFLAGS="-Ofast -march=native"
+            fi
+        else
+            # -march=native does not work yet on M1
+            if [ $(uname) == Darwin ] && [ $(uname -p) == arm ]; then
+                CXXFLAGS="-O$OPT"
+            else 
+                CXXFLAGS="-O$OPT -march=native"
+            fi
+        fi
+    fi
+fi
+
+if [[ $(uname) == Darwin ]]; then
+    LIBS=-lc++
+    CXXFLAGS+=" -fbracket-depth=512"
+fi
+
+if ! $NOTRACE ; then
+    echo "Selected compiler is $CXX with CXXFLAGS = $CXXFLAGS"
+fi
+
+for p in $FILES; do
+
+    CUR=$(pwd)
+    f=$(basename "$p")
+    SRCDIR=$(dirname "$p")
+    dspName="${f%.dsp}"
+
+    # creates a temporary dir
+    TMP="$dspName"
+    mkdir -p "$TMP"
+
+    # creates and compile multiple DSP bench tool
+    if [ "$OPTIONS" != "" ]; then
+        if ! $NOTRACE ; then
+            echo "Compiled with additional options :$OPTIONS"
+        fi
+    fi
+
+    if [ $TESTS == "all" ]; then
+
+        faust -cn dsp_scal $OPTIONS "$SRCDIR/$f" -o "$TMP/dsp_scal.h"
+        faust -cn dsp_scal_exp10 $OPTIONS -exp10 "$SRCDIR/$f" -o "$TMP/dsp_scal_exp10.h"
+        faust -cn dsp_scal_os $OPTIONS -os "$SRCDIR/$f" -o "$TMP/dsp_scal_os.h"
+
+        faust -cn dsp_vec0_4 $OPTIONS -vec -lv 0 -vs 4 "$SRCDIR/$f" -o "$TMP/dsp_vec0_4.h"
+        faust -cn dsp_vec0_8 $OPTIONS -vec -lv 0 -vs 8 "$SRCDIR/$f" -o "$TMP/dsp_vec0_8.h"
+        faust -cn dsp_vec0_16 $OPTIONS -vec -lv 0 -vs 16 "$SRCDIR/$f" -o "$TMP/dsp_vec0_16.h"
+        faust -cn dsp_vec0_32 $OPTIONS -vec -lv 0 -vs 32 "$SRCDIR/$f" -o "$TMP/dsp_vec0_32.h"
+        faust -cn dsp_vec0_64 $OPTIONS -vec -lv 0 -vs 64 "$SRCDIR/$f" -o "$TMP/dsp_vec0_64.h"
+        faust -cn dsp_vec0_128 $OPTIONS -vec -lv 0 -vs 128 "$SRCDIR/$f" -o "$TMP/dsp_vec0_128.h"
+        faust -cn dsp_vec0_256 $OPTIONS -vec -lv 0 -vs 256 "$SRCDIR/$f" -o "$TMP/dsp_vec0_256.h"
+        faust -cn dsp_vec0_512 $OPTIONS -vec -lv 0 -vs 512 "$SRCDIR/$f" -o "$TMP/dsp_vec0_512.h"
+        
+        faust -cn dsp_vec0_fun_4 $OPTIONS -vec -fun -lv 0 -vs 4 "$SRCDIR/$f" -o "$TMP/dsp_vec0_fun_4.h"
+        faust -cn dsp_vec0_fun_8 $OPTIONS -vec -fun -lv 0 -vs 8 "$SRCDIR/$f" -o "$TMP/dsp_vec0_fun_8.h"
+        faust -cn dsp_vec0_fun_16 $OPTIONS -vec -fun -lv 0 -vs 16 "$SRCDIR/$f" -o "$TMP/dsp_vec0_fun_16.h"
+        faust -cn dsp_vec0_fun_32 $OPTIONS -vec -fun -lv 0 -vs 32 "$SRCDIR/$f" -o "$TMP/dsp_vec0_fun_32.h"
+        faust -cn dsp_vec0_fun_64 $OPTIONS -vec -fun -lv 0 -vs 64 "$SRCDIR/$f" -o "$TMP/dsp_vec0_fun_64.h"
+        faust -cn dsp_vec0_fun_128 $OPTIONS -vec -fun -lv 0 -vs 128 "$SRCDIR/$f" -o "$TMP/dsp_vec0_fun_128.h"
+        faust -cn dsp_vec0_fun_256 $OPTIONS -vec -fun -lv 0 -vs 256 "$SRCDIR/$f" -o "$TMP/dsp_vec0_fun_256.h"
+        faust -cn dsp_vec0_fun_512 $OPTIONS -vec -fun -lv 0 -vs 512 "$SRCDIR/$f" -o "$TMP/dsp_vec0_fun_512.h"
+
+        faust -cn dsp_vec0g_4 $OPTIONS -vec -lv 0 -vs 4 -g "$SRCDIR/$f" -o "$TMP/dsp_vec0g_4.h"
+        faust -cn dsp_vec0g_8 $OPTIONS -vec -lv 0 -vs 8 -g "$SRCDIR/$f" -o "$TMP/dsp_vec0g_8.h"
+        faust -cn dsp_vec0g_16 $OPTIONS -vec -lv 0 -vs 16 -g "$SRCDIR/$f" -o "$TMP/dsp_vec0g_16.h"
+        faust -cn dsp_vec0g_32 $OPTIONS -vec -lv 0 -vs 32 -g "$SRCDIR/$f" -o "$TMP/dsp_vec0g_32.h"
+        faust -cn dsp_vec0g_64 $OPTIONS -vec -lv 0 -vs 64 -g "$SRCDIR/$f" -o "$TMP/dsp_vec0g_64.h"
+        faust -cn dsp_vec0g_128 $OPTIONS -vec -lv 0 -vs 128 -g "$SRCDIR/$f" -o "$TMP/dsp_vec0g_128.h"
+        faust -cn dsp_vec0g_256 $OPTIONS -vec -lv 0 -vs 256 -g "$SRCDIR/$f" -o "$TMP/dsp_vec0g_256.h"
+        faust -cn dsp_vec0g_512 $OPTIONS -vec -lv 0 -vs 512 -g "$SRCDIR/$f" -o "$TMP/dsp_vec0g_512.h"
+
+        faust -cn dsp_vec1_4 $OPTIONS -vec -lv 1 -vs 4 "$SRCDIR/$f" -o "$TMP/dsp_vec1_4.h"
+        faust -cn dsp_vec1_8 $OPTIONS -vec -lv 1 -vs 8 "$SRCDIR/$f" -o "$TMP/dsp_vec1_8.h"
+        faust -cn dsp_vec1_16 $OPTIONS -vec -lv 1 -vs 16 "$SRCDIR/$f" -o "$TMP/dsp_vec1_16.h"
+        faust -cn dsp_vec1_32 $OPTIONS -vec -lv 1 -vs 32 "$SRCDIR/$f" -o "$TMP/dsp_vec1_32.h"
+        faust -cn dsp_vec1_64 $OPTIONS -vec -lv 1 -vs 64 "$SRCDIR/$f" -o "$TMP/dsp_vec1_64.h"
+        faust -cn dsp_vec1_128 $OPTIONS -vec -lv 1 -vs 128 "$SRCDIR/$f" -o "$TMP/dsp_vec1_128.h"
+        faust -cn dsp_vec1_256 $OPTIONS -vec -lv 1 -vs 256 "$SRCDIR/$f" -o "$TMP/dsp_vec1_256.h"
+        faust -cn dsp_vec1_512 $OPTIONS -vec -lv 1 -vs 512 "$SRCDIR/$f" -o "$TMP/dsp_vec1_512.h"
+
+        faust -cn dsp_vec1g_4 $OPTIONS -vec -lv 1 -vs 4 -g "$SRCDIR/$f" -o "$TMP/dsp_vec1g_4.h"
+        faust -cn dsp_vec1g_8 $OPTIONS -vec -lv 1 -vs 8 -g "$SRCDIR/$f" -o "$TMP/dsp_vec1g_8.h"
+        faust -cn dsp_vec1g_16 $OPTIONS -vec -lv 1 -vs 16 -g "$SRCDIR/$f" -o "$TMP/dsp_vec1g_16.h"
+        faust -cn dsp_vec1g_32 $OPTIONS -vec -lv 1 -vs 32 -g "$SRCDIR/$f" -o "$TMP/dsp_vec1g_32.h"
+        faust -cn dsp_vec1g_64 $OPTIONS -vec -lv 1 -vs 64 -g "$SRCDIR/$f" -o "$TMP/dsp_vec1g_64.h"
+        faust -cn dsp_vec1g_128 $OPTIONS -vec -lv 1 -vs 128 -g "$SRCDIR/$f" -o "$TMP/dsp_vec1g_128.h"
+        faust -cn dsp_vec1g_256 $OPTIONS -vec -lv 1 -vs 256 -g "$SRCDIR/$f" -o "$TMP/dsp_vec1g_256.h"
+        faust -cn dsp_vec1g_512 $OPTIONS -vec -lv 1 -vs 512 -g "$SRCDIR/$f" -o "$TMP/dsp_vec1g_512.h"
+
+    elif [ $TESTS == "fast" ]; then
+
+        [ -e "$TMP/dsp_scal.h" ] || faust -cn dsp_scal $OPTIONS "$SRCDIR/$f" -o "$TMP/dsp_scal.h"
+        [ -e "$TMP/dsp_scal_exp10.h" ] || faust -cn dsp_scal_exp10 $OPTIONS -exp10 "$SRCDIR/$f" -o "$TMP/dsp_scal_exp10.h"
+        [ -e "$TMP/dsp_vec0_32.h" ] || faust -cn dsp_vec0_32 $OPTIONS -vec -lv 0 -vs 32 "$SRCDIR/$f" -o "$TMP/dsp_vec0_32.h"
+        [ -e "$TMP/dsp_vec0g_32.h" ] || faust -cn dsp_vec0g_32 $OPTIONS -vec -lv 0 -vs 32 -g "$SRCDIR/$f" -o "$TMP/dsp_vec0g_32.h"
+        [ -e "$TMP/dsp_vec1_32.h" ] || faust -cn dsp_vec1_32 $OPTIONS -vec -lv 1 -vs 32 "$SRCDIR/$f" -o "$TMP/dsp_vec1_32.h"
+        [ -e "$TMP/dsp_vec1g_32.h" ] || faust -cn dsp_vec1g_32 $OPTIONS -vec -lv 1 -vs 32 -g "$SRCDIR/$f" -o "$TMP/dsp_vec1g_32.h"
+
+    elif [ $TESTS == "single" ]; then
+
+        [ -e "$TMP/dsp_scal.h" ] || faust -cn dsp_scal $OPTIONS "$SRCDIR/$f" -o "$TMP/dsp_scal.h"
+    fi
+
+    cd "$TMP"
+
+    if [ $DOUBLE == "1" ]; then
+        echo " #define FAUSTFLOAT double" | cat - "$FAUSTLIB/faustbench.cpp" > temp && mv temp "faustbench.cpp"
+    else
+        echo " #define FAUSTFLOAT float" | cat - "$FAUSTLIB/faustbench.cpp" > temp && mv temp "faustbench.cpp"
+    fi
+
+    # add info for UP/DS + filter adapter
+    echo "#define DOWN_SAMPLING $DS" | cat -  "$FAUSTLIB/faustbench.cpp" > temp && mv temp "faustbench.cpp"
+    echo "#define UP_SAMPLING $US" | cat -  "$FAUSTLIB/faustbench.cpp" > temp && mv temp "faustbench.cpp"
+    echo "#define FILTER_TYPE $FILTER" | cat -  "$FAUSTLIB/faustbench.cpp" > temp && mv temp "faustbench.cpp"
+
+done
+
