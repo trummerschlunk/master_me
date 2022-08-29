@@ -43,7 +43,12 @@ endif
 # bench target, for testing
 
 BENCH_CMD = ./bench/faustbench -notrace $(CURDIR)/soundsgood.dsp
-BENCH_FLAGS = $(BUILD_CXX_FLAGS) -I$(shell faust --includedir) -Ibench/soundsgood -flto -DALL_TESTS $(LINK_FLAGS)
+
+BENCH_FLAGS  = $(BUILD_CXX_FLAGS)
+BENCH_FLAGS += -Wno-overloaded-virtual -Wno-unused-function -Wno-unused-parameter
+BENCH_FLAGS += -I$(shell faust --includedir) -Ibench/soundsgood -flto -DALL_TESTS
+BENCH_FLAGS += $(LINK_FLAGS)
+
 BENCH_TARGETS = all none Ofast best prefetchloop-arrays single-precision tree-vectorize unroll-loops unsafe-loops
 
 bench: $(BENCH_TARGETS:%=bench/soundsgood/bench.%$(APP_EXT))
