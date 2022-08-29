@@ -102,6 +102,10 @@ phase_invert_R = _ <: _,_ : (_ : *(-1)),_ : _*sw,_*(1-sw) :> _ with{
   sw = checkbox("v:soundsgood/t:expert/h:[1]pre-processing/[3][symbol:phase_r]phase R");
 };
 
+// Mono Switch
+mono_bp = bp2(1 - checkbox("v:soundsgood/t:expert/h:[1]pre-processing/[4][symbol:mono]mono"),mono);
+mono = _*0.5,_*0.5 <: +, +;
+
 // input gain
 in_gain = par(i,2,(_*g)) with{
   g = vslider("v:soundsgood/t:expert/h:[1]pre-processing/[1][symbol:in_gain][unit:dB]input gain",0,-100,24,1) : ba.db2linear;
@@ -192,9 +196,7 @@ correlate_correct(l,r) = out_pos1, out_neg1, out_0, out_pos, out_neg :> _,_ with
   lp1p(cf) = si.smooth(ba.tau2pole(1/(2*ma.PI*cf)));
 };
 
-// Mono Switch
-mono_bp = bp2(1 - checkbox("v:soundsgood/t:expert/h:[1]pre-processing/[2][symbol:mono]mono"),mono);
-mono = _*0.5,_*0.5 <: +, +;
+
 
 // EQ with bypass
 eq_bp = bp2(checkbox("v:soundsgood/t:expert/h:[3]eq/[1][symbol:eq_bypass]eq bypass"),eq);
