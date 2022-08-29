@@ -704,10 +704,10 @@ class SoundsGoodUI : public UI,
       QuantumDualValueSliderWithCenterLabel link;
       QuantumDualValueSliderWithCenterLabel crossover;
       QuantumDualLabelWithCenterSpacer labelsLowHigh;
-      MultiBandCompressorLabels labelsNum;
+      QuantumSingleSpacer spacer1;
       MultiBandCompressorValueMeters metersM;
       MultiBandCompressorValueMeters metersS;
-      QuantumSingleSpacer spacer;
+      QuantumSingleSpacer spacer2;
       MultiBandCompressorOutputGainGroup outputGain;
 
       explicit MidSideCompressor(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
@@ -720,10 +720,10 @@ class SoundsGoodUI : public UI,
             link(&frame, theme),
             crossover(&frame, theme),
             labelsLowHigh(&frame, theme),
-            labelsNum(&frame, theme),
+            spacer1(&frame),
             metersM(&frame, theme, QuantumValueMeter::BottomToTop),
             metersS(&frame, theme, QuantumValueMeter::TopToBottom),
-            spacer(&frame),
+            spacer2(&frame),
             outputGain(&frame, theme)
       {
           frame.setName("Multiband MidSide Compressor");
@@ -754,31 +754,14 @@ class SoundsGoodUI : public UI,
           labelsLowHigh.labelR.setName("High Label");
           items.push_back(&labelsLowHigh);
 
-          labelsNum.spacer1.setName("num spacer1");
-          labelsNum.label1.setLabel("1");
-          labelsNum.label1.setName("1");
-          labelsNum.label2.setLabel("2");
-          labelsNum.label2.setName("2");
-          labelsNum.label3.setLabel("3");
-          labelsNum.label3.setName("3");
-          labelsNum.label4.setLabel("4");
-          labelsNum.label4.setName("4");
-          labelsNum.label5.setLabel("5");
-          labelsNum.label5.setName("5");
-          labelsNum.label6.setLabel("6");
-          labelsNum.label6.setName("6");
-          labelsNum.label7.setLabel("7");
-          labelsNum.label7.setName("7");
-          labelsNum.label8.setLabel("8");
-          labelsNum.label8.setName("8");
-          labelsNum.spacer2.setName("num spacer1");
-          items.push_back(&labelsNum);
+          spacer1.spacer.setName("+ spacer1");
+          items.push_back(&spacer1);
 
           setupMeters(metersM, "   m   ", kParameter_msredux11);
           setupMeters(metersS, "   s   ", kParameter_msredux12);
 
-          spacer.spacer.setName("+ spacer");
-          items.push_back(&spacer);
+          spacer2.spacer.setName("+ spacer2");
+          items.push_back(&spacer2);
 
           outputGain.fixedSpace.setName(String(kParameterNames[kParameter_mscomp_output_gain]) + " [padding]");
           outputGain.slider.setCallback(cb);
@@ -806,20 +789,10 @@ class SoundsGoodUI : public UI,
           labelsLowHigh.labelL.setSize(labelsTopSize);
           labelsLowHigh.spacer.setSize(Size<uint>());
           labelsLowHigh.labelR.setSize(labelsTopSize);
-          const Size<uint> labelsNumSize(metrics.valueMeterVertical.getWidth(), theme.textHeight);
-          labelsNum.spacer1.setSize(Size<uint>());
-          labelsNum.label1.setSize(labelsNumSize);
-          labelsNum.label2.setSize(labelsNumSize);
-          labelsNum.label3.setSize(labelsNumSize);
-          labelsNum.label4.setSize(labelsNumSize);
-          labelsNum.label5.setSize(labelsNumSize);
-          labelsNum.label6.setSize(labelsNumSize);
-          labelsNum.label7.setSize(labelsNumSize);
-          labelsNum.label8.setSize(labelsNumSize);
-          labelsNum.spacer2.setSize(Size<uint>());
+          spacer1.spacer.setSize(0, theme.fontSize / 2);
           metersM.adjustSize(metrics);
           metersS.adjustSize(metrics);
-          spacer.spacer.setSize(0, theme.fontSize / 2);
+          spacer2.spacer.setSize(0, theme.fontSize / 2);
           outputGain.adjustSize(metrics);
           SoundsgoodParameterGroupWithBypassSwitchMB::adjustSize(metrics);
       }
@@ -859,14 +832,6 @@ class SoundsGoodUI : public UI,
           link.sliderR.setTextColor(color);
           labelsLowHigh.labelL.setLabelColor(color);
           labelsLowHigh.labelR.setLabelColor(color);
-          labelsNum.label1.setLabelColor(color);
-          labelsNum.label2.setLabelColor(color);
-          labelsNum.label3.setLabelColor(color);
-          labelsNum.label4.setLabelColor(color);
-          labelsNum.label5.setLabelColor(color);
-          labelsNum.label6.setLabelColor(color);
-          labelsNum.label7.setLabelColor(color);
-          labelsNum.label8.setLabelColor(color);
           metersM.label.setLabelColor(color);
           metersS.label.setLabelColor(color);
           outputGain.label.setLabelColor(color);

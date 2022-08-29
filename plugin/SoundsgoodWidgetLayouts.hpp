@@ -53,6 +53,7 @@ struct QuantumLabelWithSeparatorLine : HorizontalLayout
     {
         separator1.setSize(metrics.separatorHorizontal);
         label.adjustSize();
+        separator2.setSize(metrics.separatorHorizontal);
     }
 };
 
@@ -277,61 +278,6 @@ struct MultiBandCompressorOutputGainGroup : HorizontalLayout
         fixedSpace.setSize(metrics.valueSlider);
         label.adjustSize();
         slider.setSize(metrics.valueSlider);
-    }
-};
-
-// --------------------------------------------------------------------------------------------------------------------
-// custom layout for multiband compressor labels
-
-struct MultiBandCompressorLabels : HorizontalLayout
-{
-    QuantumSpacer spacer1;
-    QuantumLabel label1, label2, label3, label4, label5, label6, label7, label8;
-    QuantumSpacer spacer2;
-
-    explicit MultiBandCompressorLabels(NanoSubWidget* const parent, const QuantumTheme& theme)
-        : spacer1(parent),
-          label1(parent, theme),
-          label2(parent, theme),
-          label3(parent, theme),
-          label4(parent, theme),
-          label5(parent, theme),
-          label6(parent, theme),
-          label7(parent, theme),
-          label8(parent, theme),
-          spacer2(parent)
-    {
-        label1.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
-        label2.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
-        label3.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
-        label4.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
-        label5.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
-        label6.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
-        label7.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
-        label8.setAlignment(NanoVG::ALIGN_CENTER|NanoVG::ALIGN_BOTTOM);
-
-        widgets.push_back({ &spacer1, Expanding });
-        widgets.push_back({ &label1, Fixed });
-        widgets.push_back({ &label2, Fixed });
-        widgets.push_back({ &label3, Fixed });
-        widgets.push_back({ &label4, Fixed });
-        widgets.push_back({ &label5, Fixed });
-        widgets.push_back({ &label6, Fixed });
-        widgets.push_back({ &label7, Fixed });
-        widgets.push_back({ &label8, Fixed });
-        widgets.push_back({ &spacer2, Expanding });
-    }
-
-    void adjustSize()
-    {
-        label1.adjustSize();
-        label2.adjustSize();
-        label3.adjustSize();
-        label4.adjustSize();
-        label5.adjustSize();
-        label6.adjustSize();
-        label7.adjustSize();
-        label8.adjustSize();
     }
 };
 

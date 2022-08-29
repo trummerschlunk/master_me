@@ -10,7 +10,7 @@
 #define DISTRHO_UI_USER_RESIZABLE 0
 
 #define DISTRHO_UI_DEFAULT_WIDTH 1030
-#define DISTRHO_UI_DEFAULT_HEIGHT 610
+#define DISTRHO_UI_DEFAULT_HEIGHT 597
 
 enum ExtraParameters {
     kExtraParameterHistogramBufferSize,
