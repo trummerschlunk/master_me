@@ -119,7 +119,7 @@ master_me: $(PLUGIN_GENERATED_FILES) dgl
 
 FAUSTPP_ARGS = \
 	-Dbinary_name="master_me" \
-	-Dbrand="4ohm" \
+	-Dbrand="Klaus Scheuermann" \
 	-Dhomepage="https://4ohm.de/" \
 	-Dlabel="master_me" \
 	-Dlicense="GPLv3+" \
