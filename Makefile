@@ -43,8 +43,8 @@ endif
 # bench target, for testing
 
 BENCH_CMD = ./bench/faustbench -notrace $(CURDIR)/soundsgood.dsp
-BENCH_FLAGS = $(BUILD_CXX_FLAGS) -I$(shell faust --includedir) -Ibench/soundsgood -flto -w -DALL_TESTS $(LINK_FLAGS)
-BENCH_TARGETS = all none Ofast prefetchloop-arrays single-precision tree-vectorize unroll-loops unsafe-loops
+BENCH_FLAGS = $(BUILD_CXX_FLAGS) -I$(shell faust --includedir) -Ibench/soundsgood -flto -DALL_TESTS $(LINK_FLAGS)
+BENCH_TARGETS = all none Ofast best prefetchloop-arrays single-precision tree-vectorize unroll-loops unsafe-loops
 
 bench: $(BENCH_TARGETS:%=bench/soundsgood/bench.%$(APP_EXT))
 
@@ -56,6 +56,9 @@ bench/soundsgood/bench.none$(APP_EXT): bench/soundsgood/faustbench.cpp
 
 bench/soundsgood/bench.Ofast$(APP_EXT): bench/soundsgood/faustbench.cpp
 	$(CXX) $(BENCH_FLAGS) -Ofast $< -o $@
+
+bench/soundsgood/bench.best$(APP_EXT): bench/soundsgood/faustbench.cpp
+	$(CXX) $(BENCH_FLAGS) -fprefetch-loop-arrays -fsingle-precision-constant -funroll-loops $< -o $@
 
 bench/soundsgood/bench.prefetchloop-arrays$(APP_EXT): bench/soundsgood/faustbench.cpp
 	$(CXX) $(BENCH_FLAGS) -fprefetch-loop-arrays $< -o $@
@@ -130,7 +133,7 @@ else ifeq ($(HAVE_DGL),true)
 FAUSTPP_ARGS += -Duitype=X11
 endif
 
-FAUSTPP_ARGS += -X-scal
+FAUSTPP_ARGS += -X-vec -X-fun -X-lv -X0 -X-vs -X8
 
 bin/master_me.lv2/%: soundsgood.dsp template/LV2/% faustpp
 	mkdir -p bin/master_me.lv2
