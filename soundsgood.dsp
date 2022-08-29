@@ -86,7 +86,7 @@ bp2(sw,pr) =  _,_ <: _,_,pr : (_*sm,_*sm),(_*(1-sm),_*(1-sm)) :> _,_ with {
 
 // DC FILTER
 dc_blocker_bp = bp2(sw,dc_blocker(2)) with {
-  sw = 1 - checkbox("v:soundsgood/t:expert/h:[1]pre-processing/[4][symbol:dc_blocker]dc blocker");
+  sw = 1 - checkbox("v:soundsgood/t:expert/h:[1]pre-processing/[5][symbol:dc_blocker]dc blocker");
 };
 
 dc_blocker(N) = par(i,N,fi.dcblockerat(dc_filter_freq))
@@ -163,7 +163,7 @@ correlate_meter(x,y) = x,y <: x , attach(y, (corr(t) : meter_correlate_meter )) 
 };
 
 // stereo correction based on correlation
-correlate_correct_bp = bp2(1 - checkbox("v:soundsgood/t:expert/h:[1]pre-processing/[5][symbol:stereo_correct]stereo correct"), correlate_correct);
+correlate_correct_bp = bp2(1 - checkbox("v:soundsgood/t:expert/h:[1]pre-processing/[6][symbol:stereo_correct]stereo correct"), correlate_correct);
 correlate_correct(l,r) = out_pos1, out_neg1, out_0, out_pos, out_neg :> _,_ with {
 
   t = .2; // averaging period in seconds
