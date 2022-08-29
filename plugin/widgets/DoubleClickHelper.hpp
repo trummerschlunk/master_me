@@ -39,7 +39,7 @@ public:
     Callback* const callback;
     SubWidget* const widget;
 
-    explicit DoubleClickHelper(TopLevelWidget* const tlw, Callback* const cb, SubWidget* const w)
+    explicit DoubleClickHelper(TopLevelWidget* const tlw, Callback* const cb, SubWidget* const w, const Rectangle<int>& area)
         : ImGuiTopLevelWidget(tlw->getWindow()),
           callback(cb),
           widget(w)
@@ -48,8 +48,8 @@ public:
         ev.size = tlw->getSize();
         onResize(ev);
 
-        pos = ImVec2(w->getAbsoluteX(), w->getAbsoluteY());
-        size = ImVec2(w->getWidth(), w->getHeight());
+        pos = ImVec2(area.getX(), area.getY());
+        size = ImVec2(area.getWidth(), area.getHeight());
 
         ImGuiStyle& style(ImGui::GetStyle());
         style.WindowPadding = ImVec2();

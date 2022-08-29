@@ -1844,22 +1844,49 @@ protected:
   {
       doubleClickHelper = nullptr;
 
-      // target slider has a knob event handler but is not a value slider widget
+      bool isInteger;
+      float value;
+      Rectangle<int> area;
+
+      // target slider has a knob event handler but is not a value slider widget, handle it separately
       if (widget->getId() == kParameter_target)
-          return;
+      {
+          QuantumMixerSlider* const slider = dynamic_cast<QuantumMixerSlider*>(widget);
+          DISTRHO_SAFE_ASSERT_RETURN(slider != nullptr,);
+          isInteger = slider->isInteger();
+          value = slider->getValue();
+          area = slider->getValueFieldAbsoluteArea();
+      }
+      else
+      {
+          QuantumValueSlider* const slider = dynamic_cast<QuantumValueSlider*>(widget);
+          DISTRHO_SAFE_ASSERT_RETURN(slider != nullptr,);
+          isInteger = slider->isInteger();
+          value = slider->getValue();
+          area = slider->getAbsoluteArea();
+      }
 
-      QuantumValueSlider* const slider = dynamic_cast<QuantumValueSlider*>(widget);
-      DISTRHO_SAFE_ASSERT_RETURN(slider != nullptr,);
-
-      doubleClickHelper = new DoubleClickHelper(this, this, widget);
+      doubleClickHelper = new DoubleClickHelper(this, this, widget, area);
 
       String s;
-      if (slider->isInteger())
-          s = String(static_cast<int>(slider->getValue()));
+      if (isInteger)
+          s = String(static_cast<int>(value));
       else
-          s = String(slider->getValue());
+          s = String(value);
 
       doubleClickHelper->setText(s.buffer());
+  }
+
+  static inline float safeNumberFromText(const uint id, const bool isInteger, const char* const text) noexcept
+  {
+      const ScopedSafeLocale csl;
+      float value;
+
+      try {
+          value = static_cast<float>(isInteger ? std::atoi(text) : std::atof(text));
+      } DISTRHO_SAFE_EXCEPTION_RETURN("safeNumberFromText", kParameterRanges[id].def);
+
+      return std::max(kParameterRanges[id].min, std::min(kParameterRanges[id].max, value));
   }
 
   void doubleClickHelperDone(SubWidget* const widget, const char* const text) override
@@ -1867,20 +1894,21 @@ protected:
       doubleClickHelper = nullptr;
       repaint();
 
-      QuantumValueSlider* const slider = dynamic_cast<QuantumValueSlider*>(widget);
-      DISTRHO_SAFE_ASSERT_RETURN(slider != nullptr,);
+      const uint id = widget->getId();
 
-      float value;
-      const uint id = slider->getId();
-
+      // target slider has a knob event handler but is not a value slider widget, handle it separately
+      if (id == kParameter_target)
       {
-          const ScopedSafeLocale csl;
-          value = std::max(kParameterRanges[id].min,
-                  std::min(kParameterRanges[id].max,
-                  static_cast<float>(slider->isInteger() ? std::atoi(text) : std::atof(text))));
+          QuantumMixerSlider* const slider = dynamic_cast<QuantumMixerSlider*>(widget);
+          DISTRHO_SAFE_ASSERT_RETURN(slider != nullptr,);
+          slider->setValue(safeNumberFromText(id, slider->isInteger(), text), true);
       }
-
-      slider->setValue(value, true);
+      else
+      {
+          QuantumValueSlider* const slider = dynamic_cast<QuantumValueSlider*>(widget);
+          DISTRHO_SAFE_ASSERT_RETURN(slider != nullptr,);
+          slider->setValue(safeNumberFromText(id, slider->isInteger(), text), true);
+      }
   }
 
   void quantumThemeChanged(const bool size, const bool colors) override
