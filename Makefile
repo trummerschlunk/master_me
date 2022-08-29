@@ -155,7 +155,7 @@ build/BuildInfo.hpp: soundsgood.dsp plugin/* template/* template/LV2/*
 	echo 'constexpr const char* const kBuildInfoString = ""' > $@
 	echo '"\t4ohm.de | master_me\t\\n"' >> $@
 	echo '"A plugin by Klaus Scheuermann.\\n"' >> $@
-	echo '"With contributions from falkTX, magnetophon, x42 and others.\\n\\n"' >> $@
+	echo '"With contributions from falkTX, jkbd, magnetophon, x42 and others.\\n\\n"' >> $@
 	echo '"Using `$(shell git branch --show-current)` branch, with commit:\\n"' >> $@
 	echo '"$(shell git log -n 1 --decorate=no --pretty=oneline --abbrev-commit)\\n"' >> $@
 	echo ';' >> $@
