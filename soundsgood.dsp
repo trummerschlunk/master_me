@@ -48,8 +48,9 @@ process =
     : peakmeter_in
     : lufs_meter_in
     : dc_blocker_bp
+
+    : (phase_invert_L , phase_invert_R)
     : mono_bp
-         : (phase_invert_L , phase_invert_R)
     //: correlate_meter
     : correlate_correct_bp
 
