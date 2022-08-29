@@ -1049,11 +1049,11 @@ class SoundsGoodUI : public UI,
       {
           frame.setName("Easy Presets");
           frame.mainWidget.setLabel("Easy Presets");
-          setupButton(b1, bcb, "Speech Mild");
-          setupButton(b2, bcb, "Speech Medium");
-          setupButton(b3, bcb, "Speech Heavy");
-          setupButton(b4, bcb, "Music Mild");
-          setupButton(b5, bcb, "Music Heavy");
+          setupButton(b1, bcb, "YOUTUBE\n-14 LUFS");
+          setupButton(b2, bcb, "APPLE PODCASTS\n-16 LUFS");
+          setupButton(b3, bcb, "EBU R128\n-23 LUFS");
+          setupButton(b4, bcb, "SPEECH GENERAL\n-16 LUFS");
+          setupButton(b5, bcb, "MUSIC GENERAL\n-16 LUFS");
       }
 
       void adjustSize(const QuantumMetrics& metrics, const uint fullWidth)
