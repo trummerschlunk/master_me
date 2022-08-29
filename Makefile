@@ -42,23 +42,35 @@ endif
 # ---------------------------------------------------------------------------------------------------------------------
 # bench target, for testing
 
-BENCH_CMD = ./bench/faustbench -fast -notrace $(CURDIR)/soundsgood.dsp
-BENCH_FLAGS = $(BUILD_CXX_FLAGS) -Ibench/soundsgood -w -DFAST_TESTS $(LINK_FLAGS)
-BENCH_TARGETS = normal vec prefetch all
+BENCH_CMD = ./bench/faustbench -notrace $(CURDIR)/soundsgood.dsp
+BENCH_FLAGS = $(BUILD_CXX_FLAGS) -I$(shell faust --includedir) -Ibench/soundsgood -flto -w -DALL_TESTS $(LINK_FLAGS)
+BENCH_TARGETS = all none Ofast prefetchloop-arrays tree-vectorize unroll-loops unsafe-loops
 
 bench: $(BENCH_TARGETS:%=bench/soundsgood/bench.%$(APP_EXT))
 
-bench/soundsgood/bench.normal$(APP_EXT): bench/soundsgood/faustbench.cpp
+bench/soundsgood/bench.all$(APP_EXT): bench/soundsgood/faustbench.cpp
+	$(CXX) $(BENCH_FLAGS) -Ofast -fomit-frame-pointer -fprefetch-loop-arrays -ftree-vectorize -funroll-loops -funsafe-loop-optimizations $< -o $@
+
+bench/soundsgood/bench.none$(APP_EXT): bench/soundsgood/faustbench.cpp
 	$(CXX) $(BENCH_FLAGS) $< -o $@
 
-bench/soundsgood/bench.vec$(APP_EXT): bench/soundsgood/faustbench.cpp
+bench/soundsgood/bench.Ofast$(APP_EXT): bench/soundsgood/faustbench.cpp
+	$(CXX) $(BENCH_FLAGS) -Ofast $< -o $@
+
+bench/soundsgood/bench.prefetchloop-arrays$(APP_EXT): bench/soundsgood/faustbench.cpp
+	$(CXX) $(BENCH_FLAGS) -fprefetch-loop-arrays $< -o $@
+
+bench/soundsgood/bench.tree-vectorize$(APP_EXT): bench/soundsgood/faustbench.cpp
 	$(CXX) $(BENCH_FLAGS) -ftree-vectorize $< -o $@
 
 bench/soundsgood/bench.prefetch$(APP_EXT): bench/soundsgood/faustbench.cpp
 	$(CXX) $(BENCH_FLAGS) -fprefetch-loop-arrays $< -o $@
 
-bench/soundsgood/bench.all$(APP_EXT): bench/soundsgood/faustbench.cpp
-	$(CXX) $(BENCH_FLAGS) -fomit-frame-pointer -fprefetch-loop-arrays -ftree-vectorize -funroll-loops -funsafe-loop-optimizations $< -o $@
+bench/soundsgood/bench.unroll-loops$(APP_EXT): bench/soundsgood/faustbench.cpp
+	$(CXX) $(BENCH_FLAGS) -funroll-loops $< -o $@
+
+bench/soundsgood/bench.unsafe-loops$(APP_EXT): bench/soundsgood/faustbench.cpp
+	$(CXX) $(BENCH_FLAGS) -fprefetch-loop-arrays -funroll-loops -funsafe-loop-optimizations $< -o $@
 
 bench/soundsgood/faustbench.cpp:
 	$(BENCH_CMD) -source
