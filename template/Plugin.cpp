@@ -96,6 +96,14 @@ public:
         {% endfor %}
     }
 
+    void printCurrentValues()
+    {
+        d_stdout("==== preset data start ===");
+        {% for p in active %}printf("%.12g,", dsp->{{p.var}});
+        {% endfor %}
+        d_stdout("\n==== preset data end ===");
+    }
+
 protected:
    /* -----------------------------------------------------------------------------------------------------------------
     * Information */

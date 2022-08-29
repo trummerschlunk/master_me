@@ -1189,8 +1189,6 @@ public:
       const SoundsGoodMetrics metrics(theme);
 
       const uint width = getWidth();
-//       const uint borderSize = theme.borderSize;
-//       const uint padding = theme.padding;
       const uint startY = theme.windowPadding * 2 + metrics.button.getHeight();
       const uint arrowSpacing = theme.textHeight;
 
@@ -1237,11 +1235,8 @@ public:
   {
       const SoundsGoodMetrics metrics(theme);
 
-      const uint padding = theme.padding;
-      const uint borderSize = theme.borderSize;
-      const uint windowPadding = theme.windowPadding;
-      const uint startY = windowPadding * 2 + metrics.button.getHeight();
-      const uint contentHeight = height - startY - windowPadding;
+      const uint startY = theme.windowPadding * 2 + metrics.button.getHeight();
+      const uint contentHeight = height - startY - theme.windowPadding;
 
       easyModeButton.adjustSize();
       expertModeButton.adjustSize();
@@ -1254,13 +1249,13 @@ public:
 
       inputGroup.adjustSize(metrics, contentHeight);
       outputGroup.adjustSize(metrics, contentHeight);
-      contentGroup.setSize(width - windowPadding * 2 - padding * 4 - inputGroup.getWidth() - outputGroup.getWidth(), contentHeight);
+      contentGroup.setSize(width - theme.windowPadding * 2 - theme.padding * 4 - inputGroup.getWidth() - outputGroup.getWidth(), contentHeight);
       topCenteredGroup.adjustSize(metrics, getWidth(), getHeight(), easyModeButton.getHeight());
 
-      welcomeLabel.setSize(contentGroup.getWidth() - borderSize * 2 - padding * 2, contentHeight - borderSize * 2 - padding * 2);
-      presetButtons.adjustSize(metrics, contentGroup.getWidth() - borderSize * 2 - padding * 2);
+      welcomeLabel.setSize(contentGroup.getWidth() - theme.borderSize * 2 - theme.padding * 2, contentHeight - theme.borderSize * 2 - theme.padding * 2);
+      presetButtons.adjustSize(metrics, contentGroup.getWidth() - theme.borderSize * 2 - theme.padding * 2);
 
-      histogram.setSize(contentGroup.getWidth() - borderSize * 2 - padding * 2, contentHeight * 3 / 8);
+      histogram.setSize(contentGroup.getWidth() - theme.borderSize * 2 - theme.padding * 2, contentHeight * 3 / 8);
 
       preProcessing.adjustSize(metrics);
       gate.adjustSize(metrics);
@@ -1621,6 +1616,16 @@ protected:
       rect(widthBy3 - 1, 0, widthBy3 + 2, height);
       fillColor(color1);
       fill();
+  }
+
+  // little hack to print current values, should be disabled on final build
+  bool onMouse(const MouseEvent& ev) override
+  {
+      if (UI::onMouse(ev))
+          return true;
+      if (ev.press)
+          setState("export", "");
+      return false;
   }
 
   void onResize(const ResizeEvent& ev) override
