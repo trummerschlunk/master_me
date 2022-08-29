@@ -384,18 +384,18 @@ class SoundsGoodUI : public UI,
 
   struct PreProcessing : SoundsgoodParameterGroupWithoutBypassSwitch {
       QuantumValueSliderWithLabel inputGain;
-      QuantumSingleSwitch mono;
       QuantumSingleSwitch phaseL;
       QuantumSingleSwitch phaseR;
+      QuantumSingleSwitch mono;
       QuantumSingleSwitch dcBlocker;
       QuantumSingleSwitch stereoCorrect;
 
       explicit PreProcessing(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
           : SoundsgoodParameterGroupWithoutBypassSwitch(parent, theme),
             inputGain(&frame, theme),
-            mono(&frame, theme),
             phaseL(&frame, theme),
             phaseR(&frame, theme),
+            mono(&frame, theme),
             dcBlocker(&frame, theme),
             stereoCorrect(&frame, theme)
       {
@@ -403,9 +403,9 @@ class SoundsGoodUI : public UI,
           frame.mainWidget.setLabel("Pre-Processing");
 
           setupSlider(inputGain, cb, kParameter_in_gain, 0);
-          setupSwitch(mono, bcb, kParameter_mono, 0);
           setupSwitch(phaseL, bcb, kParameter_phase_l, 0);
           setupSwitch(phaseR, bcb, kParameter_phase_r, 0);
+          setupSwitch(mono, bcb, kParameter_mono, 0);
           setupSwitch(dcBlocker, bcb, kParameter_dc_blocker, 0);
           setupSwitch(stereoCorrect, bcb, kParameter_stereo_correct, 0);
       }
@@ -413,9 +413,9 @@ class SoundsGoodUI : public UI,
       void adjustSize(const QuantumMetrics& metrics) override
       {
           inputGain.adjustSize(metrics);
-          mono.adjustSize();
           phaseL.adjustSize();
           phaseR.adjustSize();
+          mono.adjustSize();
           dcBlocker.adjustSize();
           stereoCorrect.adjustSize();
           SoundsgoodParameterGroupWithoutBypassSwitch::adjustSize(metrics);
