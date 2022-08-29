@@ -137,12 +137,13 @@ protected:
                 |ImPlotAxisFlags_NoMenus
                 |ImPlotAxisFlags_NoSideSwitch
                 |ImPlotAxisFlags_NoHighlight
+                |ImPlotAxisFlags_Opposite
                 |ImPlotAxisFlags_Lock;
             constexpr const ImPlotLegendFlags legendFlags = 0
                 |ImPlotLegendFlags_NoMenus
                 |ImPlotLegendFlags_Horizontal;
             ImPlot::SetupAxis(ImAxis_X1, "Time (s)", axisFlags | ImPlotAxisFlags_NoLabel);
-            ImPlot::SetupAxis(ImAxis_Y1, "dB", axisFlags | ImPlotAxisFlags_Opposite);
+            ImPlot::SetupAxis(ImAxis_Y1, "dB", axisFlags);
             ImPlot::SetupAxisLimits(ImAxis_X1, 0, numSecsInHistogram, ImGuiCond_Always);
             ImPlot::SetupAxisLimits(ImAxis_Y1, -70, 0, ImGuiCond_Always);
             ImPlot::SetupLegend(ImPlotLocation_NorthWest, legendFlags);

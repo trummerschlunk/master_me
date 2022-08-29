@@ -185,6 +185,7 @@ struct ContentGroup : QuantumFrame
     QuantumButton& expertButton;
 
     NanoSubWidget* parameterGroups[8] = {};
+    SubWidget* histogram = nullptr;
 
 public:
     explicit ContentGroup(TopLevelWidget* const parent, const QuantumTheme& t, QuantumButton& eb)
@@ -196,9 +197,10 @@ public:
         setName("Content");
     }
 
-    void setParameterGroups(NanoSubWidget* groups[8])
+    void setRelatedWidgets(NanoSubWidget* groups[8], SubWidget* const hist)
     {
         std::memcpy(parameterGroups, groups, sizeof(parameterGroups));
+        histogram = hist;
     }
 
 protected:
@@ -232,8 +234,8 @@ protected:
             fillColor(theme.textMidColor);
             fontSize(theme.fontSize);
             textAlign(ALIGN_BOTTOM|ALIGN_RIGHT);
-            textBox(0, getHeight() - theme.fontSize * 5 - theme.borderSize,
-                    getWidth() - theme.borderSize - theme.padding,
+            textBox(0, histogram->getAbsoluteY() - getAbsoluteY() - theme.fontSize * 5,
+                    getWidth() - theme.borderSize * 2 - theme.padding * 2,
                     kBuildInfoString, nullptr);
         }
     }
@@ -1054,20 +1056,20 @@ class SoundsGoodUI : public UI,
           setupButton(b5, bcb, "Music Heavy");
       }
 
-      void adjustSize(const QuantumMetrics& metrics)
+      void adjustSize(const QuantumMetrics& metrics, const uint fullWidth)
       {
+          const uint buttonHeight = theme.textHeight * 4;
           b1.adjustSize();
           b2.adjustSize();
           b3.adjustSize();
           b4.adjustSize();
           b5.adjustSize();
-          const uint normalWidth = std::max(b1.getWidth(), std::max(b2.getWidth(), std::max(b3.getWidth(), std::max(b4.getWidth(), b5.getWidth()))));
-          b1.setSize(normalWidth, normalWidth / 2);
-          b2.setSize(normalWidth, normalWidth / 2);
-          b3.setSize(normalWidth, normalWidth / 2);
-          b4.setSize(normalWidth, normalWidth / 2);
-          b5.setSize(normalWidth, normalWidth / 2);
-          SoundsgoodPresetGroup::adjustSize(normalWidth, metrics);
+          b1.setHeight(buttonHeight);
+          b2.setHeight(buttonHeight);
+          b3.setHeight(buttonHeight);
+          b4.setHeight(buttonHeight);
+          b5.setHeight(buttonHeight);
+          SoundsgoodPresetGroup::adjustSize(metrics, buttonHeight, fullWidth);
       }
 
       inline void setupButton(QuantumButton& b, ButtonEventHandler::Callback* const bcb, const char* const label)
@@ -1077,7 +1079,7 @@ class SoundsGoodUI : public UI,
           b.setId(10003);
           b.setLabel(label);
           b.setName(label);
-          widgets.push_back({ &b, Fixed });
+          widgets.push_back({ &b, Expanding });
       }
   } presetButtons;
 
@@ -1154,7 +1156,7 @@ public:
     welcomeLabel.setName("Welcome Label");
     welcomeLabel.setAlignment(NanoVG::ALIGN_TOP|NanoVG::ALIGN_LEFT);
 
-    contentGroup.setParameterGroups(parameterGroups);
+    contentGroup.setRelatedWidgets(parameterGroups, &histogram);
 
     // bottom of the drawing stack
     topCenteredGroup.toBottom();
@@ -1187,49 +1189,48 @@ public:
       const SoundsGoodMetrics metrics(theme);
 
       const uint width = getWidth();
-      const uint borderSize = theme.borderSize;
-      const uint padding = theme.padding;
-      const uint windowPadding = theme.windowPadding;
-      const uint startY = windowPadding * 2 + metrics.button.getHeight();
+//       const uint borderSize = theme.borderSize;
+//       const uint padding = theme.padding;
+      const uint startY = theme.windowPadding * 2 + metrics.button.getHeight();
       const uint arrowSpacing = theme.textHeight;
 
-      inputGroup.setAbsolutePos(windowPadding, startY);
-      contentGroup.setAbsolutePos(windowPadding + inputGroup.getWidth() + padding * 2, startY);
-      outputGroup.setAbsolutePos(width - windowPadding - outputGroup.getWidth(), startY);
+      inputGroup.setAbsolutePos(theme.windowPadding, startY);
+      contentGroup.setAbsolutePos(theme.windowPadding + inputGroup.getWidth() + theme.padding * 2, startY);
+      outputGroup.setAbsolutePos(width - theme.windowPadding - outputGroup.getWidth(), startY);
 
       name.setAbsolutePos(outputGroup.getAbsoluteX() + outputGroup.getWidth() - name.getWidth(),
                           (outputGroup.getAbsoluteY() - name.getHeight()) / 2);
 
       topCenteredGroup.setAbsolutePos(name.getAbsoluteX() - topCenteredGroup.globalEnableSwitch.getWidth() - theme.padding * 8 - theme.borderSize,
-                                      windowPadding + theme.borderSize);
+                                      theme.windowPadding + theme.borderSize);
 
-      easyModeButton.setAbsolutePos(inputGroup.getAbsoluteX(), windowPadding);
-      expertModeButton.setAbsolutePos(contentGroup.getAbsoluteX(), windowPadding);
+      easyModeButton.setAbsolutePos(inputGroup.getAbsoluteX(), theme.windowPadding);
+      expertModeButton.setAbsolutePos(contentGroup.getAbsoluteX(), theme.windowPadding);
 
-      const uint contentGroupStartInnerX = contentGroup.getAbsoluteX() + borderSize + padding;
-      welcomeLabel.setAbsolutePos(contentGroupStartInnerX, startY + borderSize + padding);
+      const uint contentGroupStartInnerX = contentGroup.getAbsoluteX() + theme.borderSize + theme.padding;
+      welcomeLabel.setAbsolutePos(contentGroupStartInnerX, startY + theme.borderSize + theme.padding);
 
-      presetButtons.setAbsolutePos(contentGroup.getAbsoluteX() + (contentGroup.getWidth() - borderSize * 2 - padding * 2 - presetButtons.frame.getWidth()) / 2,
-                                   contentGroup.getAbsoluteY() + borderSize - padding + (contentGroup.getHeight() - borderSize * 2 - padding * 2) / 3);
+      presetButtons.setAbsolutePos(contentGroupStartInnerX,
+                                   contentGroup.getAbsoluteY() + contentGroup.getHeight() - presetButtons.frame.getHeight() - theme.borderSize - theme.padding);
 
-      histogram.setAbsolutePos(contentGroupStartInnerX, presetButtons.frame.getAbsoluteY() + presetButtons.frame.getHeight() + padding);
+      histogram.setAbsolutePos(contentGroupStartInnerX, presetButtons.frame.getAbsoluteY() - histogram.getHeight() - theme.padding);
 
       // 1st row
-      const uint row1y = contentGroup.getAbsoluteY() + borderSize + padding;
+      const uint row1y = contentGroup.getAbsoluteY() + theme.borderSize + theme.padding;
       preProcessing.setAbsolutePos(contentGroupStartInnerX, row1y);
-      gate.setAbsolutePos(preProcessing.frame.getAbsoluteX() + preProcessing.frame.getWidth() + arrowSpacing + padding, row1y);
-      eq.setAbsolutePos(gate.frame.getAbsoluteX() + gate.frame.getWidth() + arrowSpacing + padding, row1y);
-      leveler.setAbsolutePos(eq.frame.getAbsoluteX() + eq.frame.getWidth() + arrowSpacing + padding, row1y);
+      gate.setAbsolutePos(preProcessing.frame.getAbsoluteX() + preProcessing.frame.getWidth() + arrowSpacing + theme.padding, row1y);
+      eq.setAbsolutePos(gate.frame.getAbsoluteX() + gate.frame.getWidth() + arrowSpacing + theme.padding, row1y);
+      leveler.setAbsolutePos(eq.frame.getAbsoluteX() + eq.frame.getWidth() + arrowSpacing + theme.padding, row1y);
 
       // 2nd row
       const uint highestOf1stRow = std::max(preProcessing.frame.getHeight(), std::max(gate.frame.getHeight(), std::max(leveler.frame.getHeight(), eq.frame.getHeight())));
-      const uint row2y = contentGroup.getAbsoluteY() + borderSize + arrowSpacing + padding * 3 + highestOf1stRow;
+      const uint row2y = contentGroup.getAbsoluteY() + theme.borderSize + arrowSpacing + theme.padding * 3 + highestOf1stRow;
       kneeComp.setAbsolutePos(contentGroupStartInnerX, row2y);
-      msCompressor.setAbsolutePos(kneeComp.frame.getAbsoluteX() + kneeComp.frame.getWidth() + arrowSpacing + padding, row2y);
-      limiter.setAbsolutePos(msCompressor.frame.getAbsoluteX() + msCompressor.frame.getWidth() + arrowSpacing + padding, row2y);
+      msCompressor.setAbsolutePos(kneeComp.frame.getAbsoluteX() + kneeComp.frame.getWidth() + arrowSpacing + theme.padding, row2y);
+      limiter.setAbsolutePos(msCompressor.frame.getAbsoluteX() + msCompressor.frame.getWidth() + arrowSpacing + theme.padding, row2y);
 
       // brickwall below limiter
-      brickwall.setAbsolutePos(limiter.frame.getAbsoluteX(), limiter.frame.getAbsoluteY() + limiter.frame.getHeight() + arrowSpacing + padding);
+      brickwall.setAbsolutePos(limiter.frame.getAbsoluteX(), limiter.frame.getAbsoluteY() + limiter.frame.getHeight() + arrowSpacing + theme.padding);
   }
 
   void resizeWidgets(const uint width, const uint height)
@@ -1257,7 +1258,7 @@ public:
       topCenteredGroup.adjustSize(metrics, getWidth(), getHeight(), easyModeButton.getHeight());
 
       welcomeLabel.setSize(contentGroup.getWidth() - borderSize * 2 - padding * 2, contentHeight - borderSize * 2 - padding * 2);
-      presetButtons.adjustSize(metrics);
+      presetButtons.adjustSize(metrics, contentGroup.getWidth() - borderSize * 2 - padding * 2);
 
       histogram.setSize(contentGroup.getWidth() - borderSize * 2 - padding * 2, contentHeight * 3 / 8);
 

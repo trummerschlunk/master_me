@@ -149,19 +149,17 @@ struct SoundsgoodPresetGroup : HorizontalLayout
         : theme(t),
           frame(parent, t) {}
 
-    void adjustSize(const uint buttonSize, const QuantumMetrics& metrics)
+    void adjustSize(const QuantumMetrics& metrics, const uint buttonHeight, const uint fullWidth)
     {
         // adjust size of frame contents
-        Size<uint> frameSize = Size<uint>(buttonSize * widgets.size() + theme.padding * (widgets.size() - 1), buttonSize / 2);
-        frameSize += metrics.frame;
-
-        HorizontalLayout::setSize(buttonSize / 2, theme.padding);
+        Size<uint> frameSize = Size<uint>(fullWidth, buttonHeight + metrics.frame.getHeight());
+        HorizontalLayout::setSize(fullWidth - theme.borderSize * 2 - theme.padding * 2, theme.padding);
 
         // adjust frame extra widget
         frame.adjustMainWidgetSize();
 
         // adjust size now
-        frame.setSize(frameSize.getWidth(), frameSize.getHeight() + frame.getOffset());
+        frame.setSize(fullWidth, frameSize.getHeight() + frame.getOffset());
     }
 
     void setAbsolutePos(const int x, const int y)
