@@ -138,7 +138,8 @@ else ifeq ($(HAVE_DGL),true)
 FAUSTPP_ARGS += -Duitype=X11
 endif
 
-FAUSTPP_ARGS += -X-vec -X-fun -X-lv -X0 -X-vs -X8
+FAUSTPP_ARGS += -X-scal
+# FAUSTPP_ARGS += -X-vec -X-fun -X-lv -X0 -X-vs -X8
 
 bin/master_me.lv2/%: soundsgood.dsp template/LV2/% faustpp
 	mkdir -p bin/master_me.lv2
