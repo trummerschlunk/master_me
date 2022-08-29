@@ -1846,7 +1846,7 @@ protected:
 
       bool isInteger;
       float value;
-      Rectangle<int> area;
+      DGL_NAMESPACE::Rectangle<int> area;
 
       // target slider has a knob event handler but is not a value slider widget, handle it separately
       if (widget->getId() == kParameter_target)
