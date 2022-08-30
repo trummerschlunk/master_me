@@ -105,7 +105,7 @@ There are some additional modules before the leveler for your convenience.
  - Limiter
  - Brickwall
 
-![DSP signal flow](./img/soundgood-svg/process.svg "DSP signal flow")
+![DSP signal flow](./img/soundsgood-svg/process.svg "DSP signal flow")
 
 ### Modules
 
