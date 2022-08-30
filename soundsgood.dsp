@@ -237,7 +237,7 @@ eq = hp_eq : tilt_eq : side_eq_b with{
 
 
 leveler_sc(target,fl,fr,l,r) =
-  (calc(lk2_var(length,fl,fr))*(1-bp)+bp)
+  (calc(lk2_short(fl,fr))*(1-bp)+bp)
   <: (_*l,_*r)
 with {
 
@@ -248,7 +248,7 @@ with {
     (target - lufs)
     +(prev_gain )
     :  limit(limit_neg,limit_pos)
-    : lp1p(leveler_speed_brake(l+r))
+    : lp1p(leveler_speed_brake(abs(l)+abs(r)))
     : leveler_meter_gain;
 
   bp = checkbox("v:soundsgood/t:expert/h:[3]leveler/[1]leveler bypass[symbol:leveler_bypass]") : si.smoo;
@@ -262,7 +262,7 @@ with {
   limit_neg = vslider("v:soundsgood/t:expert/h:[3]leveler/[8][symbol:leveler_max_minus][unit:dB]leveler max -", init_leveler_maxcut, 0, 60, 1) : ma.neg;
   limit(lo,hi) = min(hi) : max(lo);
   //leveler_speed_gated(sc) = (ef.gate_gain_mono(leveler_gate_thresh,0.1,0,0.1,abs(sc)) <: attach(_, (1-_) : meter_leveler_gate)) : _ * leveler_speed;
-  leveler_speed_brake(sc) = (expander(abs(sc)) <: attach(_, (1-_) : meter_leveler_brake)) : _ * leveler_speed;
+  leveler_speed_brake(sc) = (expander(sc) <: attach(_, (1-_) : meter_leveler_brake)) : _ * leveler_speed;
   length = 0.4;
 
   expander(x) = (ex.peak_expansion_gain_mono_db(maxHold,strength,leveler_brake_thresh,range,gate_att,hold,gate_rel,knee,prePost,x)
@@ -508,34 +508,22 @@ with {
 
 // +++++++++++++++++++++++++ LUFS METER +++++++++++++++++++++++++
 
-lk2 = par(i,2,kfilter : zi) :> 4.342944819 * log(max(1e-12)) : -(0.691) with {
+lk2_var(Tg)= par(i,2,kfilter : zi) :> 4.342944819 * log(max(1e-12)) : -(0.691) with {
   // maximum assumed sample rate is 192k
   maxSR = 192000;
-  sump(n) = ba.slidingSump(n, Tg*maxSR)/n;
+  sump(n) = ba.slidingSump(n, Tg*maxSR)/max(n,ma.EPSILON);
   envelope(period, x) = x * x :  sump(rint(period * ma.SR));
-  //Tg = 0.4; // 3 second window for 'short-term' measurement
-  Tg = 3;
   zi = envelope(Tg); // mean square: average power = energy/Tg = integral of squared signal / Tg
 
   kfilter = ebu.prefilter;
 };
 
+
+lk2 = lk2_var(3);
+lk2_short = lk2_var(0.4);
+
 lufs_meter_in(l,r) = l,r <: l, attach(r, (lk2 : vbargraph("v:soundsgood/h:easy/[2][unit:dB][symbol:lufs_in]in lufs-s",-70,0))) : _,_;
 lufs_meter_out(l,r) = l,r <: l, attach(r, (lk2 : vbargraph("v:soundsgood/h:easy/[7][unit:dB][symbol:lufs_out]out lufs-s",-70,0))) : _,_;
-
-lk2_var(length) =
-  par(i,2,kfilter : envelope(length)) :> 4.342944819 * log(max(1e-12)) : -(0.691) with {
-  // maximum assumed sample rate is 192k
-  maxSR = 192000;
-  sump(n) = ba.slidingSump(n, Tg*maxSR)/n;
-  // mean square: average power = energy/Tg = integral of squared signal / Tg
-  envelope(period, x) = x * x :  sump(rint(period * ma.SR));
-  //Tg = 0.4; // 3 second window for 'short-term' measurement
-  Tg = 3;
-
-
-  kfilter = ebu.prefilter;
-};
 
 /* ******* 8< *******/
 // TODO: use co.peak_compression_gain_N_chan_db when it arrives in the current faust version
