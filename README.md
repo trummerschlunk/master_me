@@ -48,8 +48,8 @@ Due to faust and its open architecture, it can possibly be compiled to a vast va
 # Contributors
 
 Concept and idea: Klaus Scheuermann  
-DSP: Klaus Scheuermann, Bart Brouns (magnetophon), Robin Gareus (x42), Jakob Dübel (jkbd)  
-GUI, Plugin: Filipe Coelho (falkTX) 
+DSP: Klaus Scheuermann (trummerschlunk), Bart Brouns (magnetophon), Robin Gareus (x42), Jakob Dübel (jkbd)  
+GUI, Plugin: Filipe Coelho (falkTX)  
 Logo, Artwork: Peter Schlossnikel
 
 More contributions from: Julius Smith, Dario Sanfilippo, Stéphane Letz, Romain Michon, Yann Orlarey, the Faust community.
