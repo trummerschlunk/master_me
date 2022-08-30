@@ -1,4 +1,4 @@
-[<img src="./img/logo/logo_master_me_blackK01.png">]
+<img src="./img/logo/logo_master_me_blackK01.png">
 
 
 
