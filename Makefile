@@ -153,11 +153,12 @@ build/master_me/%: soundsgood.dsp template/% faustpp
 build/BuildInfo.hpp: soundsgood.dsp plugin/* template/* template/LV2/*
 	mkdir -p build
 	echo 'constexpr const char* const kBuildInfoString = ""' > $@
-	echo '"\t4ohm.de | master_me\t\\n"' >> $@
+	echo '"master_me\\n"' >> $@
 	echo '"A plugin by Klaus Scheuermann.\\n"' >> $@
-	echo '"With contributions from falkTX, jkbd, magnetophon, x42 and others.\\n\\n"' >> $@
-	echo '"Using `$(shell git branch --show-current)` branch, with commit:\\n"' >> $@
-	echo '"$(shell git log -n 1 --decorate=no --pretty=oneline --abbrev-commit)\\n"' >> $@
+	echo '"With contributions from falkTX, jkbd, magnetophon, x42 and others.\\n"' >> $@
+	echo '"Made with Faust and DPF.\\n"' >> $@
+	echo '"Supported by the Prototype Fund / German Federal Ministry of Education and Research.\\n\\n"' >> $@
+	echo '"Built using `$(shell git branch --show-current)` branch with commit: $(shell git log -n 1 --decorate=no --pretty=oneline --abbrev-commit)\\n"' >> $@
 	echo ';' >> $@
 
 build/Logo.hpp: img/logo/master_me_white.png img/logo/master_me_white@2x.png

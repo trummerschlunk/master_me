@@ -234,7 +234,7 @@ protected:
             fillColor(theme.textMidColor);
             fontSize(theme.fontSize);
             textAlign(ALIGN_BOTTOM|ALIGN_RIGHT);
-            textBox(0, histogram->getAbsoluteY() - getAbsoluteY() - theme.fontSize * 5,
+            textBox(0, histogram->getAbsoluteY() - getAbsoluteY() - theme.fontSize * 6 - theme.padding,
                     getWidth() - theme.borderSize * 2 - theme.padding * 2,
                     kBuildInfoString, nullptr);
         }
@@ -1140,16 +1140,15 @@ public:
     expertModeButton.setLabel("Expert");
     expertModeButton.setName("Expert Mode Button");
 
-    static const char* const welcomeMessage = ""
+    static const char* const welcomeMessage = u8""
         "Hi there,\n"
         "\n"
-        "master_me is an automatic mastering plugin for live-streamers,\n"
-        "podcasters and alike.\n"
+        "master_me is a free and open source automatic mastering plugin for live streamers, podcasters and internet radio stations.\n"
         "\n"
-        "You are currently in \"easy\" mode.\n"
-        "Select a preset, set your desired target loudness and you're good to go.\n"
+        "You are currently in “Easy” mode.\n"
+        "Select a preset from the bottom and forget about it.\n"
         "\n"
-        "Hit \"expert\" above to see and tweak what is under the hood.\n"
+        "Choose “Expert” mode to see and tweak what's under the hood.\n"
         "\n"
         "Happy streaming!\n";
     welcomeLabel.setLabel(welcomeMessage);
