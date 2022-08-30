@@ -103,7 +103,8 @@ PLUGIN_GENERATED_FILES  = $(foreach f,$(PLUGIN_TEMPLATE_FILES),build/master_me/$
 PLUGIN_GENERATED_FILES += bin/master_me.lv2/manifest.ttl
 PLUGIN_GENERATED_FILES += bin/master_me.lv2/plugin.ttl
 PLUGIN_GENERATED_FILES += bin/master_me.lv2/ui.ttl
-PLUGIN_GENERATED_FILES += build/BuildInfo.hpp
+PLUGIN_GENERATED_FILES += build/BuildInfo1.hpp
+PLUGIN_GENERATED_FILES += build/BuildInfo2.hpp
 PLUGIN_GENERATED_FILES += build/Logo.hpp
 
 gen: $(PLUGIN_GENERATED_FILES)
@@ -149,16 +150,21 @@ build/master_me/%: soundsgood.dsp template/% faustpp
 	mkdir -p build/master_me
 	$(FAUSTPP_EXEC) $(FAUSTPP_ARGS) -a template/$* $< -o $@
 
-# regenerated on every possible change
-build/BuildInfo.hpp: soundsgood.dsp plugin/* template/* template/LV2/*
+# only generated once
+build/BuildInfo1.hpp:
 	mkdir -p build
-	echo 'constexpr const char* const kBuildInfoString = ""' > $@
-	echo '"master_me\\n"' >> $@
-	echo '"A plugin by Klaus Scheuermann.\\n"' >> $@
-	echo '"With contributions from falkTX, jkbd, magnetophon, x42 and others.\\n"' >> $@
-	echo '"Made with Faust and DPF.\\n"' >> $@
-	echo '"Supported by the Prototype Fund / German Federal Ministry of Education and Research.\\n\\n"' >> $@
-	echo '"Built using `$(shell git branch --show-current)` branch with commit: $(shell git log -n 1 --decorate=no --pretty=oneline --abbrev-commit)\\n"' >> $@
+	echo 'constexpr const char* const kBuildInfoString1 = ""' > $@
+	echo '"A plugin by Klaus Scheuermann, made with Faust and DPF\\n"' >> $@
+	echo '"DSP: Klaus Scheuermann, magnetophon, x42, jkbd\\n"' >> $@
+	echo '"GUI, Plugin: falkTX\\n"' >> $@
+	echo '"Supported by the Prototype Fund / German Federal Ministry of Education and Research"' >> $@
+	echo ';' >> $@
+
+# regenerated on every possible change
+build/BuildInfo2.hpp: soundsgood.dsp plugin/* template/* template/LV2/*
+	mkdir -p build
+	echo 'constexpr const char* const kBuildInfoString2 = ""' > $@
+	echo '"Built using `$(shell git branch --show-current)` branch with commit: $(shell git log -n 1 --decorate=no --pretty=oneline --abbrev-commit)"' >> $@
 	echo ';' >> $@
 
 build/Logo.hpp: img/logo/master_me_white.png img/logo/master_me_white@2x.png

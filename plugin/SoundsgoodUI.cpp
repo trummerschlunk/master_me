@@ -10,7 +10,8 @@
 #include "widgets/Histogram.hpp"
 #include "widgets/InspectorWindow.hpp"
 
-#include "BuildInfo.hpp"
+#include "BuildInfo1.hpp"
+#include "BuildInfo2.hpp"
 #include "Logo.hpp"
 
 #include <functional>
@@ -231,12 +232,18 @@ protected:
         }
         else
         {
-            fillColor(theme.textMidColor);
             fontSize(theme.fontSize);
             textAlign(ALIGN_BOTTOM|ALIGN_RIGHT);
-            textBox(0, histogram->getAbsoluteY() - getAbsoluteY() - theme.fontSize * 6 - theme.padding,
+
+            fillColor(theme.textMidColor);
+            textBox(0, histogram->getAbsoluteY() - getAbsoluteY() - theme.fontSize * 4.5f - theme.padding,
                     getWidth() - theme.borderSize * 2 - theme.padding * 2,
-                    kBuildInfoString, nullptr);
+                    kBuildInfoString1, nullptr);
+
+            fillColor(theme.textLightColor);
+            textBox(0, histogram->getAbsoluteY() - getAbsoluteY() - theme.padding,
+                    getWidth() - theme.borderSize * 2 - theme.padding * 2,
+                    kBuildInfoString2, nullptr);
         }
     }
 
@@ -1185,10 +1192,11 @@ public:
     static const char* const welcomeMessage = u8""
         "Hi there,\n"
         "\n"
-        "master_me is a free and open source automatic mastering plugin for live streamers, podcasters and internet radio stations.\n"
+        "master_me is a free and open-source automatic mastering plugin for\n"
+        "live streamers, podcasters, and internet radio stations.\n"
         "\n"
         "You are currently in “Easy” mode.\n"
-        "Select a preset from the bottom and forget about it.\n"
+        "Select a preset from the bottom and let master_me take care of the rest.\n"
         "\n"
         "Choose “Expert” mode to see and tweak what's under the hood.\n"
         "\n"
