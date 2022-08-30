@@ -79,10 +79,12 @@ process =
     : peakmeter_out
 ;
 
-// stereo bypass with si.smoo fading
-bp2(sw,pr) =  _,_ <: _,_,pr : (_*sm,_*sm),(_*(1-sm),_*(1-sm)) :> _,_ with {
-    sm = sw : si.smoo;
+// variable channel number bypass with cross-fade
+bp2(sw,pr) = ba.bypass_fade(ma.SR*fade_time,sw,pr)
+             with {
+  fade_time = 0.01;//seconds
 };
+
 
 // DC FILTER
 dc_blocker_bp = bp2(sw,dc_blocker(2)) with {
