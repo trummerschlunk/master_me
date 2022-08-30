@@ -39,44 +39,32 @@ target = vslider("v:soundsgood/h:easy/[3]Target[unit:dB][symbol:target]", init_l
 
 // main
 process =
-    //tone_generator :
-    si.bus(2)
+  bp2(checkbox("[symbol:global_bypass]global bypass"),(
+       in_gain
+       : peakmeter_in
+       : lufs_meter_in
+       : dc_blocker_bp
 
+       : (phase_invert_L , phase_invert_R)
+       : mono_bp
+         //: correlate_meter
+       : correlate_correct_bp
 
-    : bp2(checkbox("[symbol:global_bypass]global bypass"),(
-    in_gain
-    : peakmeter_in
-    : lufs_meter_in
-    : dc_blocker_bp
+       : gate_bp
+       : eq_bp
 
-    : (phase_invert_L , phase_invert_R)
-    : mono_bp
-    //: correlate_meter
-    : correlate_correct_bp
+       : (
+         leveler_sc(target)
+         : ( sc_compressor
+             : mscomp_bp
+             : limiter_rms_bp
+             : brickwall_no_latency_bp
+           )~(si.bus(2))
+       )~(si.bus(2))
+       ))
 
-    : gate_bp
-    : eq_bp
-
-    : (
-        leveler_sc(target)
-
-        : (sc_compressor
-
-
-              : mscomp_bp
-             // : kneecomp_bp
-
-           : limiter_rms_bp
-             // : brickwall_bp
-
-           : brickwall_no_latency_bp
-
-          )~(si.bus(2))
-    )~(si.bus(2))
-    ))
-
-    : lufs_meter_out
-    : peakmeter_out
+  : lufs_meter_out
+  : peakmeter_out
 ;
 
 // stereo bypass with si.smoo fading
@@ -261,9 +249,8 @@ with {
   limit_pos = vslider("v:soundsgood/t:expert/h:[3]leveler/[7][symbol:leveler_max_plus][unit:dB]leveler max +", init_leveler_maxboost, 0, 60, 1);
   limit_neg = vslider("v:soundsgood/t:expert/h:[3]leveler/[8][symbol:leveler_max_minus][unit:dB]leveler max -", init_leveler_maxcut, 0, 60, 1) : ma.neg;
   limit(lo,hi) = min(hi) : max(lo);
-  //leveler_speed_gated(sc) = (ef.gate_gain_mono(leveler_gate_thresh,0.1,0,0.1,abs(sc)) <: attach(_, (1-_) : meter_leveler_gate)) : _ * leveler_speed;
+
   leveler_speed_brake(sc) = (expander(sc) <: attach(_, (1-_) : meter_leveler_brake)) : _ * leveler_speed;
-  length = 0.4;
 
   expander(x) = (ex.peak_expansion_gain_mono_db(maxHold,strength,leveler_brake_thresh,range,gate_att,hold,gate_rel,knee,prePost,x)
        : ba.db2linear
@@ -450,39 +437,6 @@ limiter_rms = co.RMS_FBFFcompressor_N_chan(strength,thresh,att,rel,knee,0,1,fffb
 
   limiter_postgain = vslider("v:soundsgood/t:expert/h:[7]limiter/[8][unit:dB][symbol:limiter_makeup]limiter makeup", init_limiter_postgain,-10,+10,0.5) : ba.db2linear:si.smoo;
   limiter_meter = _ <: attach(ba.linear2db : vbargraph("v:soundsgood/t:expert/h:[7]limiter/[9][unit:dB][symbol:limiter_gain_reduction]limiter gain reduction",-12,0));
-};
-
-
-// BRICKWALL
-brickwall_bp = bp2(checkbox("v:soundsgood/t:expert/h:[8]brickwall/[1][symbol:brickwall_bypass]brickwall bypass"),brickwall);
-
-brickwall = limiter_lad_N(N, limiter_lad_lookahead, limiter_lad_ceil, limiter_lad_attack, limiter_lad_hold, limiter_lad_release) with{
-
-  N=2;
-
-  twopi = 2 * ma.PI;
-
-  limiter_lad_lookahead = 0.01;
-  limiter_lad_ceil = init_brickwall_ceiling : ba.db2linear;
-  limiter_lad_attack = .01 / twopi;
-  limiter_lad_hold = .1;
-  limiter_lad_release = 1 / twopi;
-
-  // lookahead limiter (N-channel)
-  limiter_lad_N(N, LD, ceiling, attack, hold, release) =
-    si.bus(N) <: par(i, N, @ (LD * ma.SR)),
-    (scaling <: si.bus(N)) : ro.interleave(N, 2) : par(i, N, *)
-  with {
-    scaling = ceiling / max(amp_profile, ma.EPSILON) : min(1) : brickwall_meter;
-    amp_profile = par(i, N, abs) : maxN(N) : ba.peakholder(hold * ma.SR) : att_smooth(attack) : rel_smooth(release);
-    att_smooth(time, in) = si.smooth(ba.tau2pole(time), in);
-    rel_smooth(time, in) = an.peak_envelope(time, in);
-    maxN(1) = _;
-    maxN(2) = max;
-    maxN(N) = max(maxN(N - 1));
-  };
-  brickwall_meter = _ <: attach(ba.linear2db : abs : vbargraph("v:soundsgood/t:expert/h:[8]brickwall/[8][unit:dB][symbol:brickwall_gain_reduction]brickwall gain reduction",0,12));
-
 };
 
 // LIMITER NO LATENCY
