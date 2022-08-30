@@ -52,7 +52,7 @@ DSP: Klaus Scheuermann, Bart Brouns (magnetophon), Robin Gareus (x42), Jakob Dü
 GUI, Plugin: Filipe Coelho (falkTX) 
 Logo, Artwork: Peter Schlossnikel
 
-More contributions from: Julius Smith, Dario Sanfilippo, Stefane Letz, Romain Michon, Yann Orley, the Faust community.
+More contributions from: Julius Smith, Dario Sanfilippo, Stéphane Letz, Romain Michon, Yann Orlarey, the Faust community.
 
 master_me's DSP is written in Faust.  
 GUI and Plugin based on DPF (DISTRHO Plugin Framework).
