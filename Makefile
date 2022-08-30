@@ -164,7 +164,7 @@ build/BuildInfo1.hpp:
 build/BuildInfo2.hpp: soundsgood.dsp plugin/* template/* template/LV2/*
 	mkdir -p build
 	echo 'constexpr const char* const kBuildInfoString2 = ""' > $@
-	echo '"Built using `$(shell git branch --show-current)` branch with commit: $(shell git log -n 1 --decorate=no --pretty=oneline --abbrev-commit)"' >> $@
+	echo '"Built using `$(shell git branch --show-current)` branch with commit:\\n$(shell git log -n 1 --decorate=no --pretty=oneline --abbrev-commit)"' >> $@
 	echo ';' >> $@
 
 build/Logo.hpp: img/logo/master_me_white.png img/logo/master_me_white@2x.png

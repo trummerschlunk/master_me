@@ -229,21 +229,22 @@ protected:
             drawArrowLR(parameterGroups[6]->getAbsoluteX() - x - arrowSpacing, parameterGroups[6]->getAbsoluteY() - y + arrowSpacing * 2);
 
             drawArrowTB(parameterGroups[7]->getAbsoluteX() - x + arrowSpacing * 2, parameterGroups[7]->getAbsoluteY() - y - arrowSpacing);
+
+            fontSize(theme.fontSize);
+            fillColor(theme.textMidColor);
+            textAlign(ALIGN_BOTTOM|ALIGN_RIGHT);
+            textBox(0, getHeight() - theme.fontSize - theme.borderSize * 2 - theme.padding * 2,
+                    getWidth() - theme.borderSize * 2 - theme.padding * 2,
+                    kBuildInfoString2, nullptr);
         }
         else
         {
             fontSize(theme.fontSize);
-            textAlign(ALIGN_BOTTOM|ALIGN_RIGHT);
-
             fillColor(theme.textMidColor);
-            textBox(0, histogram->getAbsoluteY() - getAbsoluteY() - theme.fontSize * 4.5f - theme.padding,
+            textAlign(ALIGN_BOTTOM|ALIGN_RIGHT);
+            textBox(0, histogram->getAbsoluteY() - getAbsoluteY() - theme.fontSize * 3 - theme.padding,
                     getWidth() - theme.borderSize * 2 - theme.padding * 2,
                     kBuildInfoString1, nullptr);
-
-            fillColor(theme.textLightColor);
-            textBox(0, histogram->getAbsoluteY() - getAbsoluteY() - theme.padding,
-                    getWidth() - theme.borderSize * 2 - theme.padding * 2,
-                    kBuildInfoString2, nullptr);
         }
     }
 
