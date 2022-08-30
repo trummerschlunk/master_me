@@ -70,6 +70,12 @@ Choose a preset.
 Adjust a target-loudness (optional).
 
 # Interface
+## Handling
+
+Click and drag any parameter vertically or horizontally.
+Shift+click to reset to default
+Ctrl+drag to go slower
+Double-click for text input
 
 ## Easy Mode
 
