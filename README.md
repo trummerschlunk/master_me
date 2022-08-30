@@ -1,3 +1,5 @@
+![screenshot](./img/logo_master_me_blackK01.png "master_me logo")
+
 # master_me
 
 Automatic audio mastering plugin for live-streaming and podcasting
@@ -81,7 +83,7 @@ Only two choices can be made: choose a preset and set the desired target loudnes
 
 ### Concept
 
-The main concept of master_me is the combination of a leveler and a chain of dynamics processors. 
+The main concept of master_me is the combination of a leveler and a chain of dynamics processors.
 
 The leveler can be seen as a big volume knob which you would grab, when the sound is too low or too high for your taste.
 
@@ -113,7 +115,7 @@ The ‘pre-processing’ module contains:
  - a ‘mono’ switch
  - phase switches for both left and right channels
  - ‘stereo-correct’ switch (custom designed process, see 'stereo-correct')
- 
+
 #### Module: gate
 
 A simple noise gate with the following parameters:
