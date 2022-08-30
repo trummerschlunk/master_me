@@ -1,0 +1,4 @@
+master_me is a multi-platform, free and open source audio plug-in which optimizes sound in live streaming situations.
+Introducing no latency, it takes care of master levels and ‘polishes’ the sound with a chain of effects, closely modeled after the audio chain of Klaus Scheuermann’s mastering studio in Berlin, Germany.
+
+Made with FAUST and DPF.
