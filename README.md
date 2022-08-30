@@ -220,6 +220,14 @@ The 'brickwall' module is the last process in master_me's chain of modules.
 It is a fast brickwall limiter which will not allow any peaks above the desired 'ceiling'.
 The 'brickwall' process is a protection limiter and will not sound nice, if it needs to work a lot.
 
+#### custom module: stereo correct
+this process was custom developed for the Chaos Computer Club's VOC (video operation center). It constantly checks the phase of an incoming signal.
+
+If phase == 1, all audio is made mono.
+If phase == -1, one channel is phase switched and the audio is monofied.
+
+This helps detect and fix broken audio signals and unwanted panning.
+
 # Building
 
 Build requirements: gcc or clang as compiler, faust and gnu make
