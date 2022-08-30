@@ -1039,6 +1039,12 @@ class SoundsGoodUI : public UI,
           &b5,
       };
 
+      // keep current values in cache, for quick comparison against presets
+      float currentValues[ARRAY_SIZE(EasyPreset::values)] = {};
+
+      // for ignore changes when preset buttons are clicked
+      bool ignoreParameterChanges = false;
+
       PresetButtons(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, const QuantumTheme& theme)
           : SoundsgoodPresetGroup(parent, theme),
             b1(&frame, theme),
@@ -1076,6 +1082,37 @@ class SoundsGoodUI : public UI,
           b4.setHeight(buttonHeight);
           b5.setHeight(buttonHeight);
           SoundsgoodPresetGroup::adjustSize(metrics, buttonHeight, fullWidth);
+      }
+
+      void updateCurrentValue(const uint id, const float value)
+      {
+          DISTRHO_SAFE_ASSERT_RETURN(id < ARRAY_SIZE(currentValues),);
+
+          if (ignoreParameterChanges || d_isEqual(currentValues[id], value))
+              return;
+
+          currentValues[id] = value;
+
+          uint nextButton = 0;
+          for (uint i=0; i<ARRAY_SIZE(kEasyPresets); ++i)
+          {
+              if (std::memcmp(kEasyPresets[i].values+1, currentValues+1, sizeof(currentValues)-1) == 0)
+              {
+                  nextButton = 10001 + i;
+                  break;
+              }
+          }
+
+          if (nextButton != 0)
+          {
+              for (QuantumButton* button : buttonList)
+                  button->setChecked(button->getId() == nextButton, false);
+          }
+          else
+          {
+              for (QuantumButton* button : buttonList)
+                  button->setChecked(false, false);
+          }
       }
 
       inline void setupButton(QuantumButton& b, ButtonEventHandler::Callback* const bcb, const char* const label)
@@ -1289,6 +1326,9 @@ protected:
           }
           return;
       }
+
+      if (index < ARRAY_SIZE(presetButtons.currentValues))
+          presetButtons.updateCurrentValue(index, value);
 
     switch (static_cast<Parameters>(index))
     {
@@ -1741,13 +1781,6 @@ protected:
   /* --------------------------------------------------------------------------------------------------------
    * Custom Widget Callbacks */
 
-  void reportGroupBypassChanged(const uint id, const bool enabled)
-  {
-      editParameter(id, true);
-      setParameterValue(id, enabled ? 0.f : 1.f);
-      editParameter(id, false);
-  }
-
   void buttonClicked(SubWidget* const widget, int) override
   {
       const uint id = widget->getId();
@@ -1759,41 +1792,20 @@ protected:
 
       if (id < 1000)
       {
+          float value;
+
           switch (id)
           {
           // bypass switches, inverted operation
           case kParameter_global_bypass:
-              reportGroupBypassChanged(id, enabled);
-              break;
           case kParameter_gate_bypass:
-              gate.setEnabledColor(enabled);
-              reportGroupBypassChanged(id, enabled);
-              break;
           case kParameter_leveler_bypass:
-              leveler.setEnabledColor(enabled);
-              // inputGroup.levelerGain.label.setLabelColor(enabled ? theme.textLightColor : theme.textDarkColor);
-              // inputGroup.levelerGain.setTextColor(enabled ? theme.textLightColor : theme.textDarkColor);
-              reportGroupBypassChanged(id, enabled);
-              break;
           case kParameter_eq_bypass:
-              eq.setEnabledColor(enabled);
-              reportGroupBypassChanged(id, enabled);
-              break;
           case kParameter_kneecomp_bypass:
-              kneeComp.setEnabledColor(enabled);
-              reportGroupBypassChanged(id, enabled);
-              break;
           case kParameter_mscomp_bypass:
-              msCompressor.setEnabledColor(enabled);
-              reportGroupBypassChanged(id, enabled);
-              break;
           case kParameter_limiter_bypass:
-              limiter.setEnabledColor(enabled);
-              reportGroupBypassChanged(id, enabled);
-              break;
           case kParameter_brickwall_bypass:
-              brickwall.setEnabledColor(enabled);
-              reportGroupBypassChanged(id, enabled);
+              value = enabled ? 0.f : 1.f;
               break;
           // regular switches, normal operation
           case kParameter_mono:
@@ -1801,9 +1813,41 @@ protected:
           case kParameter_phase_r:
           case kParameter_dc_blocker:
           case kParameter_stereo_correct:
-              editParameter(id, true);
-              setParameterValue(id, qswitch->isChecked() ? 1.f : 0.f);
-              editParameter(id, false);
+              value = enabled ? 1.f : 0.f;
+              break;
+          default:
+              return;
+          }
+
+          presetButtons.updateCurrentValue(id, value);
+
+          editParameter(id, true);
+          setParameterValue(id, value);
+          editParameter(id, false);
+
+          // extra handling for setting enabled color
+          switch (id)
+          {
+          case kParameter_gate_bypass:
+              gate.setEnabledColor(enabled);
+              break;
+          case kParameter_leveler_bypass:
+              leveler.setEnabledColor(enabled);
+              break;
+          case kParameter_eq_bypass:
+              eq.setEnabledColor(enabled);
+              break;
+          case kParameter_kneecomp_bypass:
+              kneeComp.setEnabledColor(enabled);
+              break;
+          case kParameter_mscomp_bypass:
+              msCompressor.setEnabledColor(enabled);
+              break;
+          case kParameter_limiter_bypass:
+              limiter.setEnabledColor(enabled);
+              break;
+          case kParameter_brickwall_bypass:
+              brickwall.setEnabledColor(enabled);
               break;
           }
       }
@@ -1811,6 +1855,8 @@ protected:
       {
           const uint prId = id - 10001;
           DISTRHO_SAFE_ASSERT_RETURN(prId < ARRAY_SIZE(kEasyPresets),);
+
+          presetButtons.ignoreParameterChanges = true;
 
           for (QuantumButton* button : presetButtons.buttonList)
               button->setChecked(button == widget, false);
@@ -1822,6 +1868,10 @@ protected:
               parameterChanged(i, preset.values[i]);
               setParameterValue(i, preset.values[i]);
           }
+
+          std::memcpy(presetButtons.currentValues, preset.values, sizeof(preset.values));
+
+          presetButtons.ignoreParameterChanges = false;
       }
       else if (widget == &easyModeButton)
       {
@@ -1865,6 +1915,7 @@ protected:
 
   void knobValueChanged(SubWidget* const widget, const float value) override
   {
+      presetButtons.updateCurrentValue(widget->getId(), value);
       setParameterValue(widget->getId(), value);
   }
   
