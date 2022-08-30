@@ -1054,6 +1054,12 @@ class SoundsGoodUI : public UI,
           setupButton(b3, bcb, "EBU R128\n-23 LUFS");
           setupButton(b4, bcb, "SPEECH GENERAL\n-16 LUFS");
           setupButton(b5, bcb, "MUSIC GENERAL\n-16 LUFS");
+
+          b1.setId(10001);
+          b2.setId(10002);
+          b3.setId(10003);
+          b4.setId(10004);
+          b5.setId(10005);
       }
 
       void adjustSize(const QuantumMetrics& metrics, const uint fullWidth)
@@ -1076,7 +1082,6 @@ class SoundsGoodUI : public UI,
       {
           b.setCallback(bcb);
           b.setCheckable(true);
-          b.setId(10003);
           b.setLabel(label);
           b.setName(label);
           widgets.push_back({ &b, Expanding });
@@ -1130,13 +1135,13 @@ public:
     // setup widget properties
     easyModeButton.setCallback(this);
     easyModeButton.setCheckable(true);
-    easyModeButton.setId(10001);
+    easyModeButton.setId(20001);
     easyModeButton.setLabel("Easy");
     easyModeButton.setName("Easy Mode Button");
 
     expertModeButton.setCallback(this);
     expertModeButton.setCheckable(true);
-    expertModeButton.setId(10002);
+    expertModeButton.setId(20002);
     expertModeButton.setLabel("Expert");
     expertModeButton.setName("Expert Mode Button");
 
@@ -1572,6 +1577,14 @@ protected:
     }
   }
 
+    void programLoaded(const uint32_t index) override
+    {
+        const EasyPreset& preset(kEasyPresets[index]);
+
+        for (uint i=1; i<ARRAY_SIZE(preset.values); ++i)
+            parameterChanged(i, preset.values[i]);
+    }
+
     void stateChanged(const char* const key, const char* const value) override
     {
         if (std::strcmp(key, "mode") == 0)
@@ -1794,8 +1807,23 @@ protected:
               break;
           }
       }
+      else if (id > 10000 && id < 20000)
+      {
+          const uint prId = id - 10001;
+          DISTRHO_SAFE_ASSERT_RETURN(prId < ARRAY_SIZE(kEasyPresets),);
 
-      if (widget == &easyModeButton)
+          for (QuantumButton* button : presetButtons.buttonList)
+              button->setChecked(button == widget, false);
+
+          const EasyPreset& preset(kEasyPresets[prId]);
+
+          for (uint i=1; i<ARRAY_SIZE(preset.values); ++i)
+          {
+              parameterChanged(i, preset.values[i]);
+              setParameterValue(i, preset.values[i]);
+          }
+      }
+      else if (widget == &easyModeButton)
       {
           easyModeButton.setChecked(true, false);
           expertModeButton.setChecked(false, false);
@@ -1822,11 +1850,6 @@ protected:
               w->show();
 
           setState("mode", "expert");
-      }
-      else if (std::find(presetButtons.buttonList.begin(), presetButtons.buttonList.end(), widget) != presetButtons.buttonList.end())
-      {
-          for (QuantumButton* button : presetButtons.buttonList)
-              button->setChecked(button == widget, false);
       }
   }
 

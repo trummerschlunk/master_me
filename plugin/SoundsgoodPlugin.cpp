@@ -21,9 +21,12 @@ START_NAMESPACE_DISTRHO
 
 class SoundsgoodPlugin : public FaustGeneratedPlugin
 {
+    // current mode
+    String mode;
+
+    // histogram related stuff
     uint bufferSizeForHistogram;
     uint numFramesSoFar = 0;
-
     MasterMeFifoControl lufsInFifo;
     MasterMeFifoControl lufsOutFifo;
     SharedMemory<MasterMeHistogramFifos> histogramSharedData;
@@ -90,6 +93,11 @@ protected:
         }
     }
 
+    void initProgramName(const uint32_t index, String& programName) override
+    {
+        programName = kEasyPresets[index].name;
+    }
+
     void initState(const uint32_t index, State& state) override
     {
         if (index < kStateCount)
@@ -124,9 +132,29 @@ protected:
         }
     }
 
+    void loadProgram(const uint32_t index) override
+    {
+        const EasyPreset& preset(kEasyPresets[index]);
+
+        for (uint i=1; i<ARRAY_SIZE(preset.values); ++i)
+            setParameterValue(i, preset.values[i]);
+    }
+
+    String getState(const char* const key) const override
+    {
+        if (std::strcmp(key, "mode") == 0)
+            return mode;
+
+        return String();
+    }
+
     void setState(const char* const key, const char* const value) override
     {
-        if (std::strcmp(key, "histogram") == 0)
+        if (std::strcmp(key, "mode") == 0)
+        {
+            mode = value;
+        }
+        else if (std::strcmp(key, "histogram") == 0)
         {
             if (histogramSharedData.isCreatedOrConnected())
             {
