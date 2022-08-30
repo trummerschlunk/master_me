@@ -241,7 +241,7 @@ with {
 
   calc(lufs,short_lufs) = FB(lufs,short_lufs)~_: ba.db2linear;
   FB(lufs,short_lufs,prev_gain) =
-    (target - lufs)
+    (target - short_lufs)
     +(prev_gain )
     :  limit(limit_neg,limit_pos)
     : si.onePoleSwitching(release,attack)
