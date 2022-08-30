@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 356.400000 88.000000" width="178.200000mm" height="44.000000mm" version="1.1">
+<a xlink:href="tilt-0x600004034480.svg">
+<rect x="1.000000" y="1.000000" width="355.400000" height="87.000000" rx="0" ry="0" style="stroke:none;fill:#cccccc;"/>
+<rect x="0.000000" y="0.000000" width="355.400000" height="87.000000" rx="0" ry="0" style="stroke:none;fill:#ffffff;"/>
+</a>
+<text x="10.000000" y="7.000000" font-family="Arial" font-size="7"></text>
+<a xlink:href="filterbank-0x6000041b0f30.svg">
+<rect x="33.000000" y="33.000000" width="77.400000" height="24.000000" rx="0" ry="0" style="stroke:none;fill:#cccccc;"/>
+<rect x="32.000000" y="32.000000" width="77.400000" height="24.000000" rx="0" ry="0" style="stroke:none;fill:#003366;"/>
+</a>
+<a xlink:href="filterbank-0x6000041b0f30.svg">
+<text x="70.700000" y="46.000000" font-family="Arial" font-size="7" text-anchor="middle" fill="#FFFFFF">filterbank(1)(630)</text>
+</a>
+<circle cx="34.000000" cy="34.000000" r="1"/>
+<line x1="29.000000" y1="43.000000" x2="32.000000" y2="44.000000"  transform="rotate(0.000000,32.000000,44.000000)" style="stroke: black; stroke-width:0.25;"/>
+<line x1="29.000000" y1="45.000000" x2="32.000000" y2="44.000000"  transform="rotate(0.000000,32.000000,44.000000)" style="stroke: black; stroke-width:0.25;"/>
+<a xlink:href="db2linear-0x6000041b3570.svg">
+<rect x="134.400000" y="41.000000" width="129.000000" height="24.000000" rx="0" ry="0" style="stroke:none;fill:#cccccc;"/>
+<rect x="133.400000" y="40.000000" width="129.000000" height="24.000000" rx="0" ry="0" style="stroke:none;fill:#003366;"/>
+</a>
+<a xlink:href="db2linear-0x6000041b3570.svg">
+<text x="197.900000" y="54.000000" font-family="Arial" font-size="7" text-anchor="middle" fill="#FFFFFF">db2linear(0,v...f, 0.5f) : -)</text>
+</a>
+<circle cx="135.400000" cy="42.000000" r="1"/>
+<rect x="279.400000" y="37.000000" width="24.000000" height="24.000000" rx="0" ry="0" style="stroke:none;fill:#cccccc;"/>
+<rect x="278.400000" y="36.000000" width="24.000000" height="24.000000" rx="0" ry="0" style="stroke:none;fill:#4B71A1;"/>
+<text x="290.400000" y="50.000000" font-family="Arial" font-size="7" text-anchor="middle" fill="#FFFFFF">*</text>
+<circle cx="280.400000" cy="38.000000" r="1"/>
+<line x1="275.400000" y1="43.000000" x2="278.400000" y2="44.000000"  transform="rotate(0.000000,278.400000,44.000000)" style="stroke: black; stroke-width:0.25;"/>
+<line x1="275.400000" y1="45.000000" x2="278.400000" y2="44.000000"  transform="rotate(0.000000,278.400000,44.000000)" style="stroke: black; stroke-width:0.25;"/>
+<line x1="275.400000" y1="51.000000" x2="278.400000" y2="52.000000"  transform="rotate(0.000000,278.400000,52.000000)" style="stroke: black; stroke-width:0.25;"/>
+<line x1="275.400000" y1="53.000000" x2="278.400000" y2="52.000000"  transform="rotate(0.000000,278.400000,52.000000)" style="stroke: black; stroke-width:0.25;"/>
+<line x1="15.000000" y1="15.000000" x2="15.000000" y2="73.000000"  style="stroke: black; stroke-linecap:round; stroke-width:0.25; stroke-dasharray:3,3;"/>
+<line x1="15.000000" y1="73.000000" x2="341.400000" y2="73.000000"  style="stroke: black; stroke-linecap:round; stroke-width:0.25; stroke-dasharray:3,3;"/>
+<line x1="341.400000" y1="73.000000" x2="341.400000" y2="15.000000"  style="stroke: black; stroke-linecap:round; stroke-width:0.25; stroke-dasharray:3,3;"/>
+<line x1="15.000000" y1="15.000000" x2="20.000000" y2="15.000000"  style="stroke: black; stroke-linecap:round; stroke-width:0.25; stroke-dasharray:3,3;"/>
+<line x1="136.100000" y1="15.000000" x2="341.400000" y2="15.000000"  style="stroke: black; stroke-linecap:round; stroke-width:0.25; stroke-dasharray:3,3;"/>
+<text x="20.000000" y="17.000000" font-family="Arial" font-size="7">lowshelf(1)(0...f, 0.5f) : -)(630)</text>
+<line x1="343.400000" y1="43.000000" x2="346.400000" y2="44.000000"  transform="rotate(0.000000,346.400000,44.000000)" style="stroke: black; stroke-width:0.25;"/>
+<line x1="343.400000" y1="45.000000" x2="346.400000" y2="44.000000"  transform="rotate(0.000000,346.400000,44.000000)" style="stroke: black; stroke-width:0.25;"/>
+<line x1="10.000000" y1="44.000000" x2="20.000000" y2="44.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="20.000000" y1="44.000000" x2="24.000000" y2="44.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="24.000000" y1="44.000000" x2="28.000000" y2="44.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="28.000000" y1="44.000000" x2="28.000000" y2="44.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="28.000000" y1="44.000000" x2="32.000000" y2="44.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="109.400000" y1="40.000000" x2="113.400000" y2="40.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="109.400000" y1="48.000000" x2="113.400000" y2="48.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="113.400000" y1="24.000000" x2="129.400000" y2="24.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="113.400000" y1="40.000000" x2="113.400000" y2="24.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="113.400000" y1="40.000000" x2="113.400000" y2="40.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="113.400000" y1="48.000000" x2="121.400000" y2="48.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="121.400000" y1="32.000000" x2="129.400000" y2="32.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="121.400000" y1="48.000000" x2="121.400000" y2="32.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="129.400000" y1="24.000000" x2="217.900000" y2="24.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="129.400000" y1="32.000000" x2="197.900000" y2="32.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="197.900000" y1="32.000000" x2="266.400000" y2="32.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="217.900000" y1="24.000000" x2="306.400000" y2="24.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="262.400000" y1="52.000000" x2="266.400000" y2="52.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="266.400000" y1="32.000000" x2="274.400000" y2="32.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="266.400000" y1="52.000000" x2="274.400000" y2="52.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="274.400000" y1="32.000000" x2="274.400000" y2="44.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="274.400000" y1="44.000000" x2="274.400000" y2="44.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="274.400000" y1="44.000000" x2="278.400000" y2="44.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="274.400000" y1="52.000000" x2="278.400000" y2="52.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="302.400000" y1="48.000000" x2="306.400000" y2="48.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="306.400000" y1="24.000000" x2="320.400000" y2="44.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="306.400000" y1="48.000000" x2="320.400000" y2="44.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="320.400000" y1="44.000000" x2="324.400000" y2="44.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="324.400000" y1="44.000000" x2="328.400000" y2="44.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="328.400000" y1="44.000000" x2="328.400000" y2="44.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="328.400000" y1="44.000000" x2="332.400000" y2="44.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="332.400000" y1="44.000000" x2="336.400000" y2="44.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+<line x1="336.400000" y1="44.000000" x2="346.400000" y2="44.000000"  style="stroke:black; stroke-linecap:round; stroke-width:0.25;"/>
+</svg>
