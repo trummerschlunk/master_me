@@ -74,12 +74,13 @@ Choose a preset.
 Adjust a target-loudness (optional).
 
 # Interface
+
 ## Handling
 
-Click and drag any parameter vertically or horizontally.
-Shift+click to reset to default
-Ctrl+drag to go slower
-Double-click for text input
+- Click and drag any parameter vertically or horizontally (except the target slider which only has vertical movement)
+- Shift + click to reset to default
+- Ctrl + drag to go slower
+- Double-click a slider for manual text input
 
 ## Easy Mode
 
