@@ -8,7 +8,6 @@
 #include "Plugin.cpp"
 
 // leaving for last, includes windows.h
-#include "src/DistrhoDefines.h"
 #include "utils/SharedMemory.hpp"
 
 // checks to ensure things are still as we expect them to be from faust dsp side
