@@ -1,12 +1,10 @@
 #!/usr/bin/make -f
 
-# define project version
-VERSION_MAJOR = 0
-VERSION_MINOR = 0
-VERSION_MICRO = 1
-
 # include dpf base makefile definitions
 include dpf/Makefile.base.mk
+
+# include version details
+include VERSION.mk
 
 # default build target
 all: master_me
@@ -159,7 +157,7 @@ build/master_me/%: master_me.dsp template/% faustpp
 # only generated once
 build/BuildInfo1.hpp:
 	mkdir -p build
-	echo 'constexpr const char* const kBuildInfoString1 = ""' > $@
+	echo 'constexpr const char kBuildInfoString1[] = ""' > $@
 	echo '"A plugin by Klaus Scheuermann, made with Faust and DPF\\n"' >> $@
 	echo '"DSP: Klaus Scheuermann, magnetophon, x42, jkbd\\n"' >> $@
 	echo '"GUI, Plugin: falkTX\\n"' >> $@
@@ -169,8 +167,12 @@ build/BuildInfo1.hpp:
 # regenerated on every possible change
 build/BuildInfo2.hpp: master_me.dsp plugin/* template/* template/LV2/*
 	mkdir -p build
-	echo 'constexpr const char* const kBuildInfoString2 = ""' > $@
+	echo 'constexpr const char kBuildInfoString2[] = ""' > $@
+ifneq ($(wildcard .git/HEAD),)
 	echo '"Built using `$(shell git branch --show-current)` branch with commit:\\n$(shell git log -n 1 --decorate=no --pretty=oneline --abbrev-commit)"' >> $@
+else
+	echo '"v$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO)"' >> $@
+endif
 	echo ';' >> $@
 
 build/Logo.hpp: img/logo/master_me_white.png img/logo/master_me_white@2x.png

@@ -233,7 +233,7 @@ protected:
             fontSize(theme.fontSize);
             fillColor(theme.textMidColor);
             textAlign(ALIGN_BOTTOM|ALIGN_RIGHT);
-            textBox(0, getHeight() - theme.fontSize - theme.borderSize * 2 - theme.padding * 2,
+            textBox(0, getHeight() - (sizeof(kBuildInfoString2) > 10 ? theme.fontSize : 0) - theme.borderSize * 2 - theme.padding * 2,
                     getWidth() - theme.borderSize * 2 - theme.padding * 2,
                     kBuildInfoString2, nullptr);
         }
