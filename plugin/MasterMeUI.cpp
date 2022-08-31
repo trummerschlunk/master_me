@@ -31,9 +31,9 @@ static_assert(kParameterRanges[kParameter_leveler_gain].max == +50.f, "leveler g
 // -----------------------------------------------------------------------------------------------------------
 
 // our custom metrics, making vertical sliders have less height
-struct SoundsGoodMetrics : QuantumMetrics
+struct MasterMeMetrics : QuantumMetrics
 {
-    SoundsGoodMetrics(const QuantumTheme& theme) noexcept
+    MasterMeMetrics(const QuantumTheme& theme) noexcept
         : QuantumMetrics(theme)
     {
         valueMeterVertical.setHeight(valueMeterVertical.getHeight() * 2 / 3);
@@ -80,7 +80,7 @@ struct InputMeterGroup : QuantumFrame
         levelerGain.setValue(kParameterRanges[kParameter_leveler_gain].def);
     }
 
-    void adjustSize(const SoundsGoodMetrics& metrics, const uint height)
+    void adjustSize(const MasterMeMetrics& metrics, const uint height)
     {
         const uint usableHeight = height - theme.borderSize * 2 - theme.padding * 2;
         meter.setSize(metrics.stereoLevelMeterWithLufs.getWidth(), usableHeight);
@@ -119,7 +119,7 @@ struct OutputMeterGroup : QuantumFrame
                         kParameterRanges[kParameter_lufs_out].min);
     }
 
-    void adjustSize(const SoundsGoodMetrics& metrics, const uint height)
+    void adjustSize(const MasterMeMetrics& metrics, const uint height)
     {
         const uint usableHeight = height - theme.borderSize * 2 - theme.padding * 2;
         meter.setSize(metrics.stereoLevelMeterWithLufs.getWidth(), usableHeight);
@@ -159,7 +159,7 @@ struct TopCenteredGroup : NanoSubWidget
         separator.setName("+ separator");
     }
 
-    void adjustSize(const SoundsGoodMetrics& metrics, const uint width, const uint height, const uint widgetsHeight)
+    void adjustSize(const MasterMeMetrics& metrics, const uint width, const uint height, const uint widgetsHeight)
     {
         globalEnableSwitch.adjustSize();
         globalEnableSwitch.setHeight(widgetsHeight);
@@ -301,7 +301,7 @@ private:
 };
 
 // custom widget for drawing plugin name (so it appears on top of other widgets if needed)
-class SoundsgoodNameWidget : public NanoSubWidget
+class MasterMeNameWidget : public NanoSubWidget
 {
     QuantumTheme& theme;
     QuantumThemeCallback* const callback;
@@ -309,7 +309,7 @@ class SoundsgoodNameWidget : public NanoSubWidget
     ScopedPointer<InspectorWindow> inspectorWindow;
 
 public:
-    explicit SoundsgoodNameWidget(TopLevelWidget* const parent, QuantumThemeCallback* const cb, QuantumTheme& t)
+    explicit MasterMeNameWidget(TopLevelWidget* const parent, QuantumThemeCallback* const cb, QuantumTheme& t)
         : NanoSubWidget(parent),
           theme(t),
           callback(cb)
@@ -355,11 +355,11 @@ protected:
 
 // -----------------------------------------------------------------------------------------------------------
 
-class SoundsGoodUI : public UI,
-                     public ButtonEventHandler::Callback,
-                     public KnobEventHandler::Callback,
-                     public DoubleClickHelper::Callback,
-                     public QuantumThemeCallback
+class MasterMeUI : public UI,
+                   public ButtonEventHandler::Callback,
+                   public KnobEventHandler::Callback,
+                   public DoubleClickHelper::Callback,
+                   public QuantumThemeCallback
 {
   QuantumTheme theme;
 
@@ -377,7 +377,7 @@ class SoundsGoodUI : public UI,
   QuantumLabel welcomeLabel;
 
   // plugin name
-  SoundsgoodNameWidget name;
+  MasterMeNameWidget name;
 
   // for when theme changes
   bool resizeOnNextIdle = false;
@@ -392,7 +392,7 @@ class SoundsGoodUI : public UI,
   SharedMemory<MasterMeHistogramFifos> histogramSharedData;
   Histogram histogram;
 
-  struct PreProcessing : SoundsgoodParameterGroupWithoutBypassSwitch {
+  struct PreProcessing : MasterMeParameterGroupWithoutBypassSwitch {
       QuantumValueSliderWithLabel inputGain;
       QuantumSingleSwitch phaseL;
       QuantumSingleSwitch phaseR;
@@ -401,7 +401,7 @@ class SoundsGoodUI : public UI,
       QuantumSingleSwitch stereoCorrect;
 
       explicit PreProcessing(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
-          : SoundsgoodParameterGroupWithoutBypassSwitch(parent, theme),
+          : MasterMeParameterGroupWithoutBypassSwitch(parent, theme),
             inputGain(&frame, theme),
             phaseL(&frame, theme),
             phaseR(&frame, theme),
@@ -428,11 +428,11 @@ class SoundsGoodUI : public UI,
           mono.adjustSize();
           dcBlocker.adjustSize();
           stereoCorrect.adjustSize();
-          SoundsgoodParameterGroupWithoutBypassSwitch::adjustSize(metrics);
+          MasterMeParameterGroupWithoutBypassSwitch::adjustSize(metrics);
       }
   } preProcessing;
 
-  struct Gate : SoundsgoodParameterGroupWithBypassSwitch {
+  struct Gate : MasterMeParameterGroupWithBypassSwitch {
       QuantumValueSliderWithLabel threshold;
       QuantumValueSliderWithLabel attack;
       QuantumValueSliderWithLabel hold;
@@ -441,7 +441,7 @@ class SoundsGoodUI : public UI,
       QuantumValueMeterWithLabel meter;
 
       explicit Gate(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
-          : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
+          : MasterMeParameterGroupWithBypassSwitch(parent, theme),
             threshold(&frame, theme),
             attack(&frame, theme),
             hold(&frame, theme),
@@ -470,7 +470,7 @@ class SoundsGoodUI : public UI,
           release.adjustSize(metrics);
           separator.adjustSize(metrics);
           meter.adjustSize(metrics);
-          SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
+          MasterMeParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
 
       void setEnabledColor(const bool enabled)
@@ -489,7 +489,7 @@ class SoundsGoodUI : public UI,
       }
   } gate;
 
-  struct Eq : SoundsgoodParameterGroupWithBypassSwitch {
+  struct Eq : MasterMeParameterGroupWithBypassSwitch {
       QuantumValueSliderWithLabel highpass;
       QuantumLabelWithSeparatorLine tilt;
       QuantumValueSliderWithLabel tilt_gain;
@@ -499,7 +499,7 @@ class SoundsGoodUI : public UI,
       QuantumValueSliderWithLabel side_bandwidth;
 
       explicit Eq(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
-          : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
+          : MasterMeParameterGroupWithBypassSwitch(parent, theme),
             highpass(&frame, theme),
             tilt(&frame, theme),
             tilt_gain(&frame, theme),
@@ -531,7 +531,7 @@ class SoundsGoodUI : public UI,
           side_gain.adjustSize(metrics);
           side_freq.adjustSize(metrics);
           side_bandwidth.adjustSize(metrics);
-          SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
+          MasterMeParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
 
       void setEnabledColor(const bool enabled)
@@ -552,7 +552,7 @@ class SoundsGoodUI : public UI,
       }
   } eq;
 
-  struct Leveler : SoundsgoodParameterGroupWithBypassSwitch {
+  struct Leveler : MasterMeParameterGroupWithBypassSwitch {
       QuantumValueSliderWithLabel speed;
       QuantumValueSliderWithLabel threshold;
       QuantumValueSliderWithLabel max_plus;
@@ -561,7 +561,7 @@ class SoundsGoodUI : public UI,
       QuantumValueMeterWithLabel brake;
 
       explicit Leveler(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
-          : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
+          : MasterMeParameterGroupWithBypassSwitch(parent, theme),
             speed(&frame, theme),
             threshold(&frame, theme),
             max_plus(&frame, theme),
@@ -590,7 +590,7 @@ class SoundsGoodUI : public UI,
           max_minus.adjustSize(metrics);
           separator.adjustSize(metrics);
           brake.adjustSize(metrics);
-          SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
+          MasterMeParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
 
       void setEnabledColor(const bool enabled)
@@ -609,7 +609,7 @@ class SoundsGoodUI : public UI,
       }
   } leveler;
 
-  struct KneeCompressor : SoundsgoodParameterGroupWithBypassSwitch {
+  struct KneeCompressor : MasterMeParameterGroupWithBypassSwitch {
       QuantumValueSliderWithLabel strength;
       QuantumValueSliderWithLabel threshold;
       QuantumValueSliderWithLabel attack;
@@ -624,7 +624,7 @@ class SoundsGoodUI : public UI,
       QuantumValueMeterWithLabel side;
 
       explicit KneeCompressor(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
-          : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
+          : MasterMeParameterGroupWithBypassSwitch(parent, theme),
             strength(&frame, theme),
             threshold(&frame, theme),
             attack(&frame, theme),
@@ -674,7 +674,7 @@ class SoundsGoodUI : public UI,
           separator.adjustSize(metrics);
           mid.adjustSize(metrics);
           side.adjustSize(metrics);
-          SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
+          MasterMeParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
 
       void setEnabledColor(const bool enabled)
@@ -705,7 +705,7 @@ class SoundsGoodUI : public UI,
       }
   } kneeComp;
 
-  struct MidSideCompressor : SoundsgoodParameterGroupWithBypassSwitchMB {
+  struct MidSideCompressor : MasterMeParameterGroupWithBypassSwitchMB {
       QuantumDualValueSliderWithCenterLabel strength;
       QuantumDualValueSliderWithCenterLabel threshold;
       QuantumDualValueSliderWithCenterLabel attack;
@@ -721,7 +721,7 @@ class SoundsGoodUI : public UI,
       MultiBandCompressorOutputGainGroup outputGain;
 
       explicit MidSideCompressor(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
-          : SoundsgoodParameterGroupWithBypassSwitchMB(parent, theme),
+          : MasterMeParameterGroupWithBypassSwitchMB(parent, theme),
             strength(&frame, theme),
             threshold(&frame, theme),
             attack(&frame, theme),
@@ -804,12 +804,12 @@ class SoundsGoodUI : public UI,
           metersS.adjustSize(metrics);
           spacer2.spacer.setSize(0, theme.fontSize / 2);
           outputGain.adjustSize(metrics);
-          SoundsgoodParameterGroupWithBypassSwitchMB::adjustSize(metrics);
+          MasterMeParameterGroupWithBypassSwitchMB::adjustSize(metrics);
       }
 
       void setAbsolutePos(const int x, const int y) override
       {
-          SoundsgoodParameterGroupWithBypassSwitchMB::setAbsolutePos(x, y);
+          MasterMeParameterGroupWithBypassSwitchMB::setAbsolutePos(x, y);
 
           frame.setTickPos(metersM.m8.getAbsoluteX() - x + metersM.m8.getWidth(),
                            metersM.m1.getAbsoluteY() - y,
@@ -910,7 +910,7 @@ class SoundsGoodUI : public UI,
       }
   } msCompressor;
 
-  struct Limiter : SoundsgoodParameterGroupWithBypassSwitch {
+  struct Limiter : MasterMeParameterGroupWithBypassSwitch {
       QuantumValueSliderWithLabel strength;
       QuantumValueSliderWithLabel threshold;
       QuantumValueSliderWithLabel attack;
@@ -922,7 +922,7 @@ class SoundsGoodUI : public UI,
       QuantumValueMeterWithLabel gainReduction;
 
       explicit Limiter(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
-          : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
+          : MasterMeParameterGroupWithBypassSwitch(parent, theme),
             strength(&frame, theme),
             threshold(&frame, theme),
             attack(&frame, theme),
@@ -960,7 +960,7 @@ class SoundsGoodUI : public UI,
           makeup.adjustSize(metrics);
           separator.adjustSize(metrics);
           gainReduction.adjustSize(metrics);
-          SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
+          MasterMeParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
 
       void setEnabledColor(const bool enabled)
@@ -985,13 +985,13 @@ class SoundsGoodUI : public UI,
       }
   } limiter;
 
-  struct Brickwall : SoundsgoodParameterGroupWithBypassSwitch {
+  struct Brickwall : MasterMeParameterGroupWithBypassSwitch {
       QuantumValueSliderWithLabel ceiling;
       QuantumValueSliderWithLabel release;
       QuantumValueMeterWithLabel limit;
 
       explicit Brickwall(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
-          : SoundsgoodParameterGroupWithBypassSwitch(parent, theme),
+          : MasterMeParameterGroupWithBypassSwitch(parent, theme),
             ceiling(&frame, theme),
             release(&frame, theme),
             limit(&frame, theme)
@@ -1011,7 +1011,7 @@ class SoundsGoodUI : public UI,
           ceiling.adjustSize(metrics);
           release.adjustSize(metrics);
           limit.adjustSize(metrics);
-          SoundsgoodParameterGroupWithBypassSwitch::adjustSize(metrics);
+          MasterMeParameterGroupWithBypassSwitch::adjustSize(metrics);
       }
 
       void setEnabledColor(const bool enabled)
@@ -1037,7 +1037,7 @@ class SoundsGoodUI : public UI,
       &brickwall.frame,
   };
 
-  struct PresetButtons : SoundsgoodPresetGroup {
+  struct PresetButtons : MasterMePresetGroup {
       QuantumButton b1, b2, b3, b4, b5;
       std::vector<QuantumButton*> buttonList = {
           &b1,
@@ -1054,7 +1054,7 @@ class SoundsGoodUI : public UI,
       bool ignoreParameterChanges = false;
 
       PresetButtons(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, const QuantumTheme& theme)
-          : SoundsgoodPresetGroup(parent, theme),
+          : MasterMePresetGroup(parent, theme),
             b1(&frame, theme),
             b2(&frame, theme),
             b3(&frame, theme),
@@ -1089,7 +1089,7 @@ class SoundsGoodUI : public UI,
           b3.setHeight(buttonHeight);
           b4.setHeight(buttonHeight);
           b5.setHeight(buttonHeight);
-          SoundsgoodPresetGroup::adjustSize(metrics, buttonHeight, fullWidth);
+          MasterMePresetGroup::adjustSize(metrics, buttonHeight, fullWidth);
       }
 
       void updateCurrentValue(const uint id, const float value)
@@ -1134,7 +1134,7 @@ class SoundsGoodUI : public UI,
   } presetButtons;
 
 public:
-  SoundsGoodUI()
+  MasterMeUI()
       : UI(DISTRHO_UI_DEFAULT_WIDTH, DISTRHO_UI_DEFAULT_HEIGHT),
         easyModeButton(this, theme),
         expertModeButton(this, theme),
@@ -1223,7 +1223,7 @@ public:
         w->hide();
   }
 
-  ~SoundsGoodUI() override
+  ~MasterMeUI() override
   {
       if (histogramSharedData.isCreatedOrConnected())
       {
@@ -1236,7 +1236,7 @@ public:
 
   void repositionWidgets()
   {
-      const SoundsGoodMetrics metrics(theme);
+      const MasterMeMetrics metrics(theme);
 
       const uint width = getWidth();
       const uint startY = theme.windowPadding * 2 + metrics.button.getHeight();
@@ -1283,7 +1283,7 @@ public:
 
   void resizeWidgets(const uint width, const uint height)
   {
-      const SoundsGoodMetrics metrics(theme);
+      const MasterMeMetrics metrics(theme);
 
       const uint startY = theme.windowPadding * 2 + metrics.button.getHeight();
       const uint contentHeight = height - startY - theme.windowPadding;
@@ -1999,14 +1999,14 @@ protected:
       }
   }
 
-  DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SoundsGoodUI)
+  DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MasterMeUI)
 };
 
 // -----------------------------------------------------------------------------------------------------------
 
 UI* createUI()
 {
-    return new SoundsGoodUI();
+    return new MasterMeUI();
 }
 
 // -----------------------------------------------------------------------------------------------------------

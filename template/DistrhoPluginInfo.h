@@ -28,7 +28,6 @@
 #define DISTRHO_PLUGIN_IS_RT_SAFE      1
 #define DISTRHO_PLUGIN_NUM_INPUTS      {{inputs}}
 #define DISTRHO_PLUGIN_NUM_OUTPUTS     {{outputs}}
-#define DISTRHO_UI_USE_NANOVG          1
 
 enum Parameters {
     // inputs

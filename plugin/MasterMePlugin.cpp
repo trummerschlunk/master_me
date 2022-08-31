@@ -19,7 +19,7 @@ START_NAMESPACE_DISTRHO
 
 // --------------------------------------------------------------------------------------------------------------------
 
-class SoundsgoodPlugin : public FaustGeneratedPlugin
+class MasterMePlugin : public FaustGeneratedPlugin
 {
     // current mode
     String mode;
@@ -35,7 +35,7 @@ class SoundsgoodPlugin : public FaustGeneratedPlugin
     bool histogramActive = false;
 
 public:
-    SoundsgoodPlugin()
+    MasterMePlugin()
         : FaustGeneratedPlugin(kExtraParameterCount, kExtraProgramCount, kExtraStateCount)
     {
         bufferSizeForHistogram = std::max(kMinimumHistogramBufferSize, getBufferSize());
@@ -225,14 +225,14 @@ protected:
 
     // ----------------------------------------------------------------------------------------------------------------
 
-    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SoundsgoodPlugin)
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MasterMePlugin)
 };
 
 // --------------------------------------------------------------------------------------------------------------------
 
 Plugin* createPlugin()
 {
-    return new SoundsgoodPlugin();
+    return new MasterMePlugin();
 }
 
 // --------------------------------------------------------------------------------------------------------------------

@@ -16,12 +16,12 @@ START_NAMESPACE_DGL
 // --------------------------------------------------------------------------------------------------------------------
 
 template<class tFrameWidget>
-struct SoundsgoodParameterGroup : VerticallyStackedHorizontalLayout
+struct MasterMeParameterGroup : VerticallyStackedHorizontalLayout
 {
     const QuantumTheme& theme;
     tFrameWidget frame;
 
-    explicit SoundsgoodParameterGroup(TopLevelWidget* const parent, const QuantumTheme& t)
+    explicit MasterMeParameterGroup(TopLevelWidget* const parent, const QuantumTheme& t)
         : theme(t),
           frame(parent, t) {}
 
@@ -134,18 +134,18 @@ struct SoundsgoodParameterGroup : VerticallyStackedHorizontalLayout
     }
 };
 
-typedef SoundsgoodParameterGroup<QuantumFrameWithLabel> SoundsgoodParameterGroupWithoutBypassSwitch;
-typedef SoundsgoodParameterGroup<QuantumFrameWithSwitch> SoundsgoodParameterGroupWithBypassSwitch;
-typedef SoundsgoodParameterGroup<QuantumFrameWithSwitchMB> SoundsgoodParameterGroupWithBypassSwitchMB;
+typedef MasterMeParameterGroup<QuantumFrameWithLabel> MasterMeParameterGroupWithoutBypassSwitch;
+typedef MasterMeParameterGroup<QuantumFrameWithSwitch> MasterMeParameterGroupWithBypassSwitch;
+typedef MasterMeParameterGroup<QuantumFrameWithSwitchMB> MasterMeParameterGroupWithBypassSwitchMB;
 
 // --------------------------------------------------------------------------------------------------------------------
 
-struct SoundsgoodPresetGroup : HorizontalLayout
+struct MasterMePresetGroup : HorizontalLayout
 {
     const QuantumTheme& theme;
     QuantumFrameWithLabel frame;
 
-    explicit SoundsgoodPresetGroup(TopLevelWidget* const parent, const QuantumTheme& t)
+    explicit MasterMePresetGroup(TopLevelWidget* const parent, const QuantumTheme& t)
         : theme(t),
           frame(parent, t) {}
 
