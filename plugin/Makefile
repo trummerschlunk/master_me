@@ -1,8 +1,8 @@
 #!/usr/bin/make -f
 
 NAME = master_me
-FILES_DSP = SoundsgoodPlugin.cpp
-FILES_UI = SoundsgoodUI.cpp
+FILES_DSP = MasterMePlugin.cpp
+FILES_UI = MasterMeUI.cpp
 FILES_UI += widgets/implot/implot.cpp
 FILES_UI += widgets/implot/implot_items.cpp
 FILES_UI += ../build/Logo.cpp

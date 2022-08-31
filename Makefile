@@ -42,45 +42,45 @@ endif
 # ---------------------------------------------------------------------------------------------------------------------
 # bench target, for testing
 
-BENCH_CMD = ./bench/faustbench -notrace $(CURDIR)/soundsgood.dsp
+BENCH_CMD = ./bench/faustbench -notrace $(CURDIR)/master_me.dsp
 
 BENCH_FLAGS  = $(BUILD_CXX_FLAGS)
 BENCH_FLAGS += -Wno-overloaded-virtual -Wno-unused-function -Wno-unused-parameter
-BENCH_FLAGS += -I$(shell faust --includedir) -Ibench/soundsgood -flto -DALL_TESTS
+BENCH_FLAGS += -I$(shell faust --includedir) -Ibench/master_me -flto -DALL_TESTS
 BENCH_FLAGS += $(LINK_FLAGS)
 
 BENCH_TARGETS = all none Ofast best prefetchloop-arrays single-precision tree-vectorize unroll-loops unsafe-loops
 
-bench: $(BENCH_TARGETS:%=bench/soundsgood/bench.%$(APP_EXT))
+bench: $(BENCH_TARGETS:%=bench/master_me/bench.%$(APP_EXT))
 
-bench/soundsgood/bench.all$(APP_EXT): bench/soundsgood/faustbench.cpp
+bench/master_me/bench.all$(APP_EXT): bench/master_me/faustbench.cpp
 	$(CXX) $(BENCH_FLAGS) -Ofast -fomit-frame-pointer -fprefetch-loop-arrays -fsingle-precision-constant -ftree-vectorize -funroll-loops -funsafe-loop-optimizations $< -o $@
 
-bench/soundsgood/bench.none$(APP_EXT): bench/soundsgood/faustbench.cpp
+bench/master_me/bench.none$(APP_EXT): bench/master_me/faustbench.cpp
 	$(CXX) $(BENCH_FLAGS) $< -o $@
 
-bench/soundsgood/bench.Ofast$(APP_EXT): bench/soundsgood/faustbench.cpp
+bench/master_me/bench.Ofast$(APP_EXT): bench/master_me/faustbench.cpp
 	$(CXX) $(BENCH_FLAGS) -Ofast $< -o $@
 
-bench/soundsgood/bench.best$(APP_EXT): bench/soundsgood/faustbench.cpp
+bench/master_me/bench.best$(APP_EXT): bench/master_me/faustbench.cpp
 	$(CXX) $(BENCH_FLAGS) -fprefetch-loop-arrays -fsingle-precision-constant -funroll-loops $< -o $@
 
-bench/soundsgood/bench.prefetchloop-arrays$(APP_EXT): bench/soundsgood/faustbench.cpp
+bench/master_me/bench.prefetchloop-arrays$(APP_EXT): bench/master_me/faustbench.cpp
 	$(CXX) $(BENCH_FLAGS) -fprefetch-loop-arrays $< -o $@
 
-bench/soundsgood/bench.single-precision$(APP_EXT): bench/soundsgood/faustbench.cpp
+bench/master_me/bench.single-precision$(APP_EXT): bench/master_me/faustbench.cpp
 	$(CXX) $(BENCH_FLAGS) -fsingle-precision-constant $< -o $@
 
-bench/soundsgood/bench.tree-vectorize$(APP_EXT): bench/soundsgood/faustbench.cpp
+bench/master_me/bench.tree-vectorize$(APP_EXT): bench/master_me/faustbench.cpp
 	$(CXX) $(BENCH_FLAGS) -ftree-vectorize $< -o $@
 
-bench/soundsgood/bench.unroll-loops$(APP_EXT): bench/soundsgood/faustbench.cpp
+bench/master_me/bench.unroll-loops$(APP_EXT): bench/master_me/faustbench.cpp
 	$(CXX) $(BENCH_FLAGS) -funroll-loops $< -o $@
 
-bench/soundsgood/bench.unsafe-loops$(APP_EXT): bench/soundsgood/faustbench.cpp
+bench/master_me/bench.unsafe-loops$(APP_EXT): bench/master_me/faustbench.cpp
 	$(CXX) $(BENCH_FLAGS) -fprefetch-loop-arrays -funroll-loops -funsafe-loop-optimizations $< -o $@
 
-bench/soundsgood/faustbench.cpp:
+bench/master_me/faustbench.cpp:
 	$(BENCH_CMD) -source
 
 .PHONY: bench
@@ -142,11 +142,11 @@ endif
 FAUSTPP_ARGS += -X-scal
 # FAUSTPP_ARGS += -X-vec -X-fun -X-lv -X0 -X-vs -X8
 
-bin/master_me.lv2/%: soundsgood.dsp template/LV2/% faustpp
+bin/master_me.lv2/%: master_me.dsp template/LV2/% faustpp
 	mkdir -p bin/master_me.lv2
 	$(FAUSTPP_EXEC) $(FAUSTPP_ARGS) -a template/LV2/$* $< -o $@
 
-build/master_me/%: soundsgood.dsp template/% faustpp
+build/master_me/%: master_me.dsp template/% faustpp
 	mkdir -p build/master_me
 	$(FAUSTPP_EXEC) $(FAUSTPP_ARGS) -a template/$* $< -o $@
 
@@ -161,7 +161,7 @@ build/BuildInfo1.hpp:
 	echo ';' >> $@
 
 # regenerated on every possible change
-build/BuildInfo2.hpp: soundsgood.dsp plugin/* template/* template/LV2/*
+build/BuildInfo2.hpp: master_me.dsp plugin/* template/* template/LV2/*
 	mkdir -p build
 	echo 'constexpr const char* const kBuildInfoString2 = ""' > $@
 	echo '"Built using `$(shell git branch --show-current)` branch with commit:\\n$(shell git log -n 1 --decorate=no --pretty=oneline --abbrev-commit)"' >> $@

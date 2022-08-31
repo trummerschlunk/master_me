@@ -4,7 +4,7 @@
 #include "DistrhoUI.hpp"
 
 #include "Quantum.hpp"
-#include "SoundsgoodWidgetGroups.hpp"
+#include "MasterMeWidgetGroups.hpp"
 #include "extra/ScopedPointer.hpp"
 #include "widgets/DoubleClickHelper.hpp"
 #include "widgets/Histogram.hpp"
