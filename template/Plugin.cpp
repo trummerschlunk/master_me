@@ -96,6 +96,7 @@ public:
         {% endfor %}
     }
 
+    /*
     void printCurrentValues()
     {
         d_stdout("==== preset data start ===");
@@ -103,6 +104,7 @@ public:
         {% endfor %}
         d_stdout("\n==== preset data end ===");
     }
+    */
 
 protected:
    /* -----------------------------------------------------------------------------------------------------------------

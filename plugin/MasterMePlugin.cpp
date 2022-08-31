@@ -171,10 +171,12 @@ protected:
             lufsOutFifo.setFloatFifo(&fifos->lufsOut);
             histogramActive = true;
         }
+        /*
         else if (std::strcmp(key, "export") == 0)
         {
             printCurrentValues();
         }
+        */
     }
 
    /* -----------------------------------------------------------------------------------------------------------------
