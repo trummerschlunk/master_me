@@ -61,6 +61,9 @@ GUI and Plugin based on DPF (DISTRHO Plugin Framework).
 
 The Faust community and everyone who supported the project.
 
+# Sponsor
+master_me is sponsored by the Prototype Fund, and open source software funding initioative by the German Federal Ministry of Education and Research.
+
 # Quickstart
 
 After Installation, load the plugin on the master channel of your streaming software or DAW.
