@@ -1,0 +1,1218 @@
+@prefix lv2:   <http://lv2plug.in/ns/lv2core#> .
+@prefix pset:  <http://lv2plug.in/ns/ext/presets#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix state: <http://lv2plug.in/ns/ext/state#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+<https://github.com/trummerschlunk/master_me#youtube>
+    lv2:port [
+        lv2:symbol "target" ;
+        pset:value -14 ;
+    ] ,
+    [
+        lv2:symbol "in_gain" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "phase_l" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "phase_r" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "mono" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "dc_blocker" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "stereo_correct" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "gate_bypass" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "gate_threshold" ;
+        pset:value -90 ;
+    ] ,
+    [
+        lv2:symbol "gate_attack" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "gate_hold" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "gate_release" ;
+        pset:value 500 ;
+    ] ,
+    [
+        lv2:symbol "eq_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "eq_highpass_freq" ;
+        pset:value 20 ;
+    ] ,
+    [
+        lv2:symbol "eq_tilt_gain" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "eq_side_gain" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "eq_side_freq" ;
+        pset:value 600 ;
+    ] ,
+    [
+        lv2:symbol "eq_side_bandwidth" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "leveler_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "leveler_speed" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "leveler_brake_threshold" ;
+        pset:value -20 ;
+    ] ,
+    [
+        lv2:symbol "leveler_max_plus" ;
+        pset:value 30 ;
+    ] ,
+    [
+        lv2:symbol "leveler_max_minus" ;
+        pset:value 30 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_bypass" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_strength" ;
+        pset:value 15 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_threshold" ;
+        pset:value -6 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_attack" ;
+        pset:value 5 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_release" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_knee" ;
+        pset:value 9 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_link" ;
+        pset:value 60 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_fffb" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_makeup" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_drywet" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_strength" ;
+        pset:value 20 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_threshold" ;
+        pset:value -6 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_attack" ;
+        pset:value 10 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_release" ;
+        pset:value 80 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_knee" ;
+        pset:value 12 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_link" ;
+        pset:value 70 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_crossover" ;
+        pset:value 60 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_strength" ;
+        pset:value 40 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_threshold" ;
+        pset:value -8 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_attack" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_release" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_knee" ;
+        pset:value 12 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_link" ;
+        pset:value 30 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_crossover" ;
+        pset:value 8000 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_output_gain" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "limiter_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "limiter_strength" ;
+        pset:value 80 ;
+    ] ,
+    [
+        lv2:symbol "limiter_threshold" ;
+        pset:value 3 ;
+    ] ,
+    [
+        lv2:symbol "limiter_attack" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "limiter_release" ;
+        pset:value 40 ;
+    ] ,
+    [
+        lv2:symbol "limiter_knee" ;
+        pset:value 3 ;
+    ] ,
+    [
+        lv2:symbol "limiter_fffb" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "limiter_makeup" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "brickwall_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "brickwall_ceiling" ;
+        pset:value -1 ;
+    ] ,
+    [
+        lv2:symbol "brickwall_release" ;
+        pset:value 75 ;
+    ] .
+
+<https://github.com/trummerschlunk/master_me#apple_podcasts>
+    lv2:port [
+        lv2:symbol "target" ;
+        pset:value -16 ;
+    ] ,
+    [
+        lv2:symbol "in_gain" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "phase_l" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "phase_r" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "mono" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "dc_blocker" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "stereo_correct" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "gate_bypass" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "gate_threshold" ;
+        pset:value -90 ;
+    ] ,
+    [
+        lv2:symbol "gate_attack" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "gate_hold" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "gate_release" ;
+        pset:value 500 ;
+    ] ,
+    [
+        lv2:symbol "eq_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "eq_highpass_freq" ;
+        pset:value 20 ;
+    ] ,
+    [
+        lv2:symbol "eq_tilt_gain" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "eq_side_gain" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "eq_side_freq" ;
+        pset:value 600 ;
+    ] ,
+    [
+        lv2:symbol "eq_side_bandwidth" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "leveler_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "leveler_speed" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "leveler_brake_threshold" ;
+        pset:value -20 ;
+    ] ,
+    [
+        lv2:symbol "leveler_max_plus" ;
+        pset:value 30 ;
+    ] ,
+    [
+        lv2:symbol "leveler_max_minus" ;
+        pset:value 30 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_bypass" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_strength" ;
+        pset:value 15 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_threshold" ;
+        pset:value -6 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_attack" ;
+        pset:value 5 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_release" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_knee" ;
+        pset:value 9 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_link" ;
+        pset:value 60 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_fffb" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_makeup" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_drywet" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_strength" ;
+        pset:value 20 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_threshold" ;
+        pset:value -6 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_attack" ;
+        pset:value 10 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_release" ;
+        pset:value 80 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_knee" ;
+        pset:value 12 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_link" ;
+        pset:value 70 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_crossover" ;
+        pset:value 60 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_strength" ;
+        pset:value 40 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_threshold" ;
+        pset:value -8 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_attack" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_release" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_knee" ;
+        pset:value 12 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_link" ;
+        pset:value 30 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_crossover" ;
+        pset:value 8000 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_output_gain" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "limiter_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "limiter_strength" ;
+        pset:value 80 ;
+    ] ,
+    [
+        lv2:symbol "limiter_threshold" ;
+        pset:value 3 ;
+    ] ,
+    [
+        lv2:symbol "limiter_attack" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "limiter_release" ;
+        pset:value 40 ;
+    ] ,
+    [
+        lv2:symbol "limiter_knee" ;
+        pset:value 3 ;
+    ] ,
+    [
+        lv2:symbol "limiter_fffb" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "limiter_makeup" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "brickwall_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "brickwall_ceiling" ;
+        pset:value -1 ;
+    ] ,
+    [
+        lv2:symbol "brickwall_release" ;
+        pset:value 75 ;
+    ] .
+
+<https://github.com/trummerschlunk/master_me#ebu_r128>
+    lv2:port [
+        lv2:symbol "target" ;
+        pset:value -23 ;
+    ] ,
+    [
+        lv2:symbol "in_gain" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "phase_l" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "phase_r" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "mono" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "dc_blocker" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "stereo_correct" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "gate_bypass" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "gate_threshold" ;
+        pset:value -90 ;
+    ] ,
+    [
+        lv2:symbol "gate_attack" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "gate_hold" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "gate_release" ;
+        pset:value 500 ;
+    ] ,
+    [
+        lv2:symbol "eq_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "eq_highpass_freq" ;
+        pset:value 20 ;
+    ] ,
+    [
+        lv2:symbol "eq_tilt_gain" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "eq_side_gain" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "eq_side_freq" ;
+        pset:value 600 ;
+    ] ,
+    [
+        lv2:symbol "eq_side_bandwidth" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "leveler_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "leveler_speed" ;
+        pset:value 40 ;
+    ] ,
+    [
+        lv2:symbol "leveler_brake_threshold" ;
+        pset:value -20 ;
+    ] ,
+    [
+        lv2:symbol "leveler_max_plus" ;
+        pset:value 30 ;
+    ] ,
+    [
+        lv2:symbol "leveler_max_minus" ;
+        pset:value 30 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_bypass" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_strength" ;
+        pset:value 15 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_threshold" ;
+        pset:value -6 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_attack" ;
+        pset:value 5 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_release" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_knee" ;
+        pset:value 9 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_link" ;
+        pset:value 60 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_fffb" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_makeup" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_drywet" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_strength" ;
+        pset:value 20 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_threshold" ;
+        pset:value -6 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_attack" ;
+        pset:value 10 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_release" ;
+        pset:value 80 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_knee" ;
+        pset:value 12 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_link" ;
+        pset:value 70 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_crossover" ;
+        pset:value 60 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_strength" ;
+        pset:value 40 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_threshold" ;
+        pset:value -8 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_attack" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_release" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_knee" ;
+        pset:value 12 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_link" ;
+        pset:value 30 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_crossover" ;
+        pset:value 8000 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_output_gain" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "limiter_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "limiter_strength" ;
+        pset:value 80 ;
+    ] ,
+    [
+        lv2:symbol "limiter_threshold" ;
+        pset:value 3 ;
+    ] ,
+    [
+        lv2:symbol "limiter_attack" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "limiter_release" ;
+        pset:value 40 ;
+    ] ,
+    [
+        lv2:symbol "limiter_knee" ;
+        pset:value 3 ;
+    ] ,
+    [
+        lv2:symbol "limiter_fffb" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "limiter_makeup" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "brickwall_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "brickwall_ceiling" ;
+        pset:value -1 ;
+    ] ,
+    [
+        lv2:symbol "brickwall_release" ;
+        pset:value 75 ;
+    ] .
+
+<https://github.com/trummerschlunk/master_me#speech_general>
+    lv2:port [
+        lv2:symbol "target" ;
+        pset:value -16 ;
+    ] ,
+    [
+        lv2:symbol "in_gain" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "phase_l" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "phase_r" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "mono" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "dc_blocker" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "stereo_correct" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "gate_bypass" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "gate_threshold" ;
+        pset:value -90 ;
+    ] ,
+    [
+        lv2:symbol "gate_attack" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "gate_hold" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "gate_release" ;
+        pset:value 500 ;
+    ] ,
+    [
+        lv2:symbol "eq_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "eq_highpass_freq" ;
+        pset:value 20 ;
+    ] ,
+    [
+        lv2:symbol "eq_tilt_gain" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "eq_side_gain" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "eq_side_freq" ;
+        pset:value 600 ;
+    ] ,
+    [
+        lv2:symbol "eq_side_bandwidth" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "leveler_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "leveler_speed" ;
+        pset:value 40 ;
+    ] ,
+    [
+        lv2:symbol "leveler_brake_threshold" ;
+        pset:value -20 ;
+    ] ,
+    [
+        lv2:symbol "leveler_max_plus" ;
+        pset:value 30 ;
+    ] ,
+    [
+        lv2:symbol "leveler_max_minus" ;
+        pset:value 30 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_strength" ;
+        pset:value 15 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_threshold" ;
+        pset:value -6 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_attack" ;
+        pset:value 5 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_release" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_knee" ;
+        pset:value 9 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_link" ;
+        pset:value 60 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_fffb" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_makeup" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_drywet" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_strength" ;
+        pset:value 20 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_threshold" ;
+        pset:value -5 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_attack" ;
+        pset:value 10 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_release" ;
+        pset:value 80 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_knee" ;
+        pset:value 12 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_link" ;
+        pset:value 70 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_crossover" ;
+        pset:value 60 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_strength" ;
+        pset:value 40 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_threshold" ;
+        pset:value -7 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_attack" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_release" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_knee" ;
+        pset:value 12 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_link" ;
+        pset:value 30 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_crossover" ;
+        pset:value 8000 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_output_gain" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "limiter_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "limiter_strength" ;
+        pset:value 80 ;
+    ] ,
+    [
+        lv2:symbol "limiter_threshold" ;
+        pset:value 3 ;
+    ] ,
+    [
+        lv2:symbol "limiter_attack" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "limiter_release" ;
+        pset:value 40 ;
+    ] ,
+    [
+        lv2:symbol "limiter_knee" ;
+        pset:value 3 ;
+    ] ,
+    [
+        lv2:symbol "limiter_fffb" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "limiter_makeup" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "brickwall_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "brickwall_ceiling" ;
+        pset:value -1 ;
+    ] ,
+    [
+        lv2:symbol "brickwall_release" ;
+        pset:value 75 ;
+    ] .
+
+<https://github.com/trummerschlunk/master_me#music_general>
+    lv2:port [
+        lv2:symbol "target" ;
+        pset:value -16 ;
+    ] ,
+    [
+        lv2:symbol "in_gain" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "phase_l" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "phase_r" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "mono" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "dc_blocker" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "stereo_correct" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "gate_bypass" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "gate_threshold" ;
+        pset:value -90 ;
+    ] ,
+    [
+        lv2:symbol "gate_attack" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "gate_hold" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "gate_release" ;
+        pset:value 430.5 ;
+    ] ,
+    [
+        lv2:symbol "eq_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "eq_highpass_freq" ;
+        pset:value 5 ;
+    ] ,
+    [
+        lv2:symbol "eq_tilt_gain" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "eq_side_gain" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "eq_side_freq" ;
+        pset:value 600 ;
+    ] ,
+    [
+        lv2:symbol "eq_side_bandwidth" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "leveler_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "leveler_speed" ;
+        pset:value 20 ;
+    ] ,
+    [
+        lv2:symbol "leveler_brake_threshold" ;
+        pset:value -10 ;
+    ] ,
+    [
+        lv2:symbol "leveler_max_plus" ;
+        pset:value 10 ;
+    ] ,
+    [
+        lv2:symbol "leveler_max_minus" ;
+        pset:value 10 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_strength" ;
+        pset:value 20 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_threshold" ;
+        pset:value -4 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_attack" ;
+        pset:value 20 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_release" ;
+        pset:value 340 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_knee" ;
+        pset:value 6 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_link" ;
+        pset:value 60 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_fffb" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_makeup" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "kneecomp_drywet" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_strength" ;
+        pset:value 10 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_threshold" ;
+        pset:value -3 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_attack" ;
+        pset:value 15 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_release" ;
+        pset:value 150 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_knee" ;
+        pset:value 12 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_link" ;
+        pset:value 70 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_low_crossover" ;
+        pset:value 60 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_strength" ;
+        pset:value 30 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_threshold" ;
+        pset:value -12 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_attack" ;
+        pset:value 8 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_release" ;
+        pset:value 30 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_knee" ;
+        pset:value 12 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_link" ;
+        pset:value 30 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_high_crossover" ;
+        pset:value 8000 ;
+    ] ,
+    [
+        lv2:symbol "mscomp_output_gain" ;
+        pset:value 1 ;
+    ] ,
+    [
+        lv2:symbol "limiter_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "limiter_strength" ;
+        pset:value 80 ;
+    ] ,
+    [
+        lv2:symbol "limiter_threshold" ;
+        pset:value 6 ;
+    ] ,
+    [
+        lv2:symbol "limiter_attack" ;
+        pset:value 3 ;
+    ] ,
+    [
+        lv2:symbol "limiter_release" ;
+        pset:value 40 ;
+    ] ,
+    [
+        lv2:symbol "limiter_knee" ;
+        pset:value 3 ;
+    ] ,
+    [
+        lv2:symbol "limiter_fffb" ;
+        pset:value 50 ;
+    ] ,
+    [
+        lv2:symbol "limiter_makeup" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "brickwall_bypass" ;
+        pset:value 0 ;
+    ] ,
+    [
+        lv2:symbol "brickwall_ceiling" ;
+        pset:value -1 ;
+    ] ,
+    [
+        lv2:symbol "brickwall_release" ;
+        pset:value 75 ;
+    ] .
+
+

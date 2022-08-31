@@ -1,0 +1,35 @@
+@prefix lv2:  <http://lv2plug.in/ns/lv2core#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix pset: <http://lv2plug.in/ns/ext/presets#> .
+
+<https://github.com/trummerschlunk/master_me#youtube>
+    a pset:Preset ;
+    lv2:appliesTo <https://github.com/trummerschlunk/master_me> ;
+    rdfs:label "YOUTUBE -14LUFS" ;
+    rdfs:seeAlso <presets.ttl> .
+
+<https://github.com/trummerschlunk/master_me#apple_podcasts>
+    a pset:Preset ;
+    lv2:appliesTo <https://github.com/trummerschlunk/master_me> ;
+    rdfs:label "APPLE PODCASTS -16 LUFS" ;
+    rdfs:seeAlso <presets.ttl> .
+
+<https://github.com/trummerschlunk/master_me#ebu_r128>
+    a pset:Preset ;
+    lv2:appliesTo <https://github.com/trummerschlunk/master_me> ;
+    rdfs:label "EBU R128 -23 LUFS" ;
+    rdfs:seeAlso <presets.ttl> .
+
+<https://github.com/trummerschlunk/master_me#speech_general>
+    a pset:Preset ;
+    lv2:appliesTo <https://github.com/trummerschlunk/master_me> ;
+    rdfs:label "SPEECH GENERAL -16 LUFS" ;
+    rdfs:seeAlso <presets.ttl> .
+
+<https://github.com/trummerschlunk/master_me#music_general>
+    a pset:Preset ;
+    lv2:appliesTo <https://github.com/trummerschlunk/master_me> ;
+    rdfs:label "MUSIC GENERAL -16 LUFS" ;
+    rdfs:seeAlso <presets.ttl> .
+
+

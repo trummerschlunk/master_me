@@ -103,6 +103,8 @@ PLUGIN_GENERATED_FILES  = $(foreach f,$(PLUGIN_TEMPLATE_FILES),build/master_me/$
 PLUGIN_GENERATED_FILES += bin/master_me.lv2/manifest.ttl
 PLUGIN_GENERATED_FILES += bin/master_me.lv2/plugin.ttl
 PLUGIN_GENERATED_FILES += bin/master_me.lv2/ui.ttl
+PLUGIN_GENERATED_FILES += bin/master_me-easy-presets.lv2/manifest.ttl
+PLUGIN_GENERATED_FILES += bin/master_me-easy-presets.lv2/presets.ttl
 PLUGIN_GENERATED_FILES += build/BuildInfo1.hpp
 PLUGIN_GENERATED_FILES += build/BuildInfo2.hpp
 PLUGIN_GENERATED_FILES += build/Logo.hpp
@@ -145,6 +147,10 @@ FAUSTPP_ARGS += -X-scal
 bin/master_me.lv2/%: master_me.dsp template/LV2/% faustpp
 	mkdir -p bin/master_me.lv2
 	$(FAUSTPP_EXEC) $(FAUSTPP_ARGS) -a template/LV2/$* $< -o $@
+
+bin/master_me-easy-presets.lv2/%: plugin/master_me-easy-presets.lv2/%
+	mkdir -p bin/master_me-easy-presets.lv2
+	cp $< $@
 
 build/master_me/%: master_me.dsp template/% faustpp
 	mkdir -p build/master_me
