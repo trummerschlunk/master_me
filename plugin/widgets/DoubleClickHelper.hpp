@@ -17,10 +17,16 @@
 #pragma once
 
 #include "DearImGui.hpp"
-
-#include "extra/String.hpp"
+#include "Quantum.hpp"
 
 START_NAMESPACE_DGL
+
+// --------------------------------------------------------------------------------------------------------------------
+
+inline ImVec4 ImVec4Color(const Color& c)
+{
+    return ImVec4(c.red, c.blue, c.green, c.alpha);
+}
 
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -39,11 +45,16 @@ public:
     Callback* const callback;
     SubWidget* const widget;
 
-    explicit DoubleClickHelper(TopLevelWidget* const tlw, Callback* const cb, SubWidget* const w, const Rectangle<int>& area)
-        : ImGuiTopLevelWidget(tlw->getWindow()),
+    explicit DoubleClickHelper(TopLevelWidget* const tlw,
+                               Callback* const cb,
+                               SubWidget* const w,
+                               const Rectangle<int>& area,
+                               const QuantumTheme& theme)
+        : ImGuiTopLevelWidget(tlw->getWindow(), theme.fontSize),
           callback(cb),
           widget(w)
     {
+        // FIXME: DGL should trigger resizes automatically when creating non-1st top level widgets
         ResizeEvent ev;
         ev.size = tlw->getSize();
         onResize(ev);
@@ -51,12 +62,24 @@ public:
         pos = ImVec2(area.getX(), area.getY());
         size = ImVec2(area.getWidth(), area.getHeight());
 
+        ImGuiIO& io(ImGui::GetIO());
+        io.ConfigFlags &= ~ImGuiConfigFlags_None;
+
         ImGuiStyle& style(ImGui::GetStyle());
-        style.WindowPadding = ImVec2();
+        style.WindowPadding = ImVec2(theme.padding, theme.padding);
         style.WindowRounding = style.WindowBorderSize = 0.f;
+        style.ChildRounding = style.ChildBorderSize = 0.f;
+        style.PopupRounding = style.PopupBorderSize = 0.f;
+        style.FrameRounding = style.FrameBorderSize = 0.f;
         style.Colors[ImGuiCol_FrameBg] = ImVec4();
+        style.Colors[ImGuiCol_FrameBgHovered] = ImVec4();
+        style.Colors[ImGuiCol_FrameBgActive] = ImVec4();
+        style.Colors[ImGuiCol_NavHighlight] = ImVec4();
+        style.Colors[ImGuiCol_Text] = ImVec4Color(theme.textLightColor);
+        style.Colors[ImGuiCol_TextDisabled] = ImVec4Color(theme.textMidColor);
+        style.Colors[ImGuiCol_TextSelectedBg] = ImVec4Color(theme.widgetDefaultActiveColor);
     }
-    
+
     void setText(const char* const text)
     {
         std::strncpy(textBuf, text, sizeof(textBuf)-1);
@@ -102,6 +125,8 @@ protected:
             firstOpen = false;
             ImGui::SetKeyboardFocusHere();
         }
+
+        ImGui::SetCursorPosY(ImGui::GetTextLineHeight() * 0.5f);
 
         closeOnNextIdle |= ImGui::InputText("Value", textBuf, sizeof(textBuf), textFlags);
 

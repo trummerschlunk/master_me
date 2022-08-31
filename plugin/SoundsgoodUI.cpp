@@ -1954,7 +1954,7 @@ protected:
           area = slider->getAbsoluteArea();
       }
 
-      doubleClickHelper = new DoubleClickHelper(this, this, widget, area);
+      doubleClickHelper = new DoubleClickHelper(this, this, widget, area, theme);
 
       String s;
       if (isInteger)
