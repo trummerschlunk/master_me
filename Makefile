@@ -189,7 +189,7 @@ build/BuildInfo2.hpp: master_me.dsp plugin/* template/* template/LV2/*
 	mkdir -p build
 	echo 'constexpr const char kBuildInfoString2[] = ""' > $@
 ifneq ($(wildcard .git/HEAD),)
-	echo '"Built using `$(shell git branch --show-current)` branch with commit:\\n$(shell git log -n 1 --decorate=no --pretty=oneline --abbrev-commit)"' >> $@
+	echo '"Built using `$(shell git branch --show-current | tr -d "'")` branch with commit:\\n$(shell git log -n 1 --decorate=no --pretty=oneline --abbrev-commit | tr -d "'")"' >> $@
 else
 	echo '"v$(VERSION)"' >> $@
 endif
