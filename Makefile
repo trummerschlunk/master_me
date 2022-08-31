@@ -5,6 +5,7 @@ include dpf/Makefile.base.mk
 
 # include version details
 include VERSION.mk
+VERSION = $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO)
 
 # default build target
 all: master_me
@@ -171,13 +172,46 @@ build/BuildInfo2.hpp: master_me.dsp plugin/* template/* template/LV2/*
 ifneq ($(wildcard .git/HEAD),)
 	echo '"Built using `$(shell git branch --show-current)` branch with commit:\\n$(shell git log -n 1 --decorate=no --pretty=oneline --abbrev-commit)"' >> $@
 else
-	echo '"v$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO)"' >> $@
+	echo '"v$(VERSION)"' >> $@
 endif
 	echo ';' >> $@
 
 build/Logo.hpp: img/logo/master_me_white.png img/logo/master_me_white@2x.png
 	mkdir -p build
 	./dpf/utils/res2c.py Logo img/logo/ build/
+
+# ---------------------------------------------------------------------------------------------------------------------
+# tarball target, generating release source-code tarballs ready for packaging
+
+TAR_ARGS = \
+	--exclude=".appveyor*" \
+	--exclude=".ci*" \
+	--exclude=".clang*" \
+	--exclude=".drone*" \
+	--exclude=".editor*" \
+	--exclude=".git*" \
+	--exclude="*.kdev*" \
+	--exclude=".travis*" \
+	--exclude=".vscode*" \
+	--exclude="*.d" \
+	--exclude="*.o" \
+	--exclude=bin \
+	--exclude=build \
+	--exclude=dpf/build \
+	--exclude=dpf/cmake \
+	--exclude=dpf/examples \
+	--exclude=dpf/lac \
+	--exclude=dpf/tests \
+	--exclude=dpf-widgets/generic \
+	--exclude=dpf-widgets/opengl/Blendish* \
+	--exclude=dpf-widgets/opengl/DearImGuiColorTextEditor* \
+	--transform='s,^\.\.,-.-.,' \
+	--transform='s,^\.,master_me-$(VERSION),' \
+	--transform='s,^-\.-\.,..,' \
+
+tarball:
+	rm -f ../master_me-$(VERSION).tar.xz
+	tar -c --lzma $(TAR_ARGS) -f ../master_me-$(VERSION).tar.xz .
 
 # ---------------------------------------------------------------------------------------------------------------------
 # rules for custom faustpp build

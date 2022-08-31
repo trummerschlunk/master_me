@@ -230,6 +230,45 @@ jobs:
           files: |
             ${{ github.event.repository.name }}-${{ github.ref_name }}-win64.zip
 
+  source-tarball:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Create source tarball
+        run: |
+          make tarball
+      - name: Set sha8 (non-release)
+        if: startsWith(github.ref, 'refs/tags/') != true
+        id: slug1
+        run: echo "::set-output name=sha8::$(echo ${{ github.sha }} | cut -c1-8)"
+      - name: Set sha8 (release)
+        if: startsWith(github.ref, 'refs/tags/')
+        id: slug2
+        run: echo "::set-output name=sha8::$(echo ${{ github.ref_name }})"
+      - name: Set sha8
+        id: slug
+        run: echo "::set-output name=sha8::$(echo ${{ steps.slug1.outputs.sha8 || steps.slug2.outputs.sha8 }})"
+      - uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.event.repository.name }}-source-${{ github.event.pull_request.number || steps.slug.outputs.sha8 }}
+          path: |
+            /home/runner/*.tar.xz
+            /home/runner/*/*.tar.xz
+            /home/runner/*/*/*.tar.xz
+      - uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          files: |
+            /home/runner/*.tar.xz
+            /home/runner/*/*.tar.xz
+            /home/runner/*/*/*.tar.xz
+
   plugin-validation:
     runs-on: ubuntu-20.04
     steps:
