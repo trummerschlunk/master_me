@@ -1679,6 +1679,7 @@ protected:
       fill();
   }
 
+  /*
   // little hack to print current values, should be disabled on final build
   bool onMouse(const MouseEvent& ev) override
   {
@@ -1688,11 +1689,12 @@ protected:
           setState("export", "");
       return false;
   }
+  */
 
   void onResize(const ResizeEvent& ev) override
   {
-      resizeWidgets(ev.size.getWidth(), ev.size.getHeight());
       UI::onResize(ev);
+      resizeWidgets(ev.size.getWidth(), ev.size.getHeight());
   }
 
   void uiIdle() override
@@ -1742,50 +1744,9 @@ protected:
           setSize(nextWidth, nextHeight);
 
           resizeOnNextIdle = false;
-
-          d_stdout("master_me new size is %u %u", nextWidth, nextHeight);
+          // d_stdout("master_me new size is %u %u", nextWidth, nextHeight);
       }
-
-#if 0 // FOR TESTING
-      /*
-      static int doit = 0;
-      if (++doit != 5)
-          return;
-      doit = 0;
-      */
-      // inputGroup.meter.setValues(randomMeterValue(), randomMeterValue(), randomMeterValue());
-      // outputGroup.meter.setValues(randomMeterValue(), randomMeterValue(), randomMeterValue());
-      static bool growing = true;
-      static float f = -50;
-      if (growing)
-      {
-         f += 1;
-         if (f > 50)
-         {
-          growing = false;
-          f = 50;
-         }
-      }
-      else
-      {
-        f -= 1;
-         if (f < -50)
-         {
-          growing = true;
-          f = -50;
-         }
-      }
-      inputGroup.levelerGain.setValue(f);
-#endif
   }
-
-#if 0 // FOR TESTING
-  static float randomMeterValue()
-  {
-      const double r = static_cast<double>(std::rand()) / RAND_MAX;
-      return r * -70.0;
-  }
-#endif
 
   /* --------------------------------------------------------------------------------------------------------
    * Custom Widget Callbacks */
