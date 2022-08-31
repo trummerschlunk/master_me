@@ -5,7 +5,7 @@
 <https://github.com/trummerschlunk/master_me#youtube>
     a pset:Preset ;
     lv2:appliesTo <https://github.com/trummerschlunk/master_me> ;
-    rdfs:label "YOUTUBE -14LUFS" ;
+    rdfs:label "YOUTUBE -14 LUFS" ;
     rdfs:seeAlso <presets.ttl> .
 
 <https://github.com/trummerschlunk/master_me#apple_podcasts>
