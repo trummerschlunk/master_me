@@ -34,7 +34,7 @@ init_brickwall_ceiling = -1;
 init_brickwall_release = 75;
 
 
-target = vslider("v:master_me/h:easy/[3]Target[unit:dB][symbol:target]", init_leveler_target,-50,-2,1);
+target = vslider("v:master_me/h:easy/[3]Target[unit:dB][symbol:target][integer]", init_leveler_target,-50,-2,1);
 
 
 // main
@@ -241,9 +241,9 @@ with {
 
   bp = checkbox("v:master_me/t:expert/h:[3]leveler/[1]leveler bypass[symbol:leveler_bypass]") : si.smoo;
   leveler_meter_gain = vbargraph("v:master_me/h:easy/[4][unit:dB][symbol:leveler_gain]leveler gain",-50,50);
-  meter_leveler_brake = _*100 : vbargraph("v:master_me/t:expert/h:[3]leveler/[6][unit:%]leveler brake[symbol:leveler_brake]",0,100);
+  meter_leveler_brake = _*100 : vbargraph("v:master_me/t:expert/h:[3]leveler/[6][unit:%][integer]leveler brake[symbol:leveler_brake]",0,100);
 
-  leveler_speed = vslider("v:master_me/t:expert/h:[3]leveler/[4][unit:%][symbol:leveler_speed]leveler speed", init_leveler_speed, 0, 100, 1) * 0.0015; //.005, 0.15, .005);
+  leveler_speed = vslider("v:master_me/t:expert/h:[3]leveler/[4][unit:%][integer][symbol:leveler_speed]leveler speed", init_leveler_speed, 0, 100, 1) * 0.0015; //.005, 0.15, .005);
   leveler_brake_thresh = /*target + */vslider("v:master_me/t:expert/h:[3]leveler/[5][unit:dB][symbol:leveler_brake_threshold]leveler brake threshold", init_leveler_brake_threshold,-90,0,1);
 
   limit_pos = vslider("v:master_me/t:expert/h:[3]leveler/[7][symbol:leveler_max_plus][unit:dB]leveler max +", init_leveler_maxboost, 0, 60, 1);
@@ -283,14 +283,14 @@ with {
   N = 2;
   B = si.bus(2);
   bypass = checkbox("v:master_me/t:expert/h:[5]kneecomp/[0][symbol:kneecomp_bypass]kneecomp bypass"):si.smoo;
-  strength = vslider("v:master_me/t:expert/h:[5]kneecomp/[1][unit:%][symbol:kneecomp_strength]kneecomp strength", 20, 0, 100, 1) * 0.01;
+  strength = vslider("v:master_me/t:expert/h:[5]kneecomp/[1][unit:%][integer][symbol:kneecomp_strength]kneecomp strength", 20, 0, 100, 1) * 0.01;
   thresh = target + vslider("v:master_me/t:expert/h:[5]kneecomp/[2][symbol:kneecomp_threshold][unit:dB]kneecomp tar-thresh",init_kneecomp_thresh,-12,6,1);
   att = vslider("v:master_me/t:expert/h:[5]kneecomp/[3][symbol:kneecomp_attack][unit:ms]kneecomp attack",20,1,100,1)*0.001;
   rel = vslider("v:master_me/t:expert/h:[5]kneecomp/[4][symbol:kneecomp_release][unit:ms]kneecomp release",200,1,1000,1)*0.001;
   knee = vslider("v:master_me/t:expert/h:[5]kneecomp/[5][unit:dB][symbol:kneecomp_knee]kneecomp knee",6,0,30,1);
-  link = vslider("v:master_me/t:expert/h:[5]kneecomp/[6][unit:%][symbol:kneecomp_link]kneecomp link", 60, 0, 100, 1) *0.01;
-  fffb = vslider ("v:master_me/t:expert/h:[5]kneecomp/[7][unit:%][symbol:kneecomp_fffb]kneecomp ff-fb",50,0,100,1) *0.01;
-  dw = vslider ("v:master_me/t:expert/h:[5]kneecomp/[9][unit:%][symbol:kneecomp_drywet]kneecomp dry/wet",100,0,100,1) * 0.01:si.smoo;
+  link = vslider("v:master_me/t:expert/h:[5]kneecomp/[6][unit:%][integer][symbol:kneecomp_link]kneecomp link", 60, 0, 100, 1) *0.01;
+  fffb = vslider ("v:master_me/t:expert/h:[5]kneecomp/[7][unit:%][integer][symbol:kneecomp_fffb]kneecomp ff-fb",50,0,100,1) *0.01;
+  dw = vslider ("v:master_me/t:expert/h:[5]kneecomp/[9][unit:%][integer][symbol:kneecomp_drywet]kneecomp dry/wet",100,0,100,1) * 0.01:si.smoo;
 
   meter(i) =
     _<: attach(_, (max(-6):min(0):vbargraph(
@@ -398,12 +398,12 @@ with {
   fh = vslider("v:master_me/t:expert/h:[5]mscomp/h:[2]high band/[7][symbol:mscomp_high_crossover][scale:log][unit:Hz]high crossover", 8000, 5000, 20000, 1);
 
   /* Compressor settings */
-  strength_array = vslider("v:master_me/t:expert/h:[5]mscomp/h:[1]low band/[1][unit:%][symbol:mscomp_low_strength]low strength", 10, 0, 100, 1)*0.01,vslider("v:master_me/t:expert/h:[5]mscomp/h:[2]high band/[1][unit:%][symbol:mscomp_high_strength]high strength", 10, 0, 100, 1)*0.01:LinArray(B);
+  strength_array = vslider("v:master_me/t:expert/h:[5]mscomp/h:[1]low band/[1][unit:%][integer][symbol:mscomp_low_strength]low strength", 10, 0, 100, 1)*0.01,vslider("v:master_me/t:expert/h:[5]mscomp/h:[2]high band/[1][unit:%][integer][symbol:mscomp_high_strength]high strength", 10, 0, 100, 1)*0.01:LinArray(B);
   thresh_array = target + vslider("v:master_me/t:expert/h:[5]mscomp/h:[1]low band/[2][unit:dB][symbol:mscomp_low_threshold]low tar-thresh", -6, -12, 12, 0.5),target + vslider("v:master_me/t:expert/h:[5]mscomp/h:[2]high band/[2][unit:dB][symbol:mscomp_high_threshold]high tar-thresh", -12, -12, 12, 0.5):LinArray(B);
   att_array = (vslider("v:master_me/t:expert/h:[5]mscomp/h:[1]low band/[3][unit:ms][symbol:mscomp_low_attack]low attack", 15, 0, 100, 0.1)*0.001,vslider("v:master_me/t:expert/h:[5]mscomp/h:[2]high band/[3][unit:ms][symbol:mscomp_high_attack]high attack", 3, 0, 100, 0.1)*0.001):LogArray(B);
   rel_array = (vslider("v:master_me/t:expert/h:[5]mscomp/h:[1]low band/[4][unit:ms][symbol:mscomp_low_release]low release", 150, 1, 1000, 1)*0.001,vslider("v:master_me/t:expert/h:[5]mscomp/h:[2]high band/[4][unit:ms][symbol:mscomp_high_release]high release", 30, 1, 1000, 1)*0.001):LogArray(B);
   knee_array = (vslider("v:master_me/t:expert/h:[5]mscomp/h:[1]low band/[5][unit:dB][symbol:mscomp_low_knee]low knee", 12, 0, 30, 0.1),vslider("v:master_me/t:expert/h:[5]mscomp/h:[2]high band/[5][unit:dB][symbol:mscomp_high_knee]high knee", 12, 0, 30, 0.1)):LinArray(B);
-  link_array = (vslider("v:master_me/t:expert/h:[5]mscomp/h:[1]low band/[6][unit:%][symbol:mscomp_low_link]low link", 60, 0, 100, 1)*0.01,vslider("v:master_me/t:expert/h:[5]mscomp/h:[2]high band/[6][unit:%][symbol:mscomp_high_link]high link", 30, 0, 100, 1)*0.01):LinArray(B);
+  link_array = (vslider("v:master_me/t:expert/h:[5]mscomp/h:[1]low band/[6][unit:%][integer][symbol:mscomp_low_link]low link", 60, 0, 100, 1)*0.01,vslider("v:master_me/t:expert/h:[5]mscomp/h:[2]high band/[6][unit:%][integer][symbol:mscomp_high_link]high link", 30, 0, 100, 1)*0.01):LinArray(B);
   crossoverFreqs = LogArray(B-1,fl,fh);
   mscomp_outGain = vslider("v:master_me/t:expert/h:[5]mscomp/h:[3]out/[3][unit:dB][symbol:mscomp_output_gain]makeup", 1, -6, 6, 0.5):ba.db2linear:si.smoo;
 
@@ -423,13 +423,13 @@ with {
 // LIMITER
 limiter_rms_bp = bp2(checkbox("v:master_me/t:expert/h:[7]limiter/[0]limiter bypass[symbol:limiter_bypass]"),limiter_rms);
 limiter_rms = co.RMS_FBFFcompressor_N_chan(strength,thresh,att,rel,knee,0,1,fffb,limiter_meter,2) : post_gain with{
-  strength = vslider("v:master_me/t:expert/h:[7]limiter/[1][unit:%][symbol:limiter_strength]limiter strength", 80, 0, 100, 1) *0.01;
+  strength = vslider("v:master_me/t:expert/h:[7]limiter/[1][unit:%][integer][symbol:limiter_strength]limiter strength", 80, 0, 100, 1) *0.01;
   thresh = target + vslider("v:master_me/t:expert/h:[7]limiter/[2][symbol:limiter_threshold][unit:dB]limiter tar-thresh",6,-12,12,1);
   att = vslider("v:master_me/t:expert/h:[7]limiter/[3][unit:ms][symbol:limiter_attack]limiter attack",1,0,100,1)*0.001;
   rel = vslider("v:master_me/t:expert/h:[7]limiter/[4][unit:ms][symbol:limiter_release]limiter release",40,1,400,1)*0.001;
   knee = vslider("v:master_me/t:expert/h:[7]limiter/[5][symbol:limiter_knee][unit:dB]limiter knee",8,0,12,1);
 
-  fffb = vslider ("v:master_me/t:expert/h:[7]limiter/[6][unit:%][symbol:limiter_fffb]limiter ff-fb",50,0,100,1)*0.01;
+  fffb = vslider ("v:master_me/t:expert/h:[7]limiter/[6][unit:%][integer][symbol:limiter_fffb]limiter ff-fb",50,0,100,1)*0.01;
   // post_gain
   post_gain = par(i,Nch,_ * limiter_postgain) with {
 
