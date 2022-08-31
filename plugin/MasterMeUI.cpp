@@ -1679,17 +1679,21 @@ protected:
       fill();
   }
 
-  /*
-  // little hack to print current values, should be disabled on final build
   bool onMouse(const MouseEvent& ev) override
   {
+      if (ev.press)
+          getWindow().focus();
+
+      return UI::onMouse(ev);
+      /*
+      // little hack to print current values, should be disabled on final build
       if (UI::onMouse(ev))
           return true;
       if (ev.press)
           setState("export", "");
       return false;
+      */
   }
-  */
 
   void onResize(const ResizeEvent& ev) override
   {

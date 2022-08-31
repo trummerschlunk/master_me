@@ -224,6 +224,7 @@ TAR_ARGS = \
 	--exclude=dpf-widgets/generic \
 	--exclude=dpf-widgets/opengl/Blendish* \
 	--exclude=dpf-widgets/opengl/DearImGuiColorTextEditor* \
+	--exclude=dpf-widgets/tests \
 	--transform='s,^\.\.,-.-.,' \
 	--transform='s,^\.,master_me-$(VERSION),' \
 	--transform='s,^-\.-\.,..,' \
