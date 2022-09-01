@@ -2,7 +2,7 @@
 
 # Installers
 here are the installers für Linux, macOS and Window:  
-(available shortly)
+[https://github.com/trummerschlunk/master_me/releases](https://github.com/trummerschlunk/master_me/releases)
 
 # master_me
 
