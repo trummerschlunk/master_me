@@ -97,6 +97,18 @@
 
 #include "dsp_scal.h"
 
+#elif defined(BEST_TESTS)
+
+#include "dsp_scal.h"
+// #include "dsp_vec0g_8.h"
+// #include "dsp_vec0g_8_exp10.h"
+// #include "dsp_vec0g_8_fm.h"
+// #include "dsp_vec0g_8_fm_exp10.h"
+// #include "dsp_vec1_8.h"
+// #include "dsp_vec1_8_exp10.h"
+#include "dsp_vec1_8_fm.h"
+// #include "dsp_vec1_8_fm_exp10.h"
+
 #endif
 
 using namespace std;
@@ -200,6 +212,17 @@ extern "C" int bench_all(const char* name, int run, int buffer_size, bool is_tra
     
     options.push_back(ADD_DOUBLE + "-scal");
     
+#elif defined(BEST_TESTS)
+    
+    // options.push_back(ADD_DOUBLE + "-vec -lv 0 -g -vs 8");
+    // options.push_back(ADD_DOUBLE + "-vec -lv 0 -g -vs 8 -exp10");
+    // options.push_back(ADD_DOUBLE + "-vec -lv 0 -g -vs 8 -fm");
+    // options.push_back(ADD_DOUBLE + "-vec -lv 0 -g -vs 8 -fm -exp10");
+    // options.push_back(ADD_DOUBLE + "-vec -lv 1 -vs 8");
+    // options.push_back(ADD_DOUBLE + "-vec -lv 1 -vs 8 -exp10");
+    options.push_back(ADD_DOUBLE + "-vec -lv 1 -vs 8 -fm");
+    // options.push_back(ADD_DOUBLE + "-vec -lv 1 -vs 8 -fm -exp10");
+    
 #endif
     
     int ind = 0;
@@ -263,6 +286,17 @@ extern "C" int bench_all(const char* name, int run, int buffer_size, bool is_tra
 #elif defined(SINGLE_TESTS)
     
     measures.push_back(bench<FAUSTFLOAT>(new dsp_scal(), sizeof(dsp_scal), options[ind++], run, buffer_size, is_trace, is_control, ds, us, filter));
+    
+#elif defined(BEST_TESTS)
+    
+    // measures.push_back(bench<FAUSTFLOAT>(new dsp_vec0g_8(), sizeof(dsp_vec0g_8), options[ind++], run, buffer_size, is_trace, is_control, ds, us, filter));
+    // measures.push_back(bench<FAUSTFLOAT>(new dsp_vec0g_8_exp10(), sizeof(dsp_vec0g_8), options[ind++], run, buffer_size, is_trace, is_control, ds, us, filter));
+    // measures.push_back(bench<FAUSTFLOAT>(new dsp_vec0g_8_fm(), sizeof(dsp_vec0g_8_fm), options[ind++], run, buffer_size, is_trace, is_control, ds, us, filter));
+    // measures.push_back(bench<FAUSTFLOAT>(new dsp_vec0g_8_fm_exp10(), sizeof(dsp_vec0g_8_fm_exp10), options[ind++], run, buffer_size, is_trace, is_control, ds, us, filter));
+    // measures.push_back(bench<FAUSTFLOAT>(new dsp_vec1_8(), sizeof(dsp_vec1_8), options[ind++], run, buffer_size, is_trace, is_control, ds, us, filter));
+    // measures.push_back(bench<FAUSTFLOAT>(new dsp_vec1_8_exp10(), sizeof(dsp_vec1_8_exp10), options[ind++], run, buffer_size, is_trace, is_control, ds, us, filter));
+    measures.push_back(bench<FAUSTFLOAT>(new dsp_vec1_8_fm(), sizeof(dsp_vec1_8_fm), options[ind++], run, buffer_size, is_trace, is_control, ds, us, filter));
+    // measures.push_back(bench<FAUSTFLOAT>(new dsp_vec1_8_fm_exp10(), sizeof(dsp_vec1_8_fm_exp10), options[ind++], run, buffer_size, is_trace, is_control, ds, us, filter));
     
 #endif
     

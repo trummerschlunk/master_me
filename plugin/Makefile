@@ -20,10 +20,11 @@ export NVG_FONT_TEXTURE_FLAGS = NVG_IMAGE_NEAREST
 
 include $(DPF_PATH)/Makefile.plugins.mk
 
+# BUILD_CXX_FLAGS += -I../bench
 BUILD_CXX_FLAGS += -I../build
 BUILD_CXX_FLAGS += -I../build/master_me
 BUILD_CXX_FLAGS += -I../dpf-widgets/opengl
-BUILD_CXX_FLAGS += -funroll-loops
+# BUILD_CXX_FLAGS += -funroll-loops
 # ifeq ($(GCC),true)
 # BUILD_CXX_FLAGS += -fprefetch-loop-arrays -fsingle-precision-constant
 # endif

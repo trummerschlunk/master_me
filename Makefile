@@ -41,43 +41,41 @@ endif
 # ---------------------------------------------------------------------------------------------------------------------
 # bench target, for testing
 
-BENCH_CMD = ./bench/faustbench -notrace $(CURDIR)/master_me.dsp
+BENCH_CMD = ./bench/faustbench -notrace -best $(CURDIR)/master_me.dsp
 
 BENCH_FLAGS  = $(BUILD_CXX_FLAGS)
 BENCH_FLAGS += -Wno-overloaded-virtual -Wno-unused-function -Wno-unused-parameter
-BENCH_FLAGS += -I$(shell faust --includedir) -Ibench/master_me -flto -DALL_TESTS
+BENCH_FLAGS += -I$(shell faust --includedir) -Ibench -Ibench/master_me -DBEST_TESTS
+BENCH_FLAGS += -flto
 BENCH_FLAGS += $(LINK_FLAGS)
 
-BENCH_TARGETS = all none Ofast best prefetchloop-arrays single-precision tree-vectorize unroll-loops unsafe-loops
+BENCH_TARGETS = all normal prefetch tree-vec unroll prefetch+tree prefetch+unroll tree+unroll
 
 bench: $(BENCH_TARGETS:%=bench/master_me/bench.%$(APP_EXT))
 
 bench/master_me/bench.all$(APP_EXT): bench/master_me/faustbench.cpp
-	$(CXX) $(BENCH_FLAGS) -Ofast -fomit-frame-pointer -fprefetch-loop-arrays -fsingle-precision-constant -ftree-vectorize -funroll-loops -funsafe-loop-optimizations $< -o $@
+	$(CXX) $(BENCH_FLAGS) -fomit-frame-pointer -fprefetch-loop-arrays -ftree-vectorize -funroll-loops $< -o $@
 
-bench/master_me/bench.none$(APP_EXT): bench/master_me/faustbench.cpp
+bench/master_me/bench.normal$(APP_EXT): bench/master_me/faustbench.cpp
 	$(CXX) $(BENCH_FLAGS) $< -o $@
 
-bench/master_me/bench.Ofast$(APP_EXT): bench/master_me/faustbench.cpp
-	$(CXX) $(BENCH_FLAGS) -Ofast $< -o $@
-
-bench/master_me/bench.best$(APP_EXT): bench/master_me/faustbench.cpp
-	$(CXX) $(BENCH_FLAGS) -fprefetch-loop-arrays -fsingle-precision-constant -funroll-loops $< -o $@
-
-bench/master_me/bench.prefetchloop-arrays$(APP_EXT): bench/master_me/faustbench.cpp
+bench/master_me/bench.prefetch$(APP_EXT): bench/master_me/faustbench.cpp
 	$(CXX) $(BENCH_FLAGS) -fprefetch-loop-arrays $< -o $@
 
-bench/master_me/bench.single-precision$(APP_EXT): bench/master_me/faustbench.cpp
-	$(CXX) $(BENCH_FLAGS) -fsingle-precision-constant $< -o $@
-
-bench/master_me/bench.tree-vectorize$(APP_EXT): bench/master_me/faustbench.cpp
+bench/master_me/bench.tree-vec$(APP_EXT): bench/master_me/faustbench.cpp
 	$(CXX) $(BENCH_FLAGS) -ftree-vectorize $< -o $@
 
-bench/master_me/bench.unroll-loops$(APP_EXT): bench/master_me/faustbench.cpp
+bench/master_me/bench.unroll$(APP_EXT): bench/master_me/faustbench.cpp
 	$(CXX) $(BENCH_FLAGS) -funroll-loops $< -o $@
 
-bench/master_me/bench.unsafe-loops$(APP_EXT): bench/master_me/faustbench.cpp
-	$(CXX) $(BENCH_FLAGS) -fprefetch-loop-arrays -funroll-loops -funsafe-loop-optimizations $< -o $@
+bench/master_me/bench.prefetch+trees$(APP_EXT): bench/master_me/faustbench.cpp
+	$(CXX) $(BENCH_FLAGS) -fprefetch-loop-arrays -ftree-vectorize $< -o $@
+
+bench/master_me/bench.prefetch+unroll$(APP_EXT): bench/master_me/faustbench.cpp
+	$(CXX) $(BENCH_FLAGS) -fprefetch-loop-arrays -funroll-loops $< -o $@
+
+bench/master_me/bench.tree+unrolls$(APP_EXT): bench/master_me/faustbench.cpp
+	$(CXX) $(BENCH_FLAGS) -ftree-vectorize -funroll-loops $< -o $@
 
 bench/master_me/faustbench.cpp:
 	$(BENCH_CMD) -source
@@ -159,8 +157,9 @@ else ifeq ($(HAVE_DGL),true)
 FAUSTPP_ARGS += -Duitype=X11
 endif
 
-FAUSTPP_ARGS += -X-scal
-# FAUSTPP_ARGS += -X-vec -X-fun -X-lv -X0 -X-vs -X8
+# FAUSTPP_OPTS = -X-scal
+FAUSTPP_OPTS = -X-vec -X-lv -X1 -X-vs -X8
+# -X-fm -Xfastmath.cpp
 
 bin/master_me.lv2/%: master_me.dsp template/LV2/% faustpp
 	mkdir -p bin/master_me.lv2
@@ -172,7 +171,7 @@ bin/master_me-easy-presets.lv2/%: plugin/master_me-easy-presets.lv2/%
 
 build/master_me/%: master_me.dsp template/% faustpp
 	mkdir -p build/master_me
-	$(FAUSTPP_EXEC) $(FAUSTPP_ARGS) -a template/$* $< -o $@
+	$(FAUSTPP_EXEC) $(FAUSTPP_ARGS) $(FAUSTPP_OPTS) -a template/$* $< -o $@
 
 # only generated once
 build/BuildInfo1.hpp:

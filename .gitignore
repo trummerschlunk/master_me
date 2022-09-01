@@ -1,7 +1,7 @@
 /bin/
-/bench/soundsgood/*.*
+/bench/master_me/*.*
 /build/
 /.cache/
 compile_commands.json
-/soundsgood
+/master_me
 *~

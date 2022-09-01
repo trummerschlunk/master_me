@@ -71,6 +71,8 @@ do
         TESTS="fast"
     elif [ "$p" = "-single" ]; then
         TESTS="single"
+    elif [ "$p" = "-best" ]; then
+        TESTS="best"
     elif [ "$p" = "-run" ]; then
         shift
         RUN=$1
@@ -223,6 +225,18 @@ for p in $FILES; do
     elif [ $TESTS == "single" ]; then
 
         [ -e "$TMP/dsp_scal.h" ] || faust -cn dsp_scal $OPTIONS "$SRCDIR/$f" -o "$TMP/dsp_scal.h"
+
+    elif [ $TESTS == "best" ]; then
+
+        [ -e "$TMP/dsp_scal.h" ] || faust -cn dsp_scal $OPTIONS "$SRCDIR/$f" -o "$TMP/dsp_scal.h"
+        [ -e "$TMP/dsp_vec0g_8.h" ] || faust -cn dsp_vec0g_8 $OPTIONS -vec -lv 0 -vs 8 -g "$SRCDIR/$f" -o "$TMP/dsp_vec0g_8.h"
+        [ -e "$TMP/dsp_vec0g_8_exp10.h" ] || faust -cn dsp_vec0g_8_exp10 $OPTIONS -vec -lv 0 -vs 8 -g -exp10 "$SRCDIR/$f" -o "$TMP/dsp_vec0g_8_exp10.h"
+        [ -e "$TMP/dsp_vec0g_8_fm.h" ] || faust -cn dsp_vec0g_8_fm $OPTIONS -vec -lv 0 -vs 8 -g -fm fastmath.cpp "$SRCDIR/$f" -o "$TMP/dsp_vec0g_8_fm.h"
+        [ -e "$TMP/dsp_vec0g_8_fm_exp10.h" ] || faust -cn dsp_vec0g_8_fm_exp10 $OPTIONS -vec -lv 0 -vs 8 -g -fm fastmath.cpp -exp10 "$SRCDIR/$f" -o "$TMP/dsp_vec0g_8_fm_exp10.h"
+        [ -e "$TMP/dsp_vec1_8.h" ] || faust -cn dsp_vec1_8 $OPTIONS -vec -lv 1 -vs 8 "$SRCDIR/$f" -o "$TMP/dsp_vec1_8.h"
+        [ -e "$TMP/dsp_vec1_8_exp10.h" ] || faust -cn dsp_vec1_8_exp10 $OPTIONS -vec -lv 1 -vs 8 -exp10 "$SRCDIR/$f" -o "$TMP/dsp_vec1_8_exp10.h"
+        [ -e "$TMP/dsp_vec1_8_fm.h" ] || faust -cn dsp_vec1_8_fm $OPTIONS -vec -lv 1 -vs 8 -fm fastmath.cpp "$SRCDIR/$f" -o "$TMP/dsp_vec1_8_fm.h"
+        [ -e "$TMP/dsp_vec1_8_fm_exp10.h" ] || faust -cn dsp_vec1_8_fm_exp10 $OPTIONS -vec -lv 1 -vs 8 -fm fastmath.cpp -exp10 "$SRCDIR/$f" -o "$TMP/dsp_vec1_8_fm_exp10.h"
     fi
 
     cd "$TMP"
