@@ -96,7 +96,7 @@ dgl:
 # list of plugin source code files to generate, converted from faust dsp files
 
 PLUGIN_TEMPLATE_FILES   = $(subst template/,,$(wildcard template/*.*))
-PLUGIN_GENERATED_FILES  = $(foreach f,$(PLUGIN_TEMPLATE_FILES),build/master_me/$(f))
+PLUGIN_GENERATED_FILES  = $(foreach f,$(PLUGIN_TEMPLATE_FILES),pregen/$(f))
 PLUGIN_GENERATED_FILES += bin/master_me.lv2/manifest.ttl
 PLUGIN_GENERATED_FILES += bin/master_me.lv2/plugin.ttl
 PLUGIN_GENERATED_FILES += bin/master_me.lv2/ui.ttl
@@ -169,7 +169,7 @@ bin/master_me-easy-presets.lv2/%: plugin/master_me-easy-presets.lv2/%
 	mkdir -p bin/master_me-easy-presets.lv2
 	cp $< $@
 
-build/master_me/%: master_me.dsp template/% faustpp
+pregen/%: master_me.dsp template/% faustpp
 	mkdir -p build/master_me
 	$(FAUSTPP_EXEC) $(FAUSTPP_ARGS) $(FAUSTPP_OPTS) -a template/$* $< -o $@
 
