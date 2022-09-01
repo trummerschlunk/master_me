@@ -169,9 +169,10 @@ bin/master_me-easy-presets.lv2/%: plugin/master_me-easy-presets.lv2/%
 	mkdir -p bin/master_me-easy-presets.lv2
 	cp $< $@
 
-pregen/%: master_me.dsp template/% faustpp
-	mkdir -p build/master_me
-	$(FAUSTPP_EXEC) $(FAUSTPP_ARGS) $(FAUSTPP_OPTS) -a template/$* $< -o $@
+# FIXME have files in repo with proper dependency tracking
+# pregen/%: master_me.dsp template/% faustpp
+# 	mkdir -p build/master_me
+# 	$(FAUSTPP_EXEC) $(FAUSTPP_ARGS) $(FAUSTPP_OPTS) -a template/$* $< -o $@
 
 # only generated once
 build/BuildInfo1.hpp:
