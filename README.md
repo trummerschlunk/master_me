@@ -1,10 +1,12 @@
 <img src="./img/logo/logo_master_me_greyK01.png">
 
-
+# Installers
+here are the installers für Linux, macOS and Window:  
+(available shortly)
 
 # master_me
 
-Automatic audio mastering plugin for live-streaming and podcasting
+Automatic audio mastering plugin for live-streaming, podcasting and internet radio stations.
 
 # Introduction
 
