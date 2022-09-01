@@ -42,7 +42,7 @@ jobs:
         env:
           LDFLAGS: -static-libgcc -static-libstdc++
         run: |
-          make -j $(nproc)
+          make WITH_LTO=true -j $(nproc)
       - name: Set sha8
         id: slug
         run: echo "::set-output name=sha8::$(echo ${{ github.sha }} | cut -c1-8)"
@@ -91,7 +91,7 @@ jobs:
           CXXFLAGS: -O3 -arch x86_64 -arch arm64 -DMAC_OS_X_VERSION_MAX_ALLOWED=MAC_OS_X_VERSION_10_12 -mmacosx-version-min=10.12 -mtune=generic -msse -msse2
           LDFLAGS: -arch x86_64 -arch arm64 -mmacosx-version-min=10.12
         run: |
-          make NOOPT=true -j $(sysctl -n hw.logicalcpu)
+          make NOOPT=true WITH_LTO=true -j $(sysctl -n hw.logicalcpu)
           env WELCOME_TXT=$(pwd)/plugin/macos-installer-welcome.txt ./dpf/utils/package-osx-bundles.sh
       - name: Set sha8
         id: slug
@@ -148,7 +148,7 @@ jobs:
           CROSS_COMPILING: "true"
           PKG_CONFIG: "false"
         run: |
-          make APP_EXT= -j $(nproc)
+          make APP_EXT= WITH_LTO=true -j $(nproc)
       - name: Set sha8
         id: slug
         run: echo "::set-output name=sha8::$(echo ${{ github.sha }} | cut -c1-8)"
@@ -205,7 +205,7 @@ jobs:
           CROSS_COMPILING: "true"
           PKG_CONFIG: "false"
         run: |
-          make APP_EXT= -j $(nproc)
+          make APP_EXT= WITH_LTO=true -j $(nproc)
       - name: Set sha8
         id: slug
         run: echo "::set-output name=sha8::$(echo ${{ github.sha }} | cut -c1-8)"
