@@ -261,6 +261,3 @@ faust2jack soundsgood.dsp
 # then run as ./soundsgood
 ```
 
-# Installation
-
-TBA
