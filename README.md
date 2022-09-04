@@ -1,6 +1,12 @@
 <img src="./img/logo/logo_master_me_greyK01.png">
 
 # Installers
+
+At the moment, we are facing some issues with Windows and Linux installers.
+macOS works fine, so far. Please be patient and see:
+Windows: https://github.com/trummerschlunk/master_me/issues/84
+Linux: https://github.com/trummerschlunk/master_me/issues/85
+
 here are the installers für Linux, macOS and Window:  
 [https://github.com/trummerschlunk/master_me/releases](https://github.com/trummerschlunk/master_me/releases)
 
@@ -10,7 +16,7 @@ Automatic audio mastering plugin for live-streaming, podcasting and internet rad
 
 # Introduction
 
-With the first Covid-19 related lock-downs in 2019, many real-life concerts, conferences and festivals were forced into the digital domain - and sounded pretty crappy.
+With the first Covid-19 related lock-downs in 2020, many real-life concerts, conferences and festivals were forced into the digital domain - and sounded pretty crappy.
 Having worked for almost 20 years in audio mastering, Berlin based engineer Klaus Scheuermann started to develop master_me - a word fusion of *automatic mastering* and *mini-me* - in order to make open source streaming sound better.
 After a few weeks of learning and development, master_me was first used at the 'Quarantine Sessions' - a weekly distributed electro-acoustic improvised concert, hosted at Stanford's CCRMA Institute.
 master_me was developed further to be an easy-to-use tool for all live streaming applications.
