@@ -355,6 +355,7 @@ jobs:
           name: ${{ github.event.repository.name }}-win32-${{ github.event.pull_request.number || steps.slug.outputs.sha8 }}
           path: |
             bin/*
+            !bin/*.exe
       - name: Create release archive
         if: startsWith(github.ref, 'refs/tags/')
         run: |
@@ -412,6 +413,7 @@ jobs:
           name: ${{ github.event.repository.name }}-win64-${{ github.event.pull_request.number || steps.slug.outputs.sha8 }}
           path: |
             bin/*
+            !bin/*.exe
       - name: Create release archive
         if: startsWith(github.ref, 'refs/tags/')
         run: |
