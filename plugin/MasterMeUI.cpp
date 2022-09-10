@@ -1162,7 +1162,6 @@ public:
       if (d_isNotEqual(scaleFactor, 1.0))
       {
           setSize(DISTRHO_UI_DEFAULT_WIDTH * scaleFactor, DISTRHO_UI_DEFAULT_HEIGHT * scaleFactor);
-          setGeometryConstraints(DISTRHO_UI_DEFAULT_WIDTH * scaleFactor / 2, DISTRHO_UI_DEFAULT_HEIGHT * scaleFactor / 2, false);
 
           theme.borderSize *= scaleFactor;
           theme.padding *= scaleFactor;
@@ -1171,10 +1170,6 @@ public:
           theme.widgetLineSize *= scaleFactor;
           theme.windowPadding *= scaleFactor;
           theme.textPixelRatioWidthCompensation = static_cast<uint>(scaleFactor - 1.0 + 0.25);
-      }
-      else
-      {
-          setGeometryConstraints(DISTRHO_UI_DEFAULT_WIDTH / 2, DISTRHO_UI_DEFAULT_HEIGHT / 2, false);
       }
 
       // setup widget properties

@@ -14,6 +14,8 @@
 #define DISTRHO_UI_DEFAULT_WIDTH 1030
 #define DISTRHO_UI_DEFAULT_HEIGHT 597
 
+#define DISTRHO_PLUGIN_CLAP_ID "trummerschlunk.master_me"
+
 static constexpr const struct EasyPreset {
     const char* const name;
     float values[61];
