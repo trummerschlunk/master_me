@@ -21,7 +21,7 @@ struct MasterMeParameterGroup : VerticallyStackedHorizontalLayout
     const QuantumTheme& theme;
     tFrameWidget frame;
 
-    explicit MasterMeParameterGroup(TopLevelWidget* const parent, const QuantumTheme& t)
+    explicit MasterMeParameterGroup(NanoTopLevelWidget* const parent, const QuantumTheme& t)
         : theme(t),
           frame(parent, t) {}
 
@@ -145,7 +145,7 @@ struct MasterMePresetGroup : HorizontalLayout
     const QuantumTheme& theme;
     QuantumFrameWithLabel frame;
 
-    explicit MasterMePresetGroup(TopLevelWidget* const parent, const QuantumTheme& t)
+    explicit MasterMePresetGroup(NanoTopLevelWidget* const parent, const QuantumTheme& t)
         : theme(t),
           frame(parent, t) {}
 

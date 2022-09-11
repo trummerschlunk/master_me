@@ -26,7 +26,7 @@ class QuantumFrameWithSwitchMB : public QuantumFrameWithSwitch
     int bottomMeterTick = 0;
 
 public:
-    QuantumFrameWithSwitchMB(TopLevelWidget* const parent, const QuantumTheme& t)
+    QuantumFrameWithSwitchMB(NanoTopLevelWidget* const parent, const QuantumTheme& t)
         : QuantumFrameWithSwitch(parent, t),
           theme(t)
     {

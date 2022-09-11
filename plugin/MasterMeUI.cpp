@@ -49,7 +49,7 @@ struct InputMeterGroup : QuantumFrame
     QuantumMixerSlider slider;
     QuantumGainReductionMeter levelerGain;
 
-    explicit InputMeterGroup(TopLevelWidget* const parent, KnobEventHandler::Callback* const cb, const QuantumTheme& t)
+    explicit InputMeterGroup(NanoTopLevelWidget* const parent, KnobEventHandler::Callback* const cb, const QuantumTheme& t)
         : QuantumFrame(parent, t),
           theme(t),
           meter(this, t),
@@ -105,7 +105,7 @@ struct OutputMeterGroup : QuantumFrame
 
     QuantumStereoLevelMeterWithLUFS meter;
 
-    explicit OutputMeterGroup(TopLevelWidget* const parent, const QuantumTheme& t)
+    explicit OutputMeterGroup(NanoTopLevelWidget* const parent, const QuantumTheme& t)
         : QuantumFrame(parent, t),
           theme(t),
           meter(this, t)
@@ -141,7 +141,7 @@ struct TopCenteredGroup : NanoSubWidget
     QuantumSwitch globalEnableSwitch;
     QuantumVerticalSeparatorLine separator;
 
-    explicit TopCenteredGroup(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, const QuantumTheme& t)
+    explicit TopCenteredGroup(NanoTopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, const QuantumTheme& t)
         : NanoSubWidget(parent),
           theme(t),
           globalEnableSwitch(this, t),
@@ -189,7 +189,7 @@ struct ContentGroup : QuantumFrame
     SubWidget* histogram = nullptr;
 
 public:
-    explicit ContentGroup(TopLevelWidget* const parent, const QuantumTheme& t, QuantumButton& eb)
+    explicit ContentGroup(NanoTopLevelWidget* const parent, const QuantumTheme& t, QuantumButton& eb)
         : QuantumFrame(parent, t),
           theme(t),
           expertButton(eb)
@@ -309,7 +309,7 @@ class MasterMeNameWidget : public NanoSubWidget
     ScopedPointer<InspectorWindow> inspectorWindow;
 
 public:
-    explicit MasterMeNameWidget(TopLevelWidget* const parent, QuantumThemeCallback* const cb, QuantumTheme& t)
+    explicit MasterMeNameWidget(NanoTopLevelWidget* const parent, QuantumThemeCallback* const cb, QuantumTheme& t)
         : NanoSubWidget(parent),
           theme(t),
           callback(cb)
@@ -400,7 +400,7 @@ class MasterMeUI : public UI,
         QuantumSingleSwitch dcBlocker;
         QuantumSingleSwitch stereoCorrect;
 
-        explicit PreProcessing(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
+        explicit PreProcessing(NanoTopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
             : MasterMeParameterGroupWithoutBypassSwitch(parent, theme),
               inputGain(&frame, theme),
               phaseL(&frame, theme),
@@ -440,7 +440,7 @@ class MasterMeUI : public UI,
         QuantumSingleSeparatorLine separator;
         QuantumValueMeterWithLabel meter;
 
-        explicit Gate(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
+        explicit Gate(NanoTopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
             : MasterMeParameterGroupWithBypassSwitch(parent, theme),
               threshold(&frame, theme),
               attack(&frame, theme),
@@ -498,7 +498,7 @@ class MasterMeUI : public UI,
         QuantumValueSliderWithLabel side_freq;
         QuantumValueSliderWithLabel side_bandwidth;
 
-        explicit Eq(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
+        explicit Eq(NanoTopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
             : MasterMeParameterGroupWithBypassSwitch(parent, theme),
               highpass(&frame, theme),
               tilt(&frame, theme),
@@ -560,7 +560,7 @@ class MasterMeUI : public UI,
         QuantumSingleSeparatorLine separator;
         QuantumValueMeterWithLabel brake;
 
-        explicit Leveler(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
+        explicit Leveler(NanoTopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
             : MasterMeParameterGroupWithBypassSwitch(parent, theme),
               speed(&frame, theme),
               threshold(&frame, theme),
@@ -623,7 +623,7 @@ class MasterMeUI : public UI,
         QuantumValueMeterWithLabel mid;
         QuantumValueMeterWithLabel side;
 
-        explicit KneeCompressor(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
+        explicit KneeCompressor(NanoTopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
             : MasterMeParameterGroupWithBypassSwitch(parent, theme),
               strength(&frame, theme),
               threshold(&frame, theme),
@@ -720,7 +720,7 @@ class MasterMeUI : public UI,
         QuantumSingleSpacer spacer2;
         MultiBandCompressorOutputGainGroup outputGain;
 
-        explicit MidSideCompressor(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
+        explicit MidSideCompressor(NanoTopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
             : MasterMeParameterGroupWithBypassSwitchMB(parent, theme),
               strength(&frame, theme),
               threshold(&frame, theme),
@@ -921,7 +921,7 @@ class MasterMeUI : public UI,
         QuantumSingleSeparatorLine separator;
         QuantumValueMeterWithLabel gainReduction;
 
-        explicit Limiter(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
+        explicit Limiter(NanoTopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
             : MasterMeParameterGroupWithBypassSwitch(parent, theme),
               strength(&frame, theme),
               threshold(&frame, theme),
@@ -990,7 +990,7 @@ class MasterMeUI : public UI,
         QuantumValueSliderWithLabel release;
         QuantumValueMeterWithLabel limit;
 
-        explicit Brickwall(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
+        explicit Brickwall(NanoTopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, KnobEventHandler::Callback* const cb, const QuantumTheme& theme)
             : MasterMeParameterGroupWithBypassSwitch(parent, theme),
               ceiling(&frame, theme),
               release(&frame, theme),
@@ -1053,7 +1053,7 @@ class MasterMeUI : public UI,
         // for ignore changes when preset buttons are clicked
         bool ignoreParameterChanges = false;
 
-        PresetButtons(TopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, const QuantumTheme& theme)
+        PresetButtons(NanoTopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, const QuantumTheme& theme)
             : MasterMePresetGroup(parent, theme),
               b1(&frame, theme),
               b2(&frame, theme),
