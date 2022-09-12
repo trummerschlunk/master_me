@@ -16,6 +16,8 @@
 
 #define DISTRHO_PLUGIN_CLAP_ID "trummerschlunk.master_me"
 
+#define DISTRHO_UI_USER_RESIZABLE 1
+
 static constexpr const struct EasyPreset {
     const char* const name;
     float values[61];
