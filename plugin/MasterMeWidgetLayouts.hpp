@@ -8,30 +8,7 @@
 START_NAMESPACE_DGL
 
 // --------------------------------------------------------------------------------------------------------------------
-// fixed button, expanding label below it for description
-
-struct QuantumButtonWithDescription : HorizontalLayout
-{
-    QuantumButton button;
-    QuantumLabel label;
-
-    explicit QuantumButtonWithDescription(NanoSubWidget* const parent, const QuantumTheme& theme)
-        : button(parent, theme),
-          label(parent, theme)
-    {
-        widgets.push_back({ &button, Fixed });
-        widgets.push_back({ &label, Expanding });
-    }
-
-    void adjustSize()
-    {
-        button.adjustSize();
-        label.adjustSize();
-    }
-};
-
-// --------------------------------------------------------------------------------------------------------------------
-// fixed label, expanding separator line
+// fixed label, expanding separator line on both sides
 
 struct QuantumLabelWithSeparatorLine : HorizontalLayout
 {
