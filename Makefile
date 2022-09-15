@@ -186,7 +186,7 @@ build/BuildInfo1.hpp:
 	echo ';' >> $@
 
 # regenerated on every possible change
-build/BuildInfo2.hpp: master_me.dsp plugin/* template/* template/LV2/*
+build/BuildInfo2.hpp: master_me.dsp plugin/* template/* template/LV2/* VERSION.mk
 	mkdir -p build
 	echo 'constexpr const char kBuildInfoString2[] = ""' > $@
 ifneq ($(wildcard .git/HEAD),)
