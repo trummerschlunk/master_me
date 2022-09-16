@@ -2,11 +2,6 @@
 
 # Installers
 
-At the moment, we are facing some issues with Windows and Linux installers.
-macOS works fine, so far. Please be patient and see:
-Windows: https://github.com/trummerschlunk/master_me/issues/84
-Linux: https://github.com/trummerschlunk/master_me/issues/85
-
 here are the installers für Linux, macOS and Window:  
 [https://github.com/trummerschlunk/master_me/releases](https://github.com/trummerschlunk/master_me/releases)
 
