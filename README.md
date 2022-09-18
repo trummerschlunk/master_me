@@ -44,7 +44,7 @@ master_me is licensed under GPL3, see the [LICENSE](LICENSE) file for more detai
 
 # System requirements and compatibility
 
-master_me is available in LV2, VST2 and VST3 formats for Linux, macOS and Windows, plus JACK Standalone for some systems.
+master_me is available in LV2, VST2, VST3 and CLAP formats for Linux, macOS and Windows, plus JACK Standalone for some systems.
 
 Due to faust and its open architecture, it can possibly be compiled to a vast variety of target platforms not mentioned above.
 
