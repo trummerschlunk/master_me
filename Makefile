@@ -30,12 +30,14 @@ FAUSTPP_TARGET = build/faustpp/faustpp$(APP_EXT)
 FAUSTPP_EXEC = $(CURDIR)/$(FAUSTPP_TARGET)
 endif
 
+faustpp:
+
 # never rebuild faustpp
-ifeq ($(wildcard build/faustpp/faustpp$(APP_EXT)),)
+ifneq ($(FAUSTPP_TARGET),)
+ifeq ($(wildcard $(FAUSTPP_TARGET)),)
 faustpp: $(FAUSTPP_TARGET)
 .PHONY: faustpp
-else
-faustpp:
+endif
 endif
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -175,13 +177,15 @@ bin/master_me-easy-presets.lv2/%: plugin/master_me-easy-presets.lv2/%
 # 	mkdir -p build/master_me
 # 	$(FAUSTPP_EXEC) $(FAUSTPP_ARGS) $(FAUSTPP_OPTS) -a template/$* $< -o $@
 
+NEWLINE = '\\\\$(nothing)n'
+
 # only generated once
 build/BuildInfo1.hpp:
 	mkdir -p build
 	echo 'constexpr const char kBuildInfoString1[] = ""' > $@
-	echo '"A plugin by Klaus Scheuermann, made with Faust and DPF\\n"' >> $@
-	echo '"DSP: Klaus Scheuermann, magnetophon, x42, jkbd\\n"' >> $@
-	echo '"GUI, Plugin: falkTX\\n"' >> $@
+	echo '"A plugin by Klaus Scheuermann, made with Faust and DPF$(NEWLINE)"' >> $@
+	echo '"DSP: Klaus Scheuermann, magnetophon, x42, jkbd$(NEWLINE)"' >> $@
+	echo '"GUI, Plugin: falkTX$(NEWLINE)"' >> $@
 	echo '"Supported by the Prototype Fund / German Federal Ministry of Education and Research"' >> $@
 	echo ';' >> $@
 
@@ -190,7 +194,7 @@ build/BuildInfo2.hpp: master_me.dsp plugin/* template/* template/LV2/* VERSION.m
 	mkdir -p build
 	echo 'constexpr const char kBuildInfoString2[] = ""' > $@
 ifneq ($(wildcard .git/HEAD),)
-	echo '"Built using `$(shell git branch --show-current | tr -d "'")` branch with commit:\\n$(shell git log -n 1 --decorate=no --pretty=oneline --abbrev-commit | tr -d "'")"' >> $@
+	echo '"Built using `$(shell git branch --show-current | tr -d "'")` branch with commit:$(NEWLINE)$(shell git log -n 1 --decorate=no --pretty=oneline --abbrev-commit | tr -d "'")"' >> $@
 else
 	echo '"v$(VERSION)"' >> $@
 endif

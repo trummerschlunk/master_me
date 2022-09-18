@@ -21,6 +21,8 @@ export SKIP_NATIVE_AUDIO_FALLBACK = true
 
 include $(DPF_PATH)/Makefile.plugins.mk
 
+BUILD_CXX_FLAGS += -DIMGUI_DISABLE_DEMO_WINDOWS
+BUILD_CXX_FLAGS += -DIMGUI_DISABLE_METRICS_WINDOW
 BUILD_CXX_FLAGS += -I../build
 BUILD_CXX_FLAGS += -I../dpf-widgets/opengl
 BUILD_CXX_FLAGS += -I../pregen
