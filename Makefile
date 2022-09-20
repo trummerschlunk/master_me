@@ -177,7 +177,11 @@ bin/master_me-easy-presets.lv2/%: plugin/master_me-easy-presets.lv2/%
 # 	mkdir -p build/master_me
 # 	$(FAUSTPP_EXEC) $(FAUSTPP_ARGS) $(FAUSTPP_OPTS) -a template/$* $< -o $@
 
+ifeq ($(shell echo -e escaped-by-default | grep -- '-e escaped-by-default'),-e escaped-by-default)
 NEWLINE = '\\\\$(nothing)n'
+else
+NEWLINE = '\\$(nothing)n'
+endif
 
 # only generated once
 build/BuildInfo1.hpp:
