@@ -1,0 +1,2083 @@
+@prefix atom:    <http://lv2plug.in/ns/ext/atom#> .
+@prefix bufsize: <http://lv2plug.in/ns/ext/buf-size#> .
+@prefix doap:    <http://usefulinc.com/ns/doap#> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix lv2:     <http://lv2plug.in/ns/lv2core#> .
+@prefix opts:    <http://lv2plug.in/ns/ext/options#> .
+@prefix patch:   <http://lv2plug.in/ns/ext/patch#> .
+@prefix pg:      <http://lv2plug.in/ns/ext/port-groups#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ui:      <http://lv2plug.in/ns/extensions/ui#> .
+@prefix unit:    <http://lv2plug.in/ns/extensions/units#> .
+
+
+
+
+<https://github.com/trummerschlunk/master_me#portGroup_dpf_stereo>
+    a pg:Group , pg:StereoGroup ;
+    lv2:name "Stereo" ;
+    lv2:symbol "dpf_stereo" .
+
+
+<https://github.com/trummerschlunk/master_me#mode>
+    a lv2:Parameter ;
+    rdfs:label "Mode" ;
+    rdfs:comment "Simple vs Advanced mode switch" ;
+    rdfs:range atom:String .
+
+<https://github.com/trummerschlunk/master_me>
+    a lv2:UtilityPlugin, lv2:Plugin, doap:Project ;
+
+    lv2:extensionData opts:interface ,
+                      <http://lv2plug.in/ns/ext/state#interface> ,
+                      <http://lv2plug.in/ns/ext/worker#interface> ;
+
+    lv2:optionalFeature lv2:hardRTCapable ,
+                        bufsize:boundedBlockLength ;
+
+    lv2:requiredFeature opts:options ,
+                        <http://lv2plug.in/ns/ext/urid#map> ,
+                        <http://lv2plug.in/ns/ext/worker#schedule> ;
+
+    opts:supportedOption bufsize:nominalBlockLength ,
+                         bufsize:maxBlockLength ,
+                         <http://lv2plug.in/ns/ext/parameters#sampleRate> ;
+
+    patch:readable <https://github.com/trummerschlunk/master_me#mode> ;
+
+    
+    ui:ui <https://github.com/trummerschlunk/master_me#DPF_UI> ;
+    
+
+    
+    lv2:port [
+        a lv2:InputPort, lv2:AudioPort ;
+        lv2:index 0 ;
+        lv2:symbol "lv2_audio_in_1" ;
+        lv2:name "Audio Input 1" ;
+        
+        pg:group <https://github.com/trummerschlunk/master_me#portGroup_dpf_stereo> ;
+            
+        lv2:designation pg:left ;
+            
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:AudioPort ;
+        lv2:index 1 ;
+        lv2:symbol "lv2_audio_in_2" ;
+        lv2:name "Audio Input 2" ;
+        
+        pg:group <https://github.com/trummerschlunk/master_me#portGroup_dpf_stereo> ;
+            
+        lv2:designation pg:right ;
+            
+        
+    ] ;
+    
+
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:AudioPort ;
+        lv2:index 2 ;
+        lv2:symbol "lv2_audio_out_1" ;
+        lv2:name "Audio Output 1" ;
+        
+        pg:group <https://github.com/trummerschlunk/master_me#portGroup_dpf_stereo> ;
+            
+        lv2:designation pg:left ;
+            
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:AudioPort ;
+        lv2:index 3 ;
+        lv2:symbol "lv2_audio_out_2" ;
+        lv2:name "Audio Output 2" ;
+        
+        pg:group <https://github.com/trummerschlunk/master_me#portGroup_dpf_stereo> ;
+            
+        lv2:designation pg:right ;
+            
+        
+    ] ;
+    
+
+    lv2:port [
+        a lv2:InputPort, atom:AtomPort ;
+        lv2:index 4 ;
+        lv2:name "Events Input" ;
+        lv2:symbol "lv2_events_in" ;
+        atom:bufferType atom:Sequence ;
+        atom:supports atom:String ;
+        atom:supports patch:Message ;
+        lv2:designation lv2:control ;
+    ] ;
+
+    lv2:port [
+        a lv2:OutputPort, atom:AtomPort ;
+        lv2:index 5 ;
+        lv2:name "Events Output" ;
+        lv2:symbol "lv2_events_out" ;
+        atom:bufferType atom:Sequence ;
+        atom:supports atom:String ;
+        atom:supports patch:Message ;
+        lv2:designation lv2:control ;
+    ] ;
+
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 6 ;
+    
+        lv2:name "Enabled" ;
+        lv2:symbol "lv2_enabled" ;
+        lv2:default 1 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1 ;
+        lv2:portProperty lv2:toggled , lv2:integer ;
+        lv2:designation lv2:enabled ;
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 7 ;
+    
+        lv2:name "Target" ;
+        lv2:symbol "target" ;
+        lv2:default -18.0 ;
+        lv2:minimum -50.0 ;
+        lv2:maximum -2.0 ;
+        
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 8 ;
+    
+        lv2:name "input gain" ;
+        lv2:symbol "in_gain" ;
+        lv2:default 0.0 ;
+        lv2:minimum -100.0 ;
+        lv2:maximum 24.0 ;
+        
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 9 ;
+    
+        lv2:name "phase L" ;
+        lv2:symbol "phase_l" ;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1 ;
+        
+        
+        lv2:portProperty lv2:toggled ;
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 10 ;
+    
+        lv2:name "phase R" ;
+        lv2:symbol "phase_r" ;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1 ;
+        
+        
+        lv2:portProperty lv2:toggled ;
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 11 ;
+    
+        lv2:name "mono" ;
+        lv2:symbol "mono" ;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1 ;
+        
+        
+        lv2:portProperty lv2:toggled ;
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 12 ;
+    
+        lv2:name "dc blocker" ;
+        lv2:symbol "dc_blocker" ;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1 ;
+        
+        
+        lv2:portProperty lv2:toggled ;
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 13 ;
+    
+        lv2:name "stereo correct" ;
+        lv2:symbol "stereo_correct" ;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1 ;
+        
+        
+        lv2:portProperty lv2:toggled ;
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 14 ;
+    
+        lv2:name "gate bypass" ;
+        lv2:symbol "gate_bypass" ;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1 ;
+        
+        
+        lv2:portProperty lv2:toggled ;
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 15 ;
+    
+        lv2:name "gate threshold" ;
+        lv2:symbol "gate_threshold" ;
+        lv2:default -90.0 ;
+        lv2:minimum -90.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 16 ;
+    
+        lv2:name "gate attack" ;
+        lv2:symbol "gate_attack" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 100.0 ;
+        
+        
+        
+        
+        
+        
+        
+        unit:unit unit:ms ;
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 17 ;
+    
+        lv2:name "gate hold" ;
+        lv2:symbol "gate_hold" ;
+        lv2:default 50.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 500.0 ;
+        
+        
+        
+        
+        
+        
+        
+        unit:unit unit:ms ;
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 18 ;
+    
+        lv2:name "gate release" ;
+        lv2:symbol "gate_release" ;
+        lv2:default 500.0 ;
+        lv2:minimum 50.0 ;
+        lv2:maximum 5000.0 ;
+        
+        
+        
+        
+        
+        
+        
+        unit:unit unit:ms ;
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 19 ;
+    
+        lv2:name "eq bypass" ;
+        lv2:symbol "eq_bypass" ;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1 ;
+        
+        
+        lv2:portProperty lv2:toggled ;
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 20 ;
+    
+        lv2:name "eq highpass freq" ;
+        lv2:symbol "eq_highpass_freq" ;
+        lv2:default 5.0 ;
+        lv2:minimum 5.0 ;
+        lv2:maximum 1000.0 ;
+        
+        
+        
+        
+        lv2:portProperty <http://lv2plug.in/ns/ext/port-props#logarithmic> ;
+        
+        
+        
+        unit:unit unit:hz ;
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 21 ;
+    
+        lv2:name "eq tilt gain" ;
+        lv2:symbol "eq_tilt_gain" ;
+        lv2:default 0.0 ;
+        lv2:minimum -6.0 ;
+        lv2:maximum 6.0 ;
+        
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 22 ;
+    
+        lv2:name "eq side gain" ;
+        lv2:symbol "eq_side_gain" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 23 ;
+    
+        lv2:name "eq side freq" ;
+        lv2:symbol "eq_side_freq" ;
+        lv2:default 600.0 ;
+        lv2:minimum 200.0 ;
+        lv2:maximum 5000.0 ;
+        
+        
+        
+        
+        lv2:portProperty <http://lv2plug.in/ns/ext/port-props#logarithmic> ;
+        
+        
+        
+        unit:unit unit:hz ;
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 24 ;
+    
+        lv2:name "eq side bandwidth" ;
+        lv2:symbol "eq_side_bandwidth" ;
+        lv2:default 1.0 ;
+        lv2:minimum 0.5 ;
+        lv2:maximum 4.0 ;
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 25 ;
+    
+        lv2:name "leveler bypass" ;
+        lv2:symbol "leveler_bypass" ;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1 ;
+        
+        
+        lv2:portProperty lv2:toggled ;
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 26 ;
+    
+        lv2:name "leveler speed" ;
+        lv2:symbol "leveler_speed" ;
+        lv2:default 20.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 100.0 ;
+        
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+        unit:unit unit:pc ;
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 27 ;
+    
+        lv2:name "leveler brake threshold" ;
+        lv2:symbol "leveler_brake_threshold" ;
+        lv2:default -14.0 ;
+        lv2:minimum -90.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 28 ;
+    
+        lv2:name "leveler max +" ;
+        lv2:symbol "leveler_max_plus" ;
+        lv2:default 20.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 60.0 ;
+        
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 29 ;
+    
+        lv2:name "leveler max -" ;
+        lv2:symbol "leveler_max_minus" ;
+        lv2:default 20.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 60.0 ;
+        
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 30 ;
+    
+        lv2:name "kneecomp bypass" ;
+        lv2:symbol "kneecomp_bypass" ;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1 ;
+        
+        
+        lv2:portProperty lv2:toggled ;
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 31 ;
+    
+        lv2:name "kneecomp strength" ;
+        lv2:symbol "kneecomp_strength" ;
+        lv2:default 20.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 100.0 ;
+        
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+        unit:unit unit:pc ;
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 32 ;
+    
+        lv2:name "kneecomp tar-thresh" ;
+        lv2:symbol "kneecomp_threshold" ;
+        lv2:default -6.0 ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 6.0 ;
+        
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 33 ;
+    
+        lv2:name "kneecomp attack" ;
+        lv2:symbol "kneecomp_attack" ;
+        lv2:default 20.0 ;
+        lv2:minimum 1.0 ;
+        lv2:maximum 100.0 ;
+        
+        
+        
+        
+        
+        
+        
+        unit:unit unit:ms ;
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 34 ;
+    
+        lv2:name "kneecomp release" ;
+        lv2:symbol "kneecomp_release" ;
+        lv2:default 200.0 ;
+        lv2:minimum 1.0 ;
+        lv2:maximum 1000.0 ;
+        
+        
+        
+        
+        
+        
+        
+        unit:unit unit:ms ;
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 35 ;
+    
+        lv2:name "kneecomp knee" ;
+        lv2:symbol "kneecomp_knee" ;
+        lv2:default 6.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 30.0 ;
+        
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 36 ;
+    
+        lv2:name "kneecomp link" ;
+        lv2:symbol "kneecomp_link" ;
+        lv2:default 60.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 100.0 ;
+        
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+        unit:unit unit:pc ;
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 37 ;
+    
+        lv2:name "kneecomp ff-fb" ;
+        lv2:symbol "kneecomp_fffb" ;
+        lv2:default 50.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 100.0 ;
+        
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+        unit:unit unit:pc ;
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 38 ;
+    
+        lv2:name "kneecomp makeup" ;
+        lv2:symbol "kneecomp_makeup" ;
+        lv2:default 0.0 ;
+        lv2:minimum -10.0 ;
+        lv2:maximum 10.0 ;
+        
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 39 ;
+    
+        lv2:name "kneecomp dry/wet" ;
+        lv2:symbol "kneecomp_drywet" ;
+        lv2:default 100.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 100.0 ;
+        
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+        unit:unit unit:pc ;
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 40 ;
+    
+        lv2:name "mscomp bypass" ;
+        lv2:symbol "mscomp_bypass" ;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1 ;
+        
+        
+        lv2:portProperty lv2:toggled ;
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 41 ;
+    
+        lv2:name "low strength" ;
+        lv2:symbol "mscomp_low_strength" ;
+        lv2:default 10.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 100.0 ;
+        
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+        unit:unit unit:pc ;
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 42 ;
+    
+        lv2:name "low tar-thresh" ;
+        lv2:symbol "mscomp_low_threshold" ;
+        lv2:default -6.0 ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 43 ;
+    
+        lv2:name "low attack" ;
+        lv2:symbol "mscomp_low_attack" ;
+        lv2:default 15.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 100.0 ;
+        
+        
+        
+        
+        
+        
+        
+        unit:unit unit:ms ;
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 44 ;
+    
+        lv2:name "low release" ;
+        lv2:symbol "mscomp_low_release" ;
+        lv2:default 150.0 ;
+        lv2:minimum 1.0 ;
+        lv2:maximum 1000.0 ;
+        
+        
+        
+        
+        
+        
+        
+        unit:unit unit:ms ;
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 45 ;
+    
+        lv2:name "low knee" ;
+        lv2:symbol "mscomp_low_knee" ;
+        lv2:default 12.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 30.0 ;
+        
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 46 ;
+    
+        lv2:name "low link" ;
+        lv2:symbol "mscomp_low_link" ;
+        lv2:default 60.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 100.0 ;
+        
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+        unit:unit unit:pc ;
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 47 ;
+    
+        lv2:name "low crossover" ;
+        lv2:symbol "mscomp_low_crossover" ;
+        lv2:default 60.0 ;
+        lv2:minimum 20.0 ;
+        lv2:maximum 4000.0 ;
+        
+        
+        
+        
+        lv2:portProperty <http://lv2plug.in/ns/ext/port-props#logarithmic> ;
+        
+        
+        
+        unit:unit unit:hz ;
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 48 ;
+    
+        lv2:name "high strength" ;
+        lv2:symbol "mscomp_high_strength" ;
+        lv2:default 10.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 100.0 ;
+        
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+        unit:unit unit:pc ;
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 49 ;
+    
+        lv2:name "high tar-thresh" ;
+        lv2:symbol "mscomp_high_threshold" ;
+        lv2:default -12.0 ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 50 ;
+    
+        lv2:name "high attack" ;
+        lv2:symbol "mscomp_high_attack" ;
+        lv2:default 3.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 100.0 ;
+        
+        
+        
+        
+        
+        
+        
+        unit:unit unit:ms ;
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 51 ;
+    
+        lv2:name "high release" ;
+        lv2:symbol "mscomp_high_release" ;
+        lv2:default 30.0 ;
+        lv2:minimum 1.0 ;
+        lv2:maximum 1000.0 ;
+        
+        
+        
+        
+        
+        
+        
+        unit:unit unit:ms ;
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 52 ;
+    
+        lv2:name "high knee" ;
+        lv2:symbol "mscomp_high_knee" ;
+        lv2:default 12.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 30.0 ;
+        
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 53 ;
+    
+        lv2:name "high link" ;
+        lv2:symbol "mscomp_high_link" ;
+        lv2:default 30.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 100.0 ;
+        
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+        unit:unit unit:pc ;
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 54 ;
+    
+        lv2:name "high crossover" ;
+        lv2:symbol "mscomp_high_crossover" ;
+        lv2:default 8000.0 ;
+        lv2:minimum 5000.0 ;
+        lv2:maximum 20000.0 ;
+        
+        
+        
+        
+        lv2:portProperty <http://lv2plug.in/ns/ext/port-props#logarithmic> ;
+        
+        
+        
+        unit:unit unit:hz ;
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 55 ;
+    
+        lv2:name "makeup" ;
+        lv2:symbol "mscomp_output_gain" ;
+        lv2:default 1.0 ;
+        lv2:minimum -6.0 ;
+        lv2:maximum 6.0 ;
+        
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 56 ;
+    
+        lv2:name "limiter bypass" ;
+        lv2:symbol "limiter_bypass" ;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1 ;
+        
+        
+        lv2:portProperty lv2:toggled ;
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 57 ;
+    
+        lv2:name "limiter strength" ;
+        lv2:symbol "limiter_strength" ;
+        lv2:default 80.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 100.0 ;
+        
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+        unit:unit unit:pc ;
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 58 ;
+    
+        lv2:name "limiter tar-thresh" ;
+        lv2:symbol "limiter_threshold" ;
+        lv2:default 6.0 ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 59 ;
+    
+        lv2:name "limiter attack" ;
+        lv2:symbol "limiter_attack" ;
+        lv2:default 1.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 100.0 ;
+        
+        
+        
+        
+        
+        
+        
+        unit:unit unit:ms ;
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 60 ;
+    
+        lv2:name "limiter release" ;
+        lv2:symbol "limiter_release" ;
+        lv2:default 40.0 ;
+        lv2:minimum 1.0 ;
+        lv2:maximum 400.0 ;
+        
+        
+        
+        
+        
+        
+        
+        unit:unit unit:ms ;
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 61 ;
+    
+        lv2:name "limiter knee" ;
+        lv2:symbol "limiter_knee" ;
+        lv2:default 8.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 62 ;
+    
+        lv2:name "limiter ff-fb" ;
+        lv2:symbol "limiter_fffb" ;
+        lv2:default 50.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 100.0 ;
+        
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+        unit:unit unit:pc ;
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 63 ;
+    
+        lv2:name "limiter makeup" ;
+        lv2:symbol "limiter_makeup" ;
+        lv2:default 0.0 ;
+        lv2:minimum -10.0 ;
+        lv2:maximum 10.0 ;
+        
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 64 ;
+    
+        lv2:name "brickwall bypass" ;
+        lv2:symbol "brickwall_bypass" ;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1 ;
+        
+        
+        lv2:portProperty lv2:toggled ;
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 65 ;
+    
+        lv2:name "brickwall ceiling" ;
+        lv2:symbol "brickwall_ceiling" ;
+        lv2:default -1.0 ;
+        lv2:minimum -6.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 66 ;
+    
+        lv2:name "brickwall release" ;
+        lv2:symbol "brickwall_release" ;
+        lv2:default 75.0 ;
+        lv2:minimum 5.0 ;
+        lv2:maximum 100.0 ;
+        
+        
+        
+        
+        
+        
+        
+        unit:unit unit:ms ;
+        
+        
+    
+    ] ;
+    
+
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 67 ;
+        lv2:name "in L" ;
+        lv2:symbol "peakmeter_in_l" ;
+        lv2:minimum -70.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 68 ;
+        lv2:name "in R" ;
+        lv2:symbol "peakmeter_in_r" ;
+        lv2:minimum -70.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 69 ;
+        lv2:name "in lufs-s" ;
+        lv2:symbol "lufs_in" ;
+        lv2:minimum -70.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 70 ;
+        lv2:name "leveler gain" ;
+        lv2:symbol "leveler_gain" ;
+        lv2:minimum -50.0 ;
+        lv2:maximum 50.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 71 ;
+        lv2:name "out lufs-s" ;
+        lv2:symbol "lufs_out" ;
+        lv2:minimum -70.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 72 ;
+        lv2:name "out L" ;
+        lv2:symbol "peakmeter_out_l" ;
+        lv2:minimum -70.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 73 ;
+        lv2:name "out R" ;
+        lv2:symbol "peakmeter_out_r" ;
+        lv2:minimum -70.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 74 ;
+        lv2:name "gate meter" ;
+        lv2:symbol "gate_meter" ;
+        lv2:minimum -70.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 75 ;
+        lv2:name "leveler brake" ;
+        lv2:symbol "leveler_brake" ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 100.0 ;
+        
+        
+        lv2:portProperty lv2:integer ;
+        
+        
+        
+        
+        
+        
+        unit:unit unit:pc ;
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 76 ;
+        lv2:name "kneecomp meter 0" ;
+        lv2:symbol "kneecomp_meter_0" ;
+        lv2:minimum -6.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 77 ;
+        lv2:name "kneecomp meter 1" ;
+        lv2:symbol "kneecomp_meter_1" ;
+        lv2:minimum -6.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 78 ;
+        lv2:name "0x5586651d2ae0" ;
+        lv2:symbol "msredux11" ;
+        lv2:minimum -6.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 79 ;
+        lv2:name "0x5586652744a0" ;
+        lv2:symbol "msredux12" ;
+        lv2:minimum -6.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 80 ;
+        lv2:name "0x5586651b7610" ;
+        lv2:symbol "msredux21" ;
+        lv2:minimum -6.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 81 ;
+        lv2:name "0x558665271090" ;
+        lv2:symbol "msredux22" ;
+        lv2:minimum -6.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 82 ;
+        lv2:name "0x5586651888b0" ;
+        lv2:symbol "msredux31" ;
+        lv2:minimum -6.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 83 ;
+        lv2:name "0x55866526dd70" ;
+        lv2:symbol "msredux32" ;
+        lv2:minimum -6.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 84 ;
+        lv2:name "0x558665159a90" ;
+        lv2:symbol "msredux41" ;
+        lv2:minimum -6.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 85 ;
+        lv2:name "0x55866526aa50" ;
+        lv2:symbol "msredux42" ;
+        lv2:minimum -6.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 86 ;
+        lv2:name "0x55866512ac70" ;
+        lv2:symbol "msredux51" ;
+        lv2:minimum -6.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 87 ;
+        lv2:name "0x558665267730" ;
+        lv2:symbol "msredux52" ;
+        lv2:minimum -6.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 88 ;
+        lv2:name "0x5586650fbe50" ;
+        lv2:symbol "msredux61" ;
+        lv2:minimum -6.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 89 ;
+        lv2:name "0x558665264410" ;
+        lv2:symbol "msredux62" ;
+        lv2:minimum -6.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 90 ;
+        lv2:name "0x5586650cd030" ;
+        lv2:symbol "msredux71" ;
+        lv2:minimum -6.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 91 ;
+        lv2:name "0x5586652610f0" ;
+        lv2:symbol "msredux72" ;
+        lv2:minimum -6.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 92 ;
+        lv2:name "0x55866509ed70" ;
+        lv2:symbol "msredux81" ;
+        lv2:minimum -6.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 93 ;
+        lv2:name "0x55866525ec30" ;
+        lv2:symbol "msredux82" ;
+        lv2:minimum -6.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 94 ;
+        lv2:name "limiter gain reduction" ;
+        lv2:symbol "limiter_gain_reduction" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 95 ;
+        lv2:name "lim" ;
+        lv2:symbol "brickwall_limit" ;
+        lv2:minimum -20.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 96 ; ;
+        lv2:name "Histogram Buffer Size" ;
+        lv2:symbol "histogram_buffer_size" ;
+        lv2:shortName "HistBufSize" ;
+        lv2:minimum 4096 ;
+        lv2:maximum 16384 ;
+        unit:unit [
+            a unit:Unit ;
+            rdfs:label  "frames" ;
+            unit:symbol "frames" ;
+            unit:render "%d frames" ;
+        ] ;
+        lv2:portProperty lv2:integer ;
+    ] ;
+
+    doap:name "master_me" ;
+
+    
+    doap:developer [
+        foaf:name "Klaus Scheuermann" ;
+    ] ;
+    
+
+    
+    doap:license <http://spdx.org/licenses/GPL-3.0-or-later.html> ;
+    
+
+    doap:maintainer [
+        foaf:name "Klaus Scheuermann" ;
+        foaf:homepage <https://4ohm.de/> ;
+    ] ;
+
+    
+
+    lv2:microVersion 1 ;
+    lv2:minorVersion 0 .

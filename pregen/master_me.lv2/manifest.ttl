@@ -1,0 +1,13 @@
+@prefix lv2:  <http://lv2plug.in/ns/lv2core#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ui:   <http://lv2plug.in/ns/extensions/ui#> .
+
+<https://github.com/trummerschlunk/master_me>
+    a lv2:Plugin ;
+    lv2:binary <master_me_dsp@libext@> ;
+    rdfs:seeAlso <plugin.ttl> .
+
+<https://github.com/trummerschlunk/master_me#DPF_UI>
+    a ui:@uitype@UI ;
+    ui:binary <master_me_ui@libext@> ;
+    rdfs:seeAlso <ui.ttl> .

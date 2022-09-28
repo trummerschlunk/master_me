@@ -146,36 +146,46 @@ FAUSTPP_ARGS = \
 	-Dlabel="master_me" \
 	-Dlicense="GPLv3+" \
 	-Dlicenseurl="http://spdx.org/licenses/GPL-3.0-or-later.html" \
-	-Dlibext="$(LIB_EXT)" \
+	-Dlibext=\@libext\@ \
+	-Duitype=\@uitype\@ \
 	-Dlv2uri="https://github.com/trummerschlunk/master_me" \
 	-Dversion_major=$(VERSION_MAJOR) \
 	-Dversion_minor=$(VERSION_MINOR) \
 	-Dversion_micro=$(VERSION_MICRO)
 
+# -X-scal
+# -X-fm -Xfastmath.cpp
+FAUSTPP_OPTS = -X-vec -X-lv -X1 -X-vs -X8
+
+pregen:
+	mkdir -p build/master_me
+	$(FAUSTPP_EXEC) $(FAUSTPP_ARGS) $(FAUSTPP_OPTS) -a template/DistrhoPluginInfo.h master_me.dsp -o pregen/DistrhoPluginInfo.h
+	$(FAUSTPP_EXEC) $(FAUSTPP_ARGS) $(FAUSTPP_OPTS) -a template/Plugin.cpp          master_me.dsp -o pregen/Plugin.cpp
+	$(FAUSTPP_EXEC) $(FAUSTPP_ARGS)                 -a template/LV2/manifest.ttl    master_me.dsp -o pregen/master_me.lv2/manifest.ttl
+	$(FAUSTPP_EXEC) $(FAUSTPP_ARGS)                 -a template/LV2/plugin.ttl      master_me.dsp -o pregen/master_me.lv2/plugin.ttl
+	$(FAUSTPP_EXEC) $(FAUSTPP_ARGS)                 -a template/LV2/ui.ttl          master_me.dsp -o pregen/master_me.lv2/ui.ttl
+
+# ---------------------------------------------------------------------------------------------------------------------
+# rules for static LV2 data
+
 ifeq ($(MACOS),true)
-FAUSTPP_ARGS += -Duitype=Cocoa
+UITYPE = Cocoa
 else ifeq ($(WINDOWS),true)
-FAUSTPP_ARGS += -Duitype=HWND
-else ifeq ($(HAVE_DGL),true)
-FAUSTPP_ARGS += -Duitype=X11
+UITYPE = HWND
+else
+UITYPE = X11
 endif
 
-# FAUSTPP_OPTS = -X-scal
-FAUSTPP_OPTS = -X-vec -X-lv -X1 -X-vs -X8
-# -X-fm -Xfastmath.cpp
-
-bin/master_me.lv2/%: master_me.dsp template/LV2/% faustpp
+bin/master_me.lv2/%: pregen/master_me.lv2/%
 	mkdir -p bin/master_me.lv2
-	$(FAUSTPP_EXEC) $(FAUSTPP_ARGS) -a template/LV2/$* $< -o $@
+	sed -e "s/@libext@/$(LIB_EXT)/g" -e "s/@uitype@/$(UITYPE)/g" $< > $@
 
 bin/master_me-easy-presets.lv2/%: plugin/master_me-easy-presets.lv2/%
 	mkdir -p bin/master_me-easy-presets.lv2
 	cp $< $@
 
-# FIXME have files in repo with proper dependency tracking
-# pregen/%: master_me.dsp template/% faustpp
-# 	mkdir -p build/master_me
-# 	$(FAUSTPP_EXEC) $(FAUSTPP_ARGS) $(FAUSTPP_OPTS) -a template/$* $< -o $@
+# ---------------------------------------------------------------------------------------------------------------------
+# rules for intermediate plugin code generation
 
 ifeq ($(shell echo -e escaped-by-default | grep -- '-e escaped-by-default'),-e escaped-by-default)
 NEWLINE = '\\\\$(nothing)n'
@@ -204,6 +214,7 @@ else
 endif
 	echo ';' >> $@
 
+# convert logo into raw data for C++ code
 build/Logo.hpp: img/logo/master_me_white.png img/logo/master_me_white@2x.png
 	mkdir -p build
 	./dpf/utils/res2c.py Logo img/logo/ build/
