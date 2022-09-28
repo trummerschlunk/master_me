@@ -165,6 +165,8 @@ pregen:
 	$(FAUSTPP_EXEC) $(FAUSTPP_ARGS)                 -a template/LV2/plugin.ttl      master_me.dsp -o pregen/master_me.lv2/plugin.ttl
 	$(FAUSTPP_EXEC) $(FAUSTPP_ARGS)                 -a template/LV2/ui.ttl          master_me.dsp -o pregen/master_me.lv2/ui.ttl
 
+.PHONY: pregen
+
 # ---------------------------------------------------------------------------------------------------------------------
 # rules for static LV2 data
 
