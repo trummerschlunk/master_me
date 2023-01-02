@@ -93,7 +93,9 @@ DPF_EXTRA_ARGS += NVG_FONT_TEXTURE_FLAGS=NVG_IMAGE_NEAREST
 DPF_EXTRA_ARGS += SKIP_NATIVE_AUDIO_FALLBACK=true
 
 dgl:
+ifeq ($(HAVE_OPENGL),true)
 	$(MAKE) -C dpf/dgl opengl $(DPF_EXTRA_ARGS)
+endif
 
 # ---------------------------------------------------------------------------------------------------------------------
 # list of plugin source code files to generate, converted from faust dsp files
@@ -175,7 +177,7 @@ pregen:
 ifeq ($(MACOS),true)
 UITYPE = Cocoa
 else ifeq ($(WINDOWS),true)
-UITYPE = HWND
+UITYPE = Windows
 else
 UITYPE = X11
 endif
