@@ -129,12 +129,14 @@ install: master_me
 	install -d $(DESTDIR)$(PREFIX)/lib/lv2/master_me-easy-presets.lv2
 	install -d $(DESTDIR)$(PREFIX)/lib/vst
 	install -d $(DESTDIR)$(PREFIX)/lib/vst3/master_me.vst3/Contents
+	install -d $(DESTDIR)$(PREFIX)/lib/clap
 
 	install -m 755 bin/master_me                    $(DESTDIR)$(PREFIX)/bin/
 	install -m 644 bin/master_me.lv2/*              $(DESTDIR)$(PREFIX)/lib/lv2/master_me.lv2/
 	install -m 644 bin/master_me-easy-presets.lv2/* $(DESTDIR)$(PREFIX)/lib/lv2/master_me-easy-presets.lv2/
 	install -m 644 bin/master_me-vst.*              $(DESTDIR)$(PREFIX)/lib/vst/
 	cp -rL bin/master_me.vst3/Contents/*-*          $(DESTDIR)$(PREFIX)/lib/vst3/master_me.vst3/Contents/
+	install -m 644 bin/master_me.clap               $(DESTDIR)$(PREFIX)/lib/clap/
 
 # ---------------------------------------------------------------------------------------------------------------------
 # rules for faust dsp to plugin code conversion
