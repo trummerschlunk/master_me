@@ -1,9 +1,15 @@
 <img src="./img/logo/logo_master_me_greyK01.png">
 
-# Installers
+# Installers & Compatibility
 
-here are the installers für Linux, macOS and Window:  
+here are the latest installers:  
 [https://github.com/trummerschlunk/master_me/releases](https://github.com/trummerschlunk/master_me/releases)
+
+Supported OS: Linux, macOS, Windows.
+Plugin Formats: CLAP, VST, VST3, LV2.
+Standalone Formats: Jack.
+
+master_me can be used in LOGIC and PROTOOLS via a VST-AU or VST-AAX wrapper (like Blue Cat's Patchwork).
 
 # master_me
 
