@@ -6,10 +6,12 @@ here are the latest installers:
 [https://github.com/trummerschlunk/master_me/releases](https://github.com/trummerschlunk/master_me/releases)
 
 Supported OS: Linux, macOS, Windows.
-Plugin Formats: CLAP, VST, VST3, LV2.
-Standalone Formats: Jack.
 
-master_me can be used in LOGIC and PROTOOLS via a VST-AU or VST-AAX wrapper (like Blue Cat's Patchwork).
+Plugin Formats: CLAP, VST, VST3, LV2.
+
+Standalone: Jack.
+
+AU and AAX are not supported (yet). master_me can be used in LOGIC and PROTOOLS via a VST-AU or VST-AAX wrapper (like Blue Cat's Patchwork).
 
 # master_me
 
