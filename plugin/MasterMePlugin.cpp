@@ -195,7 +195,7 @@ protected:
         {
             if (!std::isfinite(inputs[0][i]))
                 __builtin_unreachable();
-            if (!std::isfinite(inputs[0][i]))
+            if (!std::isfinite(inputs[1][i]))
                 __builtin_unreachable();
             if (!std::isfinite(outputs[0][i]))
                 __builtin_unreachable();
