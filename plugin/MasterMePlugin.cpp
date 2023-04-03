@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "DistrhoPlugin.hpp"
+#include "extra/ScopedDenormalDisable.hpp"
 
 // faustpp generated plugin template
 #include "DistrhoPluginInfo.h"
@@ -188,6 +189,20 @@ protected:
 
     void run(const float** const inputs, float** const outputs, const uint32_t frames) override
     {
+        // optimize for non-denormal usage
+        const ScopedDenormalDisable sdd;
+        for (uint32_t i = 0; i < frames; ++i)
+        {
+            if (!std::isfinite(inputs[0][i]))
+                __builtin_unreachable();
+            if (!std::isfinite(inputs[0][i]))
+                __builtin_unreachable();
+            if (!std::isfinite(outputs[0][i]))
+                __builtin_unreachable();
+            if (!std::isfinite(outputs[1][i]))
+                __builtin_unreachable();
+        }
+
         dsp->compute(frames, const_cast<float**>(inputs), outputs);
 
         highestLufsInValue = std::max(highestLufsInValue, FaustGeneratedPlugin::getParameterValue(kParameter_lufs_in));
