@@ -358,6 +358,26 @@ jobs:
           LDFLAGS: -arch x86_64 -arch arm64 -mmacosx-version-min=10.12
         run: |
           make NOOPT=true WITH_LTO=true -j $(sysctl -n hw.logicalcpu)
+      - name: Build macOS AU via JUCE
+        env:
+          CFLAGS: -O3 -arch x86_64 -arch arm64 -DMAC_OS_X_VERSION_MAX_ALLOWED=MAC_OS_X_VERSION_10_12 -mmacosx-version-min=10.12 -mtune=generic -msse -msse2
+          CXXFLAGS: -O3 -arch x86_64 -arch arm64 -DMAC_OS_X_VERSION_MAX_ALLOWED=MAC_OS_X_VERSION_10_12 -mmacosx-version-min=10.12 -mtune=generic -msse -msse2
+          LDFLAGS: -arch x86_64 -arch arm64 -mmacosx-version-min=10.12
+        run: |
+          # create static plugin archive
+          make static NOOPT=true WITH_LTO=true -j $(sysctl -n hw.logicalcpu)
+          # clone JUCE
+          cd plugins/jucewrapper
+          git clone https://github.com/DISTRHO/JUCE.git -b v6.1.6 --depth=1
+          sed -i -e 's/kAudioUnitProperty_SupportsMPE/kAudioUnitProperty_ignore_SupportsMPE/' jucewrapper/JUCE/modules/juce_audio_processors/format_types/juce_AudioUnitPluginFormat.h
+          # configure and build
+          cmake . -DCMAKE_BUILD_TYPE=Release
+          cmake . -DCMAKE_OSX_ARCHITECTURES='arm64;x86_64' -DCMAKE_OSX_DEPLOYMENT_TARGET=10.12 -DCMAKE_OSX_SYSROOT="macosx" -DCMAKE_BUILD_TYPE=Release
+          make VERBOSE=1 -j $(sysctl -n hw.logicalcpu)
+          # move to dpf expected dir
+          mv *_artefacts/Release/AU/*.component ../../bin/
+      - name: Package macOS plugins
+        run: |
           env WELCOME_TXT=$(pwd)/plugin/macos-installer-welcome.txt ./dpf/utils/package-osx-bundles.sh
       - name: Set sha8
         id: slug
