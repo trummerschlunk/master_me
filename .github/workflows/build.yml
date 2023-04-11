@@ -367,7 +367,7 @@ jobs:
           # create static plugin archive
           make static NOOPT=true WITH_LTO=true -j $(sysctl -n hw.logicalcpu)
           # clone JUCE
-          cd plugins/jucewrapper
+          cd plugin/jucewrapper
           git clone https://github.com/DISTRHO/JUCE.git -b v6.1.6 --depth=1
           sed -i -e 's/kAudioUnitProperty_SupportsMPE/kAudioUnitProperty_ignore_SupportsMPE/' JUCE/modules/juce_audio_processors/format_types/juce_AudioUnitPluginFormat.h
           # configure and build
@@ -376,7 +376,7 @@ jobs:
           make VERBOSE=1 -j $(sysctl -n hw.logicalcpu)
           # move to dpf expected dir
           mv *_artefacts/Release/AU/*.component ../../bin/
-      - name: Package macOS plugins
+      - name: Package macOS plugin
         run: |
           env WELCOME_TXT=$(pwd)/plugin/macos-installer-welcome.txt ./dpf/utils/package-osx-bundles.sh
       - name: Set sha8
