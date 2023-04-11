@@ -119,6 +119,9 @@ gen: $(PLUGIN_GENERATED_FILES)
 master_me: $(PLUGIN_GENERATED_FILES) dgl
 	$(MAKE) -C plugin
 
+static:
+	$(MAKE) -C plugin static
+
 # ---------------------------------------------------------------------------------------------------------------------
 # install target, does what you think it does
 
