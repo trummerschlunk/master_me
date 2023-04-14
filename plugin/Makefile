@@ -32,6 +32,6 @@ BUILD_CXX_FLAGS += -fprefetch-loop-arrays
 endif
 LINK_FLAGS      += $(SHARED_MEMORY_LIBS)
 
-PLUGIN_TARGETS = jack lv2_sep vst2 vst3 clap
+PLUGIN_TARGETS = jack ladspa lv2_sep vst2 vst3 clap
 
 all: $(PLUGIN_TARGETS)
