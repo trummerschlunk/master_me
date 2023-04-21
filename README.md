@@ -7,11 +7,11 @@ here are the latest installers:
 
 Supported OS: Linux, macOS, Windows.
 
-Plugin Formats: CLAP, VST, VST3, LV2.
+Plugin Formats: CLAP, VST, VST3, AU, LV2.
 
 Standalone: Jack.
 
-AU and AAX are not supported (yet). master_me can be used in LOGIC and PROTOOLS via a VST-AU or VST-AAX wrapper (like Blue Cat's Patchwork).
+AAX is not supported (yet). master_me can be used in PROTOOLS via a VST-AAX wrapper (like Blue Cat's Patchwork).
 
 # master_me
 
@@ -28,9 +28,7 @@ A stable release is available since September 2022.
 
 # Who is master_me for?
 
-master_me is for all live streamers.
-
-It can also be a valuable tool for podcasters and internet radio stations.
+master_me is for all live streamers, podcasters and internet radio stations.
 
 # What is mastering
 
@@ -43,8 +41,10 @@ Nowadays a digital master is the file which is being duplicated and distributed 
 master_me is a multi platform, free and open source audio plug-in which optimizes sound in live streaming situations.
 Introducing no latency, it takes care of master levels and ‘polishes’ the sound with a chain of effects, closely modeled after the audio chain of Klaus Scheuermann’s mastering studio in Berlin, Germany.
 
-Although tempting, it is NOT intended to automatically master your produced music.
+Although tempting, it is NOT intended to automatically master your recorded music.
 Your art deserves closer, offline attention.
+
+Nevertheless, certain modules of master_me can be a valuable tools as part of your music mastering chain.
 
 # Open Source and licensing
 
