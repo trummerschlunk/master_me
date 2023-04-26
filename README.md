@@ -44,7 +44,7 @@ Introducing no latency, it takes care of master levels and ‘polishes’ the so
 Although tempting, it is NOT intended to automatically master your recorded music.
 Your art deserves closer, offline attention.
 
-Nevertheless, certain modules of master_me can be a valuable tools as part of your music mastering chain.
+Nevertheless, certain modules of master_me can be a valuable tool as part of your music mastering chain.
 
 # Open Source and licensing
 
