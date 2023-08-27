@@ -40,7 +40,7 @@ jobs:
           echo "deb [arch=riscv64] http://ports.ubuntu.com/ubuntu-ports focal-updates main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/ports-riscv64.list
           echo "deb [arch=riscv64] http://ports.ubuntu.com/ubuntu-ports focal-backports main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/ports-riscv64.list
           sudo apt-get update -qq
-          sudo apt-get install -y --allow-downgrades g++-riscv64-linux-gnu libasound2-dev:riscv64 libcairo2-dev:riscv64 libdbus-1-dev:riscv64 libgl1-mesa-dev:riscv64 libglapi-mesa:riscv64 libglvnd0:riscv64 liblo-dev:riscv64 libpulse-dev:riscv64 libx11-dev:riscv64 libxcursor-dev:riscv64 libxext-dev:riscv64 libxrandr-dev:riscv64 libsndfile1 libllvm10 libmicrohttpd12
+          sudo apt-get install -y --allow-downgrades g++-riscv64-linux-gnu libasound2-dev:riscv64 libc6:riscv64 libcairo2:riscv64 libcairo2-dev:riscv64 libdbus-1-dev:riscv64 libgl1-mesa-dev:riscv64 libglapi-mesa:riscv64 libglib2.0-dev:riscv64 libglvnd0:riscv64 liblo-dev:riscv64 libpulse-dev:riscv64 libx11-dev:riscv64 libxcursor-dev:riscv64 libxext-dev:riscv64 libxrandr-dev:riscv64 libsndfile1 libllvm10 libmicrohttpd12
           wget -c https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/faust_2.41.1~ds0-0_amd64.deb \
                   https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/faust-common_2.41.1~ds0-0_all.deb \
                   https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/libfaust2_2.41.1~ds0-0_amd64.deb
