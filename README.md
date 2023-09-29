@@ -15,7 +15,7 @@ AAX is not supported (yet). master_me can be used in PROTOOLS via a VST-AAX wrap
 
 # master_me
 
-Automatic audio mastering plugin for live-streaming, podcasting and internet radio stations.
+Automatic audio mastering plugin for live-streaming and internet radio stations.
 
 # Introduction
 
@@ -28,7 +28,7 @@ A stable release is available since September 2022.
 
 # Who is master_me for?
 
-master_me is for all live streamers, podcasters and internet radio stations.
+master_me is for all live streamers and internet radio stations.
 
 # What is mastering
 
