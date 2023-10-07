@@ -58,7 +58,8 @@ target_include_directories(master_me
     PRIVATE
         ..
         ../../pregen
-        ../../dpf/distrho)
+        ../../dpf/distrho
+        ../../dpf/dgl/src/pugl-upstream/include)
 
 target_compile_definitions(master_me
     PUBLIC
