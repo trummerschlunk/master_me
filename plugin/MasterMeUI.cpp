@@ -1,4 +1,4 @@
-// Copyright 2022 Filipe Coelho <falktx@falktx.com>
+// Copyright 2022-2024 Filipe Coelho <falktx@falktx.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "DistrhoUI.hpp"
@@ -1104,7 +1104,9 @@ class MasterMeUI : public UI,
             uint nextButton = 0;
             for (uint i=0; i<ARRAY_SIZE(kEasyPresets); ++i)
             {
-                if (std::memcmp(kEasyPresets[i].values+1, currentValues+1, sizeof(currentValues)-1) == 0)
+                if (std::memcmp(kEasyPresets[i].values + 1,
+                                currentValues + 1,
+                                sizeof(currentValues) - sizeof(float)) == 0)
                 {
                     nextButton = 10001 + i;
                     break;
@@ -1295,7 +1297,7 @@ public:
         inputGroup.adjustSize(metrics, contentHeight);
         outputGroup.adjustSize(metrics, contentHeight);
         contentGroup.setSize(width - theme.windowPadding * 2 - theme.padding * 4 - inputGroup.getWidth() - outputGroup.getWidth(), contentHeight);
-        topCenteredGroup.adjustSize(metrics, getWidth(), getHeight(), easyModeButton.getHeight());
+        topCenteredGroup.adjustSize(metrics, width, height, easyModeButton.getHeight());
 
         welcomeLabel.setSize(contentGroup.getWidth() - theme.borderSize * 2 - theme.padding * 2, contentHeight - theme.borderSize * 2 - theme.padding * 2);
         presetButtons.adjustSize(metrics, contentGroup.getWidth() - theme.borderSize * 2 - theme.padding * 2);
@@ -1733,6 +1735,8 @@ protected:
 
         if (resizeOnNextIdle)
         {
+            resizeWidgets(getWidth(), getHeight());
+
             const int maxX = std::max(leveler.threshold.label.getAbsoluteX() + leveler.threshold.label.getWidth(),
                                       limiter.gainReduction.label.getAbsoluteX() + limiter.gainReduction.label.getWidth());
             const int maxY = std::max(msCompressor.outputGain.label.getAbsoluteY() + msCompressor.outputGain.label.getHeight(),
@@ -1983,10 +1987,7 @@ protected:
         }
 
         if (size)
-        {
-            resizeWidgets(getWidth(), getHeight());
             resizeOnNextIdle = true;
-        }
     }
 
     template<class W>

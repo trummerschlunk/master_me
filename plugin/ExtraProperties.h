@@ -1,4 +1,4 @@
-// Copyright 2022 Filipe Coelho <falktx@falktx.com>
+// Copyright 2022-2024 Filipe Coelho <falktx@falktx.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #pragma once
@@ -19,6 +19,10 @@
 #define DISTRHO_UI_DEFAULT_HEIGHT 597
 
 #define DISTRHO_PLUGIN_CLAP_ID "trummerschlunk.master_me"
+#define DISTRHO_PLUGIN_BRAND_ID KlSc
+#define DISTRHO_PLUGIN_UNIQUE_ID SndG
+
+#define DPF_VST3_DONT_USE_BRAND_ID
 
 static constexpr const struct EasyPreset {
     const char* const name;

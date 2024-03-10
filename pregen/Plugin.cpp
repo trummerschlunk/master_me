@@ -11771,12 +11771,6 @@ protected:
         return d_version(1, 0, 0);
     }
 
-    int64_t getUniqueId() const override
-    {
-        // FIXME provide a way to set this in meta data
-        return d_cconst('F', 'I', 'X', 'M');
-    }
-
    /* -----------------------------------------------------------------------------------------------------------------
     * Init */
 

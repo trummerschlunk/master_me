@@ -1,4 +1,4 @@
-// Copyright 2022 Filipe Coelho <falktx@falktx.com>
+// Copyright 2022-2024 Filipe Coelho <falktx@falktx.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "DistrhoPlugin.hpp"
@@ -45,9 +45,9 @@ protected:
    /* -----------------------------------------------------------------------------------------------------------------
     * Information */
 
-    int64_t getUniqueId() const override
+    const char* getDescription() const override
     {
-        return d_cconst('S', 'n', 'd', 'G');
+        return "Automatic audio mastering plugin for live-streaming, podcasting and internet radio stations";
     }
 
    /* -----------------------------------------------------------------------------------------------------------------

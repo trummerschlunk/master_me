@@ -140,12 +140,6 @@ protected:
         return d_version({{version_major}}, {{version_minor}}, {{version_micro}});
     }
 
-    int64_t getUniqueId() const override
-    {
-        // FIXME provide a way to set this in meta data
-        return d_cconst('F', 'I', 'X', 'M');
-    }
-
    /* -----------------------------------------------------------------------------------------------------------------
     * Init */
 
