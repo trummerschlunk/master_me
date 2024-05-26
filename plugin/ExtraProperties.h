@@ -24,6 +24,11 @@
 
 #define DPF_VST3_DONT_USE_BRAND_ID
 
+#ifdef __MOD_DEVICES__
+#define DISTRHO_PLUGIN_USES_MODGUI 1
+#define DISTRHO_PLUGIN_USES_CUSTOM_MODGUI 0
+#endif
+
 static constexpr const struct EasyPreset {
     const char* const name;
     float values[61];
