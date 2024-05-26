@@ -15,7 +15,6 @@ DPF_PATH = ../dpf
 
 # tweak DPF build
 export DGL_NAMESPACE = MasterMeDGL
-export FILE_BROWSER_DISABLED = true
 export NVG_FONT_TEXTURE_FLAGS = NVG_IMAGE_NEAREST
 export SKIP_NATIVE_AUDIO_FALLBACK = true
 

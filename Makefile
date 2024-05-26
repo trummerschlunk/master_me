@@ -88,7 +88,6 @@ bench/master_me/faustbench.cpp:
 # dgl target, building the dpf little graphics library
 
 DPF_EXTRA_ARGS  = DGL_NAMESPACE=MasterMeDGL
-DPF_EXTRA_ARGS += FILE_BROWSER_DISABLED=true
 DPF_EXTRA_ARGS += NVG_FONT_TEXTURE_FLAGS=NVG_IMAGE_NEAREST
 DPF_EXTRA_ARGS += SKIP_NATIVE_AUDIO_FALLBACK=true
 
