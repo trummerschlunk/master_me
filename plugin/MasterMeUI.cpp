@@ -138,17 +138,22 @@ struct TopCenteredGroup : NanoSubWidget
 {
     const QuantumTheme& theme;
 
+   #ifndef __MOD_DEVICES__
     QuantumSwitch globalEnableSwitch;
     QuantumVerticalSeparatorLine separator;
+   #endif
 
     explicit TopCenteredGroup(NanoTopLevelWidget* const parent, ButtonEventHandler::Callback* const bcb, const QuantumTheme& t)
         : NanoSubWidget(parent),
-          theme(t),
-          globalEnableSwitch(this, t),
-          separator(this, t)
+          theme(t)
+       #ifndef __MOD_DEVICES__
+        , globalEnableSwitch(this, t)
+        , separator(this, t)
+       #endif
     {
         setName("Top Center");
 
+       #ifndef __MOD_DEVICES__
         globalEnableSwitch.setCallback(bcb);
         globalEnableSwitch.setCheckable(true);
         globalEnableSwitch.setChecked(kParameterRanges[kParameter_global_bypass].def, false);
@@ -157,21 +162,26 @@ struct TopCenteredGroup : NanoSubWidget
         globalEnableSwitch.setName("Global Enable Button");
 
         separator.setName("+ separator");
+       #endif
     }
 
     void adjustSize(const MasterMeMetrics& metrics, const uint width, const uint height, const uint widgetsHeight)
     {
+       #ifndef __MOD_DEVICES__
         globalEnableSwitch.adjustSize();
         globalEnableSwitch.setHeight(widgetsHeight);
         separator.setSize(metrics.separatorVertical);
         separator.setHeight(widgetsHeight);
+       #endif
         setSize(width, height);
     }
 
     void setAbsolutePos(int x, const int y)
     {
+       #ifndef __MOD_DEVICES__
         globalEnableSwitch.setAbsolutePos(x, y);
         separator.setAbsolutePos(globalEnableSwitch.getAbsoluteX() + globalEnableSwitch.getWidth() + theme.padding * 4, y);
+       #endif
     }
 
     void onNanoDisplay() override
@@ -1246,7 +1256,11 @@ public:
         name.setAbsolutePos(outputGroup.getAbsoluteX() + outputGroup.getWidth() - name.getWidth(),
                             (outputGroup.getAbsoluteY() - name.getHeight()) / 2);
 
-        topCenteredGroup.setAbsolutePos(name.getAbsoluteX() - topCenteredGroup.globalEnableSwitch.getWidth() - theme.padding * 8 - theme.borderSize,
+        topCenteredGroup.setAbsolutePos(name.getAbsoluteX()
+                                       #ifndef __MOD_DEVICES__
+                                        - topCenteredGroup.globalEnableSwitch.getWidth()
+                                       #endif
+                                        - theme.padding * 8 - theme.borderSize,
                                         theme.windowPadding + theme.borderSize);
 
         easyModeButton.setAbsolutePos(inputGroup.getAbsoluteX(), theme.windowPadding);
@@ -1340,7 +1354,9 @@ protected:
         {
         // inputs
         case kParameter_global_bypass:
+         #ifndef __MOD_DEVICES__
           topCenteredGroup.globalEnableSwitch.setChecked(value < 0.5f, false);
+         #endif
           break;
         case kParameter_target:
           inputGroup.slider.setValue(value, false);
