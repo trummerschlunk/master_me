@@ -31,7 +31,9 @@ class MasterMePlugin : public FaustGeneratedPlugin
     uint numFramesSoFar = 0;
     float highestLufsInValue = -70.f;
     float highestLufsOutValue = -70.f;
+   #ifndef __MOD_DEVICES__
     bool histogramActive = false;
+   #endif
    #if MASTER_ME_SHARED_MEMORY
     MasterMeFifoControl lufsInFifo;
     MasterMeFifoControl lufsOutFifo;
@@ -190,6 +192,7 @@ protected:
         {
             mode = value;
         }
+       #ifndef __MOD_DEVICES__
         else if (std::strcmp(key, "histogram") == 0)
         {
            #if MASTER_ME_SHARED_MEMORY
@@ -209,6 +212,7 @@ protected:
            #endif
             histogramActive = true;
         }
+       #endif
         /*
         else if (std::strcmp(key, "export") == 0)
         {
@@ -252,7 +256,9 @@ protected:
         {
             numFramesSoFar -= bufferSizeForHistogram;
 
+           #ifndef __MOD_DEVICES__
             if (histogramActive)
+           #endif
             {
                #if MASTER_ME_SHARED_MEMORY
                 MasterMeHistogramFifos* const data = histogramSharedData.getDataPointer();
