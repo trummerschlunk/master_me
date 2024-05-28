@@ -9,7 +9,9 @@
 #include "Plugin.cpp"
 
 // leaving for last, includes windows.h
+#if MASTER_ME_SHARED_MEMORY
 #include "utils/SharedMemory.hpp"
+#endif
 
 // checks to ensure things are still as we expect them to be from faust dsp side
 static_assert(DISTRHO_PLUGIN_NUM_INPUTS == 2, "has 2 audio inputs");
@@ -27,12 +29,18 @@ class MasterMePlugin : public FaustGeneratedPlugin
     // histogram related stuff
     uint bufferSizeForHistogram;
     uint numFramesSoFar = 0;
-    MasterMeFifoControl lufsInFifo;
-    MasterMeFifoControl lufsOutFifo;
-    SharedMemory<MasterMeHistogramFifos> histogramSharedData;
     float highestLufsInValue = -70.f;
     float highestLufsOutValue = -70.f;
     bool histogramActive = false;
+   #if MASTER_ME_SHARED_MEMORY
+    MasterMeFifoControl lufsInFifo;
+    MasterMeFifoControl lufsOutFifo;
+    SharedMemory<MasterMeHistogramFifos> histogramSharedData;
+   #else
+    float histogramValueIn = -70.f;
+    float histogramValueOut = -70.f;
+    bool histogramValueFlipFlop = true;
+   #endif
 
 public:
     MasterMePlugin()
@@ -81,7 +89,7 @@ protected:
         switch (index - kParameterCount)
         {
         case kExtraParameterHistogramBufferSize:
-            param.hints = kParameterIsAutomatable|kParameterIsOutput|kParameterIsInteger;
+            param.hints = kParameterIsOutput|kParameterIsInteger;
             param.name = "Histogram Buffer Size";
             param.unit = "frames";
             param.symbol = "histogram_buffer_size";
@@ -90,6 +98,28 @@ protected:
             param.ranges.min = kMinimumHistogramBufferSize;
             param.ranges.max = 16384;
             break;
+       #if ! MASTER_ME_SHARED_MEMORY
+        case kExtraParameterHistogramValueIn:
+            param.hints = kParameterIsOutput;
+            param.name = "Histogram Value In";
+            param.unit = "dB";
+            param.symbol = "histogram_value_in";
+            param.shortName = "HistValIn";
+            param.ranges.def = -70;
+            param.ranges.min = -70;
+            param.ranges.max = 0;
+            break;
+        case kExtraParameterHistogramValueOut:
+            param.hints = kParameterIsOutput;
+            param.name = "Histogram Value Out";
+            param.unit = "dB";
+            param.symbol = "histogram_value_out";
+            param.shortName = "HistValOut";
+            param.ranges.def = -70;
+            param.ranges.min = -70;
+            param.ranges.max = 0;
+            break;
+       #endif
         }
     }
 
@@ -127,6 +157,12 @@ protected:
         {
         case kExtraParameterHistogramBufferSize:
             return bufferSizeForHistogram;
+       #if ! MASTER_ME_SHARED_MEMORY
+        case kExtraParameterHistogramValueIn:
+            return histogramValueIn;
+        case kExtraParameterHistogramValueOut:
+            return histogramValueOut;
+       #endif
         default:
             return 0.0f;
         }
@@ -156,6 +192,7 @@ protected:
         }
         else if (std::strcmp(key, "histogram") == 0)
         {
+           #if MASTER_ME_SHARED_MEMORY
             if (histogramSharedData.isCreatedOrConnected())
             {
                 DISTRHO_SAFE_ASSERT(! histogramActive);
@@ -169,6 +206,7 @@ protected:
 
             lufsInFifo.setFloatFifo(&fifos->lufsIn);
             lufsOutFifo.setFloatFifo(&fifos->lufsOut);
+           #endif
             histogramActive = true;
         }
         /*
@@ -216,6 +254,7 @@ protected:
 
             if (histogramActive)
             {
+               #if MASTER_ME_SHARED_MEMORY
                 MasterMeHistogramFifos* const data = histogramSharedData.getDataPointer();
                 DISTRHO_SAFE_ASSERT_RETURN(data != nullptr,);
 
@@ -228,6 +267,19 @@ protected:
                     lufsInFifo.write(highestLufsInValue);
                     lufsOutFifo.write(highestLufsOutValue);
                 }
+               #else
+                const float uniqueValue = (histogramValueFlipFlop = !histogramValueFlipFlop) ? 0.0001f : -0.0001f;
+
+                if (d_isNotEqual(histogramValueIn, highestLufsInValue))
+                    histogramValueIn = highestLufsInValue;
+                else
+                    histogramValueIn += uniqueValue;
+
+                if (d_isNotEqual(histogramValueOut, highestLufsOutValue))
+                    histogramValueOut = highestLufsOutValue;
+                else
+                    histogramValueOut += uniqueValue;
+               #endif
             }
 
             highestLufsInValue = highestLufsOutValue = -70.f;

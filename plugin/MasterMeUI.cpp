@@ -397,10 +397,15 @@ class MasterMeUI : public UI,
 
     // histogram stuff
     bool firstIdle = true;
+    Histogram histogram;
+   #if MASTER_ME_SHARED_MEMORY
     MasterMeFifoControl lufsInFifo;
     MasterMeFifoControl lufsOutFifo;
     SharedMemory<MasterMeHistogramFifos> histogramSharedData;
-    Histogram histogram;
+   #else
+    float histogramValueIn = -70.f;
+    float histogramValueOut = -70.f;
+   #endif
 
     struct PreProcessing : MasterMeParameterGroupWithoutBypassSwitch {
         QuantumValueSliderWithLabel inputGain;
@@ -1232,6 +1237,7 @@ public:
 
     ~MasterMeUI() override
     {
+       #if MASTER_ME_SHARED_MEMORY
         if (histogramSharedData.isCreatedOrConnected())
         {
             if (MasterMeHistogramFifos* const data = histogramSharedData.getDataPointer())
@@ -1239,6 +1245,7 @@ public:
 
             histogramSharedData.close();
         }
+       #endif
     }
 
     void repositionWidgets()
@@ -1343,6 +1350,24 @@ protected:
             case kExtraParameterHistogramBufferSize:
                 histogram.setup(value, getSampleRate());
                 break;
+           #if ! MASTER_ME_SHARED_MEMORY
+            case kExtraParameterHistogramValueIn:
+                if (d_isNotEqual(histogramValueIn, value))
+                {
+                    histogramValueIn = value;
+                    histogram.tick(false, value);
+                    repaint();
+                }
+                break;
+            case kExtraParameterHistogramValueOut:
+                if (d_isNotEqual(histogramValueOut, value))
+                {
+                    histogramValueOut = value;
+                    histogram.tick(true, value);
+                    repaint();
+                }
+                break;
+           #endif
             }
             return;
         }
@@ -1720,6 +1745,7 @@ protected:
         {
             firstIdle = false;
 
+           #if MASTER_ME_SHARED_MEMORY
             if (histogramSharedData.create())
             {
                 MasterMeHistogramFifos* const fifos = histogramSharedData.getDataPointer();
@@ -1728,7 +1754,11 @@ protected:
 
                 setState("histogram", histogramSharedData.getDataFilename());
             }
+           #else
+            setState("histogram", "true");
+           #endif
         }
+       #if MASTER_ME_SHARED_MEMORY
         else
         {
             bool shouldRepaint = false;
@@ -1748,6 +1778,7 @@ protected:
             if (shouldRepaint)
                 repaint();
         }
+       #endif
 
         if (resizeOnNextIdle)
         {

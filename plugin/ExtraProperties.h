@@ -27,6 +27,9 @@
 #ifdef __MOD_DEVICES__
 #define DISTRHO_PLUGIN_USES_MODGUI 1
 #define DISTRHO_PLUGIN_USES_CUSTOM_MODGUI 0
+#define MASTER_ME_SHARED_MEMORY 0
+#else
+#define MASTER_ME_SHARED_MEMORY 1
 #endif
 
 static constexpr const struct EasyPreset {
@@ -57,6 +60,10 @@ static constexpr const struct EasyPreset {
 
 enum ExtraParameters {
     kExtraParameterHistogramBufferSize,
+#if ! MASTER_ME_SHARED_MEMORY
+    kExtraParameterHistogramValueIn,
+    kExtraParameterHistogramValueOut,
+#endif
     kExtraParameterCount
 };
 
@@ -69,6 +76,9 @@ enum ExtraStates {
     kExtraStateCount
 };
 
+static constexpr const uint kMinimumHistogramBufferSize = 4096;
+
+#if MASTER_ME_SHARED_MEMORY
 #include "utils/FloatFifo.hpp"
 
 typedef FloatFifo<128> MasterMeFloatFifo;
@@ -79,5 +89,4 @@ struct MasterMeHistogramFifos {
     MasterMeFloatFifo lufsOut;
     bool closed;
 };
-
-static constexpr const uint kMinimumHistogramBufferSize = 4096;
+#endif // MASTER_ME_SHARED_MEMORY
