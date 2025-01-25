@@ -156,7 +156,7 @@ struct TopCenteredGroup : NanoSubWidget
        #ifndef __MOD_DEVICES__
         globalEnableSwitch.setCallback(bcb);
         globalEnableSwitch.setCheckable(true);
-        globalEnableSwitch.setChecked(kParameterRanges[kParameter_global_bypass].def, false);
+        globalEnableSwitch.setChecked(!kParameterRanges[kParameter_global_bypass].def, false);
         globalEnableSwitch.setId(kParameter_global_bypass);
         globalEnableSwitch.setLabel("Enable");
         globalEnableSwitch.setName("Global Enable Button");
@@ -1938,7 +1938,7 @@ protected:
         presetButtons.updateCurrentValue(widget->getId(), value);
         setParameterValue(widget->getId(), value);
     }
-    
+
     void knobDoubleClicked(SubWidget* const widget) override
     {
         doubleClickHelper = nullptr;
