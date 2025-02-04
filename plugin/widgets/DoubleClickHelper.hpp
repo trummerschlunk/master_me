@@ -23,9 +23,9 @@ START_NAMESPACE_DGL
 
 // --------------------------------------------------------------------------------------------------------------------
 
-inline ImVec4 ImVec4Color(const Color& c)
+constexpr inline ImVec4 ImVec4Color(const Color& c)
 {
-    return ImVec4(c.red, c.blue, c.green, c.alpha);
+    return ImVec4(c.red, c.green, c.blue, c.alpha);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ public:
         style.Colors[ImGuiCol_NavHighlight] = ImVec4();
         style.Colors[ImGuiCol_Text] = ImVec4Color(theme.textLightColor);
         style.Colors[ImGuiCol_TextDisabled] = ImVec4Color(theme.textMidColor);
-        style.Colors[ImGuiCol_TextSelectedBg] = ImVec4Color(theme.widgetDefaultActiveColor);
+        style.Colors[ImGuiCol_TextSelectedBg] = ImVec4Color(theme.widgetActiveColor);
     }
 
     void setText(const char* const text)

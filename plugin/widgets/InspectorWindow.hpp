@@ -157,8 +157,8 @@ protected:
         changedColors |= ImGui::ColorEdit4("Level Meter", theme.levelMeterColor.rgba);
         changedColors |= ImGui::ColorEdit4("Level Meter Alternative", theme.levelMeterAlternativeColor.rgba);
         changedColors |= ImGui::ColorEdit4("Widget Background", theme.widgetBackgroundColor.rgba);
-        changedColors |= ImGui::ColorEdit4("Widget Default Active", theme.widgetDefaultActiveColor.rgba);
-        changedColors |= ImGui::ColorEdit4("Widget Default Alternative", theme.widgetDefaultAlternativeColor.rgba);
+        changedColors |= ImGui::ColorEdit4("Widget Active", theme.widgetActiveColor.rgba);
+        changedColors |= ImGui::ColorEdit4("Widget Alternative", theme.widgetAlternativeColor.rgba);
         changedColors |= ImGui::ColorEdit4("Widget Foreground", theme.widgetForegroundColor.rgba);
         changedColors |= ImGui::ColorEdit4("Window Background", theme.windowBackgroundColor.rgba);
         changedColors |= ImGui::ColorEdit4("Text Light", theme.textLightColor.rgba);

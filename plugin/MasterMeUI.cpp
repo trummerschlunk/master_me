@@ -47,7 +47,7 @@ struct InputMeterGroup : QuantumFrame
 
     QuantumStereoLevelMeterWithLUFS meter;
     QuantumMixerSlider slider;
-    QuantumGainReductionMeter levelerGain;
+    QuantumGainReductionMeterWithValue levelerGain;
 
     explicit InputMeterGroup(NanoTopLevelWidget* const parent, KnobEventHandler::Callback* const cb, const QuantumTheme& t)
         : QuantumFrame(parent, t),
@@ -61,7 +61,8 @@ struct InputMeterGroup : QuantumFrame
         meter.setName(" + Meter");
         meter.setRange(kParameterRanges[kParameter_peakmeter_in_l].min, kParameterRanges[kParameter_peakmeter_in_l].max);
         meter.setValues(kParameterRanges[kParameter_peakmeter_in_l].min,
-                        kParameterRanges[kParameter_peakmeter_in_r].min, 
+                        kParameterRanges[kParameter_peakmeter_in_r].min,
+                        0.f,
                         kParameterRanges[kParameter_lufs_in].min);
 
         slider.setCallback(cb);
@@ -115,7 +116,8 @@ struct OutputMeterGroup : QuantumFrame
         meter.setName(" + Meter");
         meter.setRange(kParameterRanges[kParameter_peakmeter_out_l].min, kParameterRanges[kParameter_peakmeter_out_l].max);
         meter.setValues(kParameterRanges[kParameter_peakmeter_out_l].min,
-                        kParameterRanges[kParameter_peakmeter_out_r].min, 
+                        kParameterRanges[kParameter_peakmeter_out_r].min,
+                        0.f,
                         kParameterRanges[kParameter_lufs_out].min);
     }
 
@@ -1161,7 +1163,7 @@ public:
           outputGroup(this, theme),
           welcomeLabel(this, theme),
           name(this, this, theme),
-          histogram(this),
+          histogram(this, theme),
           preProcessing(this, this, this, theme),
           gate(this, this, this, theme),
           eq(this, this, this, theme),
@@ -2018,14 +2020,14 @@ protected:
         if (colors)
         {
             recursiveTypeFind<QuantumButton>(getChildren(), [=](QuantumButton* const w){
-                w->setBackgroundColor(theme.widgetDefaultActiveColor);
+                w->setBackgroundColor(theme.widgetActiveColor);
             });
             recursiveTypeFind<QuantumValueSlider>(getChildren(), [=](QuantumValueSlider* const w){
-                w->setBackgroundColor(theme.widgetDefaultActiveColor);
+                w->setBackgroundColor(theme.widgetActiveColor);
                 w->setTextColor(theme.textLightColor);
             });
             recursiveTypeFind<QuantumValueMeter>(getChildren(), [=](QuantumValueMeter* const w){
-                w->setBackgroundColor(theme.widgetDefaultAlternativeColor);
+                w->setBackgroundColor(theme.widgetAlternativeColor);
                 w->setTextColor(theme.textLightColor);
             });
             recursiveTypeFind<QuantumLevelMeter>(getChildren(), [=](QuantumLevelMeter* const w){

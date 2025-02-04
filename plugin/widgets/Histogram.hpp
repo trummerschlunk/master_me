@@ -29,6 +29,7 @@ START_NAMESPACE_DGL
 class Histogram : public ImGuiSubWidget
 {
     ImPlotContext* const context;
+    const QuantumTheme& theme;
 
     uint bufferSize = 0;
     double sampleRate = 0.0;
@@ -43,9 +44,10 @@ class Histogram : public ImGuiSubWidget
     static constexpr const uint numSecsInHistogram = 30;
 
 public:
-    explicit Histogram(TopLevelWidget* const parent)
+    explicit Histogram(TopLevelWidget* const parent, const QuantumTheme& t)
         : ImGuiSubWidget(parent),
-          context(ImPlot::CreateContext())
+          context(ImPlot::CreateContext()),
+          theme(t)
     {
         setName("Histogram");
 
@@ -110,6 +112,14 @@ protected:
         DISTRHO_SAFE_ASSERT_UINT2(dataLufsIn.written == dataLufsOut.written, dataLufsIn.written, dataLufsOut.written);
 
         ImPlot::SetCurrentContext(context);
+
+        ImGuiStyle& style(ImGui::GetStyle());
+        style.Colors[ImGuiCol_Border] = ImVec4Color(theme.widgetBackgroundColor);
+        style.Colors[ImGuiCol_Text] = ImVec4Color(theme.textDarkColor);
+        style.Colors[ImGuiCol_WindowBg] = ImVec4Color(Color(theme.windowBackgroundColor, theme.widgetBackgroundColor, 0.75f));
+
+        ImPlotStyle& pstyle(ImPlot::GetStyle());
+        pstyle.Colors[ImPlotCol_Crosshairs] = ImVec4Color(theme.textDarkColor.withAlpha(0.5f));
 
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2(getWidth(), getHeight()));
