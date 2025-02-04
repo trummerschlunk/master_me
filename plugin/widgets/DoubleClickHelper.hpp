@@ -48,25 +48,20 @@ public:
     explicit DoubleClickHelper(TopLevelWidget* const tlw,
                                Callback* const cb,
                                SubWidget* const w,
+                               const char* const text,
                                const Rectangle<int>& area,
                                const QuantumTheme& theme)
         : ImGuiTopLevelWidget(tlw->getWindow(), theme.fontSize),
           callback(cb),
           widget(w)
     {
-        // FIXME: DGL should trigger resizes automatically when creating non-1st top level widgets
-        ResizeEvent ev;
-        ev.size = tlw->getSize();
-        onResize(ev);
-
         pos = ImVec2(area.getX(), area.getY());
         size = ImVec2(area.getWidth(), area.getHeight());
 
-        ImGuiIO& io(ImGui::GetIO());
-        io.ConfigFlags &= ~ImGuiConfigFlags_None;
+        std::strncpy(textBuf, text, sizeof(textBuf)-1);
 
         ImGuiStyle& style(ImGui::GetStyle());
-        style.WindowPadding = ImVec2(theme.padding, theme.padding);
+        style.WindowPadding = ImVec2();
         style.WindowRounding = style.WindowBorderSize = 0.f;
         style.ChildRounding = style.ChildBorderSize = 0.f;
         style.PopupRounding = style.PopupBorderSize = 0.f;
@@ -78,11 +73,6 @@ public:
         style.Colors[ImGuiCol_Text] = ImVec4Color(theme.textLightColor);
         style.Colors[ImGuiCol_TextDisabled] = ImVec4Color(theme.textMidColor);
         style.Colors[ImGuiCol_TextSelectedBg] = ImVec4Color(theme.widgetActiveColor);
-    }
-
-    void setText(const char* const text)
-    {
-        std::strncpy(textBuf, text, sizeof(textBuf)-1);
     }
 
 protected:
@@ -102,6 +92,7 @@ protected:
     {
         ImGui::SetNextWindowPos(pos);
         ImGui::SetNextWindowSize(size);
+        ImGui::SetNextWindowContentSize(size);
         ImGui::SetNextWindowFocus();
 
         constexpr const ImGuiWindowFlags windowFlags = 0
@@ -114,6 +105,7 @@ protected:
             |ImGuiInputTextFlags_CharsDecimal
             |ImGuiInputTextFlags_CharsScientific
             |ImGuiInputTextFlags_CharsNoBlank
+            |ImGuiInputTextFlags_AutoSelectAll
             |ImGuiInputTextFlags_EnterReturnsTrue;
         
         const bool wasFirstOpen = firstOpen;
@@ -125,8 +117,6 @@ protected:
             firstOpen = false;
             ImGui::SetKeyboardFocusHere();
         }
-
-        ImGui::SetCursorPosY(ImGui::GetTextLineHeight() * 0.5f);
 
         closeOnNextIdle |= ImGui::InputText("Value", textBuf, sizeof(textBuf), textFlags);
 

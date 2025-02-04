@@ -1967,26 +1967,31 @@ protected:
             area = slider->getAbsoluteArea();
         }
 
-        doubleClickHelper = new DoubleClickHelper(this, this, widget, area, theme);
-
-        String s;
+        char text[32] = {};
         if (isInteger)
-            s = String(static_cast<int>(value));
+            std::snprintf(text, 31, "%d", static_cast<int>(value));
         else
-            s = String(std::round(value * 10.f)/10.f);
+            std::snprintf(text, 31, "%.1f", std::round(value * 10.f)/10.f);
 
-        doubleClickHelper->setText(s.buffer());
+        doubleClickHelper = new DoubleClickHelper(this, this, widget, text, area, theme);
     }
 
     static inline float safeNumberFromText(const uint id, const bool isInteger, const char* const text) noexcept
     {
         float value;
 
+        if (isInteger)
+        {
+            try {
+                value = static_cast<float>(std::atoi(text));
+            } DISTRHO_SAFE_EXCEPTION_RETURN("safeNumberFromText", kParameterRanges[id].def);
+        }
+        else
         {
             const ScopedSafeLocale ssl;
 
             try {
-                value = static_cast<float>(isInteger ? std::atoi(text) : std::atof(text));
+                value = static_cast<float>(std::atof(text));
             } DISTRHO_SAFE_EXCEPTION_RETURN("safeNumberFromText", kParameterRanges[id].def);
         }
 
