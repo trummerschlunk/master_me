@@ -336,8 +336,8 @@ jobs:
           files: |
             ${{ github.event.repository.name }}-${{ github.ref_name }}-linux-x86_64.tar.xz
 
-  macos-11:
-    runs-on: macos-11
+  macos-13:
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
         with:
@@ -348,7 +348,7 @@ jobs:
         with:
           path: |
             build/faustpp/faustpp
-          key: macos-11-v${{ env.CACHE_VERSION }}
+          key: macos-13-v${{ env.CACHE_VERSION }}
       - name: Set up dependencies
         run: |
           brew install faust
