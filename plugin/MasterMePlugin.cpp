@@ -76,13 +76,18 @@ protected:
     {
         if (index < kParameterCount)
         {
+            if (index == kParameter_global_bypass)
+            {
+                param.initDesignation(kParameterDesignationBypass);
+                return;
+            }
+
+            FaustGeneratedPlugin::initParameter(index, param);
+
             switch (index)
             {
-            case kParameter_global_bypass:
-                param.initDesignation(kParameterDesignationBypass);
-                break;
-            default:
-                FaustGeneratedPlugin::initParameter(index, param);
+            case kParameter_target:
+                param.hints |= kParameterIsInteger;
                 break;
             }
             return;
