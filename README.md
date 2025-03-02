@@ -246,7 +246,7 @@ This helps detect and fix broken audio signals and unwanted panning.
 
 # Building
 
-Build requirements: gcc or clang as compiler, faust, faustpp and gnu make
+Build requirements: gcc or clang as compiler, python and gnu make
 
 On Linux the following extra development libraries are needed:
  - OpenGL
