@@ -1,269 +1,426 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-	<title></title>
-	<meta name="generator" content="LibreOffice 7.4.0.3 (MacOSX)"/>
-	<meta name="created" content="2022-08-20T11:39:35.169949591"/>
-	<meta name="changed" content="2022-08-30T09:04:16.031248312"/>
-	<style type="text/css">
-		@page { size: 8.27in 11.69in; margin: 0.79in }
-		h1 { margin-bottom: 0.08in; background: transparent }
-		h1.western { font-family: "Liberation Sans", sans-serif; font-size: 18pt }
-		h1.cjk { font-family: "PingFang SC"; font-size: 18pt }
-		h1.ctl { font-family: "Arial Unicode MS"; font-size: 18pt }
-		p { line-height: 115%; margin-bottom: 0.1in; background: transparent }
-		h2 { margin-top: 0.14in; margin-bottom: 0.08in; background: transparent }
-		h2.western { font-family: "Liberation Sans", sans-serif; font-size: 16pt }
-		h2.cjk { font-family: "PingFang SC"; font-size: 16pt }
-		h2.ctl { font-family: "Arial Unicode MS"; font-size: 16pt }
-		h3 { margin-top: 0.1in; margin-bottom: 0.08in; background: transparent }
-		h3.western { font-family: "Liberation Sans", sans-serif }
-		h3.cjk { font-family: "PingFang SC" }
-		h3.ctl { font-family: "Arial Unicode MS" }
-		h4 { margin-top: 0.08in; margin-bottom: 0.08in; background: transparent }
-		h4.western { font-family: "Liberation Sans", sans-serif; font-size: 13pt; font-style: italic }
-		h4.cjk { font-family: "PingFang SC"; font-size: 13pt; font-style: italic }
-		h4.ctl { font-family: "Arial Unicode MS"; font-size: 13pt; font-style: italic }
-		a.western:visited { so-language: en-US }
-	</style>
-</head>
-<body lang="en-US" dir="ltr"><p align="center" style="line-height: 100%; margin-top: 0.17in; margin-bottom: 0.08in; page-break-after: avoid">
-<font face="Liberation Sans, sans-serif"><font size="6" style="font-size: 28pt"><b>master_me</b></font></font></p>
-<p align="center" style="line-height: 100%; margin-top: 0.04in; margin-bottom: 0.08in; page-break-after: avoid">
-<font face="Liberation Sans, sans-serif"><font size="5" style="font-size: 18pt">automatic
-audio mastering plugin for live-streaming and podcasting</font></font></p>
-<h1 class="western">Introduction</h1>
-<p>With the first Covid19 related lockdowns in 2019, many real-life
-concerts, conferences and festivals were forced into the digital
-domain - and sounded pretty crappy. Having worked for almost 20 years
-in audio mastering, Berlin based engineer Klaus Scheuermann started
-to develop master_me - a word fusion of <i>automatic mastering</i>
-and <i>mini-me</i> - in order to make open source streaming sound
-better. After a few weeks of learning and development, master_me was
-first used at the 'Quarantine Sessions' - a weekly distributed
-electro-accoustic improvised concert, hosted at Stanford's CCRMA
-Institute. master_me was developed further to be an easy-to-use tool
-for all live streaming applications. In 2022 it was funded by the
-Prototype Fund, an open source software funding initiative by the
-german ministry of education and research. A stable release is
-available since September 2022.</p>
-<h1 class="western">Who is master_me for?</h1>
-<p>Master_me is for all live streamers.<br/>
-It can also be a
-valuable tool for podcasters and internet radio stations.</p>
-<h1 class="western">What is mastering</h1>
-<p>The term 'mastering' usually refers to the last step of sound
-manipulation in the audio production process. Historically the vinyl
-master was used to duplicate records. Nowadays a digital master is
-the file which is being duplicated and distributed to streaming or
-download platforms.</p>
-<h1 class="western">What is master_me</h1>
-<p>Master_me is a multi platform, free and open source audio plug-in
-which optimizes sound in live streaming situations. Introducing no
-latency, it takes care of master levels and ‘polishes’ the sound
-with a chain of effects, closely modeled after the audio chain of
-Klaus Scheuermann’s mastering studio in Berlin, Germany.</p>
-<p>Although tempting, it is NOT intended to automatically master your
-produced music. Your art deserves closer, offline attention.</p>
-<h1 class="western">Open Source and licensing</h1>
-<p>mater_me is GPL3</p>
-<h1 class="western">System requirements and compatibility</h1>
-<p>master_me is available in the following formats:</p>
-<p>macOS: vst, vst3, lv2</p>
-<p>windows: vst, vst3</p>
-<p>linux: vst, vst3, lv2, ladspa, jack</p>
-<p><br/>
-<br/>
-
-</p>
-<p>Due to faust and its open architecture, it can possibly be
-compiled to a vast variety of target platforms not mentioned above.</p>
-<h1 class="western">Contributors</h1>
-<p>Concept and idea: Klaus Scheuermann<br/>
-DSP: Klaus Scheuermann,
-Bart Brouns, Robin Gareus, Jakob Dübel<br/>
-GUI, Plugin:  Filipe
-Coelho<br/>
-Logo, Artwork: Peter Schlossnikel</p>
-<p>More contributions from: Julius Smith, Dario Sanfilippo, Stefane
-Letz, Romain Michon, Yann Orley, the Faust community.</p>
-<p>master_me's DSP is written in Faust.<br/>
-GUI and Plugin based on
-DPF (DISTRHO Plugin Framework).</p>
-<h1 class="western">Thanks to</h1>
-<p>The Faust community and everyone who supported the project.</p>
-<h1 class="western">Installation</h1>
-<p>Download here: tba</p>
-<p>tba</p>
-<h1 class="western">Quickstart</h1>
-<p>After Installation, load the plugin on the master channel of your
-streaming software or DAW.</p>
-<p>Choose a preset.</p>
-<p>Adjust a target-loudness (optional).</p>
-<h1 class="western">Interface</h1>
-<h2 class="western">Easy Mode</h2>
-<p>The 'Easy' mode is a very reduced GUI to make master_me an
-easy-to-use tool for all content creators.</p>
-<p>Only two choices can be made: choose a preset and set the desired
-target loudness</p>
-<h2 class="western">Expert Mode</h2>
-<h3 class="western">Concept</h3>
-<p>The main concept of master_me is the combination of a leveler and
-a chain of dynamics processors. 
-</p>
-<p>The leveler can be seen as a big volume knob which you would grab,
-when the sound is too low or too high for your taste.</p>
-<p>The following chain is designed to result in a natural, balanced
-and consistent sound if it is hit at the right level (-&gt;leveler).
-It will take care of peaks in the audio, like short loud noises and
-balance the frequency spectrum.</p>
-<p>There are some additional modules before the leveler for your
-convenience.</p>
-<h3 class="western">Signal Flow</h3>
-<ul>
-	<li><p>Pre-processing</p>
-	<li><p>Gate</p>
-	<li><p>EQ</p>
-	<li><p>Leveler</p>
-	<li><p>Knee Compressor</p>
-	<li><p>Multiband Mid-Side Compressor</p>
-	<li><p>Limiter</p>
-	<li><p>Brickwall</p>
-</ul>
-<h3 class="western">Modules</h3>
-<h4 class="western">Module: pre-processing</h4>
-<p style="line-height: 100%; margin-bottom: 0in">The ‘pre-processing’
-module contains:</p>
-<p style="line-height: 100%; margin-bottom: 0in">- a gain-slider to
-apply gain to the incoming signal before it hits master_me.</p>
-<p style="line-height: 100%; margin-bottom: 0in">- a ‘mono’
-switch</p>
-<p style="line-height: 100%; margin-bottom: 0in">- phase switches for
-both left and right channels</p>
-<p style="line-height: 100%; margin-bottom: 0in">- ‘stereo-correct’
-switch (custom designed process, see 'stereo-correct')</p>
-<h4 class="western">Module: gate</h4>
-<p>A simple noise gate with the following parameters:</p>
-<p>- threshold</p>
-<p>- attack</p>
-<p>- release</p>
-<h4 class="western">Module: EQ</h4>
-<p>The EQ offers some simple tools for frequency spectrum
-manipulation. The parameters are:</p>
-<p>- highpass frequency: the cutoff frequency of a soft highpass
-filter</p>
-<p>- tilt-gain: gain of a 'tilt' equalizer, which will bend the
-frequency spectrum either to the higher frequencies or the lower
-frequencies.</p>
-<p>- side-eq gain: gain parameter of the 'side-eq' which boosts a
-certain frequency range in the side signal in order to make the sound
-'wider'.</p>
-<p>- side-eq frequency: center frequency of the side-eq</p>
-<p>- side-eq bandwidth: width of the side-eq</p>
-<h4 class="western">Module: leveler</h4>
-<p>The leveler is the most critical part of master_me. It will listen
-to the incoming signal and adjust it's volume to meet the target
-loudness. In order to make this as smooth and natural as possible, a
-complex algorithm was designed. The following parameters can be set:</p>
-<p>- target loudness: in lufs, a slider also available in 'easy'
-mode, next to the input meters on the left). Typical target loudness
-values are -18lufs for video streaming, -14lufs for podcasting,
--23lufs for EBU broadcast standard.</p>
-<p>- brake threshold: this parameter is used by the leveler to detect
-silence. When silence is detected, the leveler 'freezes' and waits
-for incoming audio before it continues to adjust the loudness.</p>
-<p>- max +: determines the maximum amount of positive gain the
-leveler can apply to the incoming signal</p>
-<p>- max -: determines the maximum amount of negative gain the
-leveler can apply to the incoming signal</p>
-<p>- the brake-meter shows silence detection.</p>
-<h4 class="western">Module: knee compressor</h4>
-<p>The knee compressor is a slow and soft mid-side compression
-module. It functions as a subtile, swinging compressor. Typical
-equivalents in the analog domain would be a Manley Stereo VARIABLE
-MU® compressor or a Vertigo VSC-2. The following parameters can be
-set:</p>
-<p>- strength: correlating to the ratio of compression. 0% equals a
-ratio of 1:1, 100% equals a ratio of 1:infinity</p>
-<p>- tar-thresh: offsets the compressors threshold, dependent on the
-target loudness.</p>
-<p>- attack: compressor's attack time in milliseconds</p>
-<p>- release: compressor's release time in milliseconds</p>
-<p>- knee: compressor's knee in dB</p>
-<p>- link: amount of gain reduction linking between mid and side
-channels</p>
-<p>- ff-fb: feedforward-feedback determines, where the compressor
-receives it's side-chain signal from. feedforward is the input of the
-compressor, feedback is the output of the 'brickwall' module.</p>
-<p>- make-up: simple gain makeup after compression</p>
-<p>- dry-wet: fades between the input signal and the compressed
-signal</p>
-<p>- the meters show the amount of compression on each channels</p>
-<h4 class="western">Module: multiband mid/side compressor</h4>
-<p>Being perhaps the most complicated module of master_me, this
-module works like this:</p>
-<p>The audio is first converted from stereo to mid-side and then
-split into 8 frequency bands. The parameters apply to the lowest band
-(low) and the highest band (high). For the 6 bands in between, the
-parameters are interpolated between 'low' and 'high'.</p>
-<p>The parameters for the lowest and highest band are:</p>
-<p>- strength: correlating to the ratio of compression. 0% equals a
-ratio of 1:1, 100% equals a ratio of 1:infinity</p>
-<p>- tar-thresh: offsets the band's threshold, dependent on the
-target loudness.</p>
-<p>- attack: band's attack time in milliseconds</p>
-<p>- release: band's release time in milliseconds</p>
-<p>- knee: band's knee in dB</p>
-<p>- link: amount of gain reduction linking between mid and side
-channels</p>
-<p>- crossover: the lowest and highest crossover frequencies can be
-set here. All crossovers in between will be interpolated.</p>
-<p>- the upper row of meters shows the gain reduction for all eight
-mid channels</p>
-<p>- the lower row of meters shows the gain reduction for all eight
-side channels</p>
-<h4 class="western">Module: limiter</h4>
-<p>The 'limiter' it is rather a sound-shaping limiter than a clip-
-protection limiter. It's equivalents in the analog domain would
-typically be a Chandler TG-1 or a UREI 1178. Although the limiter can
-apply high compression ratios, it will not prevent from digital
-overshoots higher than threshold (which the brickwall module will
-take care of). The parameters are:</p>
-<p>- strength: correlating to the ratio of compression. 0% equals a
-ratio of 1:1, 100% equals a ratio of 1:infinity</p>
-<p>- tar-thresh: offsets the limiter's threshold, dependent on the
-target loudness.</p>
-<p>- attack: limiter's attack time in milliseconds</p>
-<p>- release: limiter's release time in milliseconds</p>
-<p>- knee: limiter's knee in dB</p>
-<p>- ff-fb: feedforward-feedback determines, where the limiter
-receives it's side-chain signal from. feedforward is the input of the
-limiter, feedback is the output of the limiter.</p>
-<p>- make-up: simple gain makeup after limiting.</p>
-<p>- gain reduction meter: shows gain reduction applied to the
-signal.</p>
-<h4 class="western">Module: brickwall</h4>
-<p>The 'brickwall' module is the last process in master_me's chain of
-modules. It is a fast brickwall limiter which will not allow any
-peaks above the desired 'ceiling'. The 'brickwall' process is a
-protection limiter and will not sound nice, if it needs to work a
-lot.</p>
-<p><br/>
-<br/>
-
-</p>
-<p><br/>
-<br/>
-
-</p>
-<p><br/>
-<br/>
-
-</p>
-<p><br/>
-<br/>
-
-</p>
-</body>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title></title>
+    <meta name="generator" content="LibreOffice 7.4.0.3 (MacOSX)" />
+    <meta name="created" content="2022-08-20T11:39:35.169949591" />
+    <meta name="changed" content="2022-08-30T09:04:16.031248312" />
+    <style type="text/css">
+      @page {
+        size: 8.27in 11.69in;
+        margin: 0.79in;
+      }
+      h1 {
+        margin-bottom: 0.08in;
+        background: transparent;
+      }
+      h1.western {
+        font-family: "Liberation Sans", sans-serif;
+        font-size: 18pt;
+      }
+      h1.cjk {
+        font-family: "PingFang SC";
+        font-size: 18pt;
+      }
+      h1.ctl {
+        font-family: "Arial Unicode MS";
+        font-size: 18pt;
+      }
+      p {
+        line-height: 115%;
+        margin-bottom: 0.1in;
+        background: transparent;
+      }
+      h2 {
+        margin-top: 0.14in;
+        margin-bottom: 0.08in;
+        background: transparent;
+      }
+      h2.western {
+        font-family: "Liberation Sans", sans-serif;
+        font-size: 16pt;
+      }
+      h2.cjk {
+        font-family: "PingFang SC";
+        font-size: 16pt;
+      }
+      h2.ctl {
+        font-family: "Arial Unicode MS";
+        font-size: 16pt;
+      }
+      h3 {
+        margin-top: 0.1in;
+        margin-bottom: 0.08in;
+        background: transparent;
+      }
+      h3.western {
+        font-family: "Liberation Sans", sans-serif;
+      }
+      h3.cjk {
+        font-family: "PingFang SC";
+      }
+      h3.ctl {
+        font-family: "Arial Unicode MS";
+      }
+      h4 {
+        margin-top: 0.08in;
+        margin-bottom: 0.08in;
+        background: transparent;
+      }
+      h4.western {
+        font-family: "Liberation Sans", sans-serif;
+        font-size: 13pt;
+        font-style: italic;
+      }
+      h4.cjk {
+        font-family: "PingFang SC";
+        font-size: 13pt;
+        font-style: italic;
+      }
+      h4.ctl {
+        font-family: "Arial Unicode MS";
+        font-size: 13pt;
+        font-style: italic;
+      }
+      a.western:visited {
+        so-language: en-US;
+      }
+    </style>
+  </head>
+  <body lang="en-US" dir="ltr">
+    <p
+      align="center"
+      style="
+        line-height: 100%;
+        margin-top: 0.17in;
+        margin-bottom: 0.08in;
+        page-break-after: avoid;
+      "
+    >
+      <font face="Liberation Sans, sans-serif"
+        ><font size="6" style="font-size: 28pt"><b>master_me</b></font></font
+      >
+    </p>
+    <p
+      align="center"
+      style="
+        line-height: 100%;
+        margin-top: 0.04in;
+        margin-bottom: 0.08in;
+        page-break-after: avoid;
+      "
+    >
+      <font face="Liberation Sans, sans-serif"
+        ><font size="5" style="font-size: 18pt"
+          >automatic audio mastering plugin for live-streaming and
+          podcasting</font
+        ></font
+      >
+    </p>
+    <h1 class="western">Introduction</h1>
+    <p>
+      With the first Covid19 related lockdowns in 2020, many real-life concerts,
+      conferences and festivals were forced into the digital domain - and
+      sounded pretty crappy. Having worked for almost 20 years in audio
+      mastering, Berlin based engineer Klaus Scheuermann started to develop
+      master_me - a word fusion of <i>automatic mastering</i> and
+      <i>mini-me</i> - in order to make open source streaming sound better.
+      After a few weeks of learning and development, master_me was first used at
+      the 'Quarantine Sessions' - a weekly distributed electro-accoustic
+      improvised concert, hosted at Stanford's CCRMA Institute. master_me was
+      developed further to be an easy-to-use tool for all live streaming
+      applications. In 2022 it was funded by the Prototype Fund, an open source
+      software funding initiative by the german ministry of education and
+      research. A stable release is available since September 2022.
+    </p>
+    <h1 class="western">Who is master_me for?</h1>
+    <p>
+      Master_me is for all live streamers.<br />
+      It can also be a valuable tool for podcasters and internet radio stations.
+    </p>
+    <h1 class="western">What is mastering</h1>
+    <p>
+      The term 'mastering' usually refers to the last step of sound manipulation
+      in the audio production process. Historically the vinyl master was used to
+      duplicate records. Nowadays a digital master is the file which is being
+      duplicated and distributed to streaming or download platforms.
+    </p>
+    <h1 class="western">What is master_me</h1>
+    <p>
+      Master_me is a multi platform, free and open source audio plug-in which
+      optimizes sound in live streaming situations. Introducing no latency, it
+      takes care of master levels and ‘polishes’ the sound with a chain of
+      effects, closely modeled after the audio chain of Klaus Scheuermann’s
+      mastering studio in Berlin, Germany.
+    </p>
+    <p>
+      Although tempting, it is NOT intended to automatically master your
+      produced music. Your art deserves closer, offline attention.
+    </p>
+    <h1 class="western">Open Source and licensing</h1>
+    <p>mater_me is GPL3</p>
+    <h1 class="western">System requirements and compatibility</h1>
+    <p>master_me is available in the following formats:</p>
+    <p>macOS: vst, vst3, lv2</p>
+    <p>windows: vst, vst3</p>
+    <p>linux: vst, vst3, lv2, ladspa, jack</p>
+    <p>
+      <br />
+      <br />
+    </p>
+    <p>
+      Due to faust and its open architecture, it can possibly be compiled to a
+      vast variety of target platforms not mentioned above.
+    </p>
+    <h1 class="western">Contributors</h1>
+    <p>
+      Concept and idea: Klaus Scheuermann<br />
+      DSP: Klaus Scheuermann, Bart Brouns, Robin Gareus, Jakob Dübel<br />
+      GUI, Plugin: Filipe Coelho<br />
+      Logo, Artwork: Peter Schlossnikel
+    </p>
+    <p>
+      More contributions from: Julius Smith, Dario Sanfilippo, Stefane Letz,
+      Romain Michon, Yann Orley, the Faust community.
+    </p>
+    <p>
+      master_me's DSP is written in Faust.<br />
+      GUI and Plugin based on DPF (DISTRHO Plugin Framework).
+    </p>
+    <h1 class="western">Thanks to</h1>
+    <p>The Faust community and everyone who supported the project.</p>
+    <h1 class="western">Installation</h1>
+    <p>Download here: tba</p>
+    <p>tba</p>
+    <h1 class="western">Quickstart</h1>
+    <p>
+      After Installation, load the plugin on the master channel of your
+      streaming software or DAW.
+    </p>
+    <p>Choose a preset.</p>
+    <p>Adjust a target-loudness (optional).</p>
+    <h1 class="western">Interface</h1>
+    <h2 class="western">Easy Mode</h2>
+    <p>
+      The 'Easy' mode is a very reduced GUI to make master_me an easy-to-use
+      tool for all content creators.
+    </p>
+    <p>
+      Only two choices can be made: choose a preset and set the desired target
+      loudness
+    </p>
+    <h2 class="western">Expert Mode</h2>
+    <h3 class="western">Concept</h3>
+    <p>
+      The main concept of master_me is the combination of a leveler and a chain
+      of dynamics processors.
+    </p>
+    <p>
+      The leveler can be seen as a big volume knob which you would grab, when
+      the sound is too low or too high for your taste.
+    </p>
+    <p>
+      The following chain is designed to result in a natural, balanced and
+      consistent sound if it is hit at the right level (-&gt;leveler). It will
+      take care of peaks in the audio, like short loud noises and balance the
+      frequency spectrum.
+    </p>
+    <p>
+      There are some additional modules before the leveler for your convenience.
+    </p>
+    <h3 class="western">Signal Flow</h3>
+    <ul>
+      <li><p>Pre-processing</p></li>
+      <li><p>Gate</p></li>
+      <li><p>EQ</p></li>
+      <li><p>Leveler</p></li>
+      <li><p>Knee Compressor</p></li>
+      <li><p>Multiband Mid-Side Compressor</p></li>
+      <li><p>Limiter</p></li>
+      <li><p>Brickwall</p></li>
+    </ul>
+    <h3 class="western">Modules</h3>
+    <h4 class="western">Module: pre-processing</h4>
+    <p style="line-height: 100%; margin-bottom: 0in">
+      The ‘pre-processing’ module contains:
+    </p>
+    <p style="line-height: 100%; margin-bottom: 0in">
+      - a gain-slider to apply gain to the incoming signal before it hits
+      master_me.
+    </p>
+    <p style="line-height: 100%; margin-bottom: 0in">- a ‘mono’ switch</p>
+    <p style="line-height: 100%; margin-bottom: 0in">
+      - phase switches for both left and right channels
+    </p>
+    <p style="line-height: 100%; margin-bottom: 0in">
+      - ‘stereo-correct’ switch (custom designed process, see 'stereo-correct')
+    </p>
+    <h4 class="western">Module: gate</h4>
+    <p>A simple noise gate with the following parameters:</p>
+    <p>- threshold</p>
+    <p>- attack</p>
+    <p>- release</p>
+    <h4 class="western">Module: EQ</h4>
+    <p>
+      The EQ offers some simple tools for frequency spectrum manipulation. The
+      parameters are:
+    </p>
+    <p>- highpass frequency: the cutoff frequency of a soft highpass filter</p>
+    <p>
+      - tilt-gain: gain of a 'tilt' equalizer, which will bend the frequency
+      spectrum either to the higher frequencies or the lower frequencies.
+    </p>
+    <p>
+      - side-eq gain: gain parameter of the 'side-eq' which boosts a certain
+      frequency range in the side signal in order to make the sound 'wider'.
+    </p>
+    <p>- side-eq frequency: center frequency of the side-eq</p>
+    <p>- side-eq bandwidth: width of the side-eq</p>
+    <h4 class="western">Module: leveler</h4>
+    <p>
+      The leveler is the most critical part of master_me. It will listen to the
+      incoming signal and adjust it's volume to meet the target loudness. In
+      order to make this as smooth and natural as possible, a complex algorithm
+      was designed. The following parameters can be set:
+    </p>
+    <p>
+      - target loudness: in lufs, a slider also available in 'easy' mode, next
+      to the input meters on the left). Typical target loudness values are
+      -18lufs for video streaming, -14lufs for podcasting, -23lufs for EBU
+      broadcast standard.
+    </p>
+    <p>
+      - brake threshold: this parameter is used by the leveler to detect
+      silence. When silence is detected, the leveler 'freezes' and waits for
+      incoming audio before it continues to adjust the loudness.
+    </p>
+    <p>
+      - max +: determines the maximum amount of positive gain the leveler can
+      apply to the incoming signal
+    </p>
+    <p>
+      - max -: determines the maximum amount of negative gain the leveler can
+      apply to the incoming signal
+    </p>
+    <p>- the brake-meter shows silence detection.</p>
+    <h4 class="western">Module: knee compressor</h4>
+    <p>
+      The knee compressor is a slow and soft mid-side compression module. It
+      functions as a subtile, swinging compressor. Typical equivalents in the
+      analog domain would be a Manley Stereo VARIABLE MU® compressor or a
+      Vertigo VSC-2. The following parameters can be set:
+    </p>
+    <p>
+      - strength: correlating to the ratio of compression. 0% equals a ratio of
+      1:1, 100% equals a ratio of 1:infinity
+    </p>
+    <p>
+      - tar-thresh: offsets the compressors threshold, dependent on the target
+      loudness.
+    </p>
+    <p>- attack: compressor's attack time in milliseconds</p>
+    <p>- release: compressor's release time in milliseconds</p>
+    <p>- knee: compressor's knee in dB</p>
+    <p>
+      - link: amount of gain reduction linking between mid and side channels
+    </p>
+    <p>
+      - ff-fb: feedforward-feedback determines, where the compressor receives
+      it's side-chain signal from. feedforward is the input of the compressor,
+      feedback is the output of the 'brickwall' module.
+    </p>
+    <p>- make-up: simple gain makeup after compression</p>
+    <p>- dry-wet: fades between the input signal and the compressed signal</p>
+    <p>- the meters show the amount of compression on each channels</p>
+    <h4 class="western">Module: multiband mid/side compressor</h4>
+    <p>
+      Being perhaps the most complicated module of master_me, this module works
+      like this:
+    </p>
+    <p>
+      The audio is first converted from stereo to mid-side and then split into 8
+      frequency bands. The parameters apply to the lowest band (low) and the
+      highest band (high). For the 6 bands in between, the parameters are
+      interpolated between 'low' and 'high'.
+    </p>
+    <p>The parameters for the lowest and highest band are:</p>
+    <p>
+      - strength: correlating to the ratio of compression. 0% equals a ratio of
+      1:1, 100% equals a ratio of 1:infinity
+    </p>
+    <p>
+      - tar-thresh: offsets the band's threshold, dependent on the target
+      loudness.
+    </p>
+    <p>- attack: band's attack time in milliseconds</p>
+    <p>- release: band's release time in milliseconds</p>
+    <p>- knee: band's knee in dB</p>
+    <p>
+      - link: amount of gain reduction linking between mid and side channels
+    </p>
+    <p>
+      - crossover: the lowest and highest crossover frequencies can be set here.
+      All crossovers in between will be interpolated.
+    </p>
+    <p>
+      - the upper row of meters shows the gain reduction for all eight mid
+      channels
+    </p>
+    <p>
+      - the lower row of meters shows the gain reduction for all eight side
+      channels
+    </p>
+    <h4 class="western">Module: limiter</h4>
+    <p>
+      The 'limiter' it is rather a sound-shaping limiter than a clip- protection
+      limiter. It's equivalents in the analog domain would typically be a
+      Chandler TG-1 or a UREI 1178. Although the limiter can apply high
+      compression ratios, it will not prevent from digital overshoots higher
+      than threshold (which the brickwall module will take care of). The
+      parameters are:
+    </p>
+    <p>
+      - strength: correlating to the ratio of compression. 0% equals a ratio of
+      1:1, 100% equals a ratio of 1:infinity
+    </p>
+    <p>
+      - tar-thresh: offsets the limiter's threshold, dependent on the target
+      loudness.
+    </p>
+    <p>- attack: limiter's attack time in milliseconds</p>
+    <p>- release: limiter's release time in milliseconds</p>
+    <p>- knee: limiter's knee in dB</p>
+    <p>
+      - ff-fb: feedforward-feedback determines, where the limiter receives it's
+      side-chain signal from. feedforward is the input of the limiter, feedback
+      is the output of the limiter.
+    </p>
+    <p>- make-up: simple gain makeup after limiting.</p>
+    <p>- gain reduction meter: shows gain reduction applied to the signal.</p>
+    <h4 class="western">Module: brickwall</h4>
+    <p>
+      The 'brickwall' module is the last process in master_me's chain of
+      modules. It is a fast brickwall limiter which will not allow any peaks
+      above the desired 'ceiling'. The 'brickwall' process is a protection
+      limiter and will not sound nice, if it needs to work a lot.
+    </p>
+    <p>
+      <br />
+      <br />
+    </p>
+    <p>
+      <br />
+      <br />
+    </p>
+    <p>
+      <br />
+      <br />
+    </p>
+    <p>
+      <br />
+      <br />
+    </p>
+  </body>
 </html>
+
