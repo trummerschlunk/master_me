@@ -1154,7 +1154,7 @@ class MasterMeUI : public UI,
 
 public:
     MasterMeUI()
-        : UI(DISTRHO_UI_DEFAULT_WIDTH, DISTRHO_UI_DEFAULT_HEIGHT),
+        : UI(),
           easyModeButton(this, theme),
           expertModeButton(this, theme),
           topCenteredGroup(this, this, theme),
@@ -1180,8 +1180,6 @@ public:
 
       if (d_isNotEqual(scaleFactor, 1.0))
       {
-          setSize(DISTRHO_UI_DEFAULT_WIDTH * scaleFactor, DISTRHO_UI_DEFAULT_HEIGHT * scaleFactor);
-
           theme.borderSize *= scaleFactor;
           theme.padding *= scaleFactor;
           theme.fontSize *= scaleFactor;
