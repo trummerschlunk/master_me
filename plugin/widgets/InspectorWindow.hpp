@@ -1,6 +1,6 @@
 /*
  * Inspector Window for DPF
- * Copyright (C) 2022 Filipe Coelho <falktx@falktx.com>
+ * Copyright (C) 2022-2025 Filipe Coelho <falktx@falktx.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any purpose with
  * or without fee is hereby granted, provided that the above copyright notice and this
@@ -17,14 +17,111 @@
 #pragma once
 
 #include "DearImGui.hpp"
+#include "DistrhoPluginUtils.hpp"
 #include "Quantum.hpp"
 
 #include "Application.hpp"
-#include "extra/String.hpp"
+#include "extra/Filesystem.hpp"
 
+#include "json.hpp"
+
+#include <fstream>
 #include <list>
 
 START_NAMESPACE_DGL
+
+// --------------------------------------------------------------------------------------------------------------------
+
+static std::string ColorToString(const Color& color)
+{
+    char str[10];
+    std::snprintf(str,
+                  sizeof(str),
+                  "#%02x%02x%02x",
+                  d_roundToIntPositive(color.red * 255),
+                  d_roundToIntPositive(color.green * 255),
+                  d_roundToIntPositive(color.blue * 255));
+    return str;
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
+struct MasterMeTheme : QuantumTheme
+{
+    MasterMeTheme(const double scaleFactor, const bool loadThemeNow = true) noexcept
+    {
+        if (loadThemeNow)
+        {
+            String filename(getSpecialDir(kSpecialDirConfig));
+            filename += "MasterMeTheme.json";
+            loadTheme(filename);
+        }
+
+        scaleAll(scaleFactor);
+    }
+
+    void loadTheme(const char* const filename)
+    {
+        std::ifstream f(filename);
+        if (! f.good())
+            return;
+
+        nlohmann::json j;
+
+        try {
+            j = nlohmann::json::parse(f);
+
+            #define LOAD_UINT(var) if (j.contains(#var)) var = j[#var].get<uint>();
+            LOAD_UINT(borderSize)
+            LOAD_UINT(padding)
+            LOAD_UINT(fontSize)
+            LOAD_UINT(textHeight)
+            // LOAD_UINT(knobIndicatorSize)
+            LOAD_UINT(widgetLineSize)
+            #undef LOAD_UINT
+
+            #define LOAD_COLOR(var) if (j.contains(#var)) var = Color::fromHTML(j[#var].get<std::string>().c_str());
+            LOAD_COLOR(levelMeterColor)
+            LOAD_COLOR(levelMeterAlternativeColor)
+            // LOAD_COLOR(knobRingColor)
+            // LOAD_COLOR(knobAlternativeRingColor)
+            LOAD_COLOR(widgetBackgroundColor)
+            LOAD_COLOR(widgetActiveColor)
+            LOAD_COLOR(widgetAlternativeColor)
+            LOAD_COLOR(widgetForegroundColor)
+            LOAD_COLOR(windowBackgroundColor)
+            LOAD_COLOR(textLightColor)
+            LOAD_COLOR(textMidColor)
+            LOAD_COLOR(textDarkColor)
+            #undef LOAD_COLOR
+
+        } catch (const std::exception& e) {
+            d_stderr("failed to parse MasterMeTheme: %s", e.what());
+            return;
+        } catch (...) {
+            d_stderr("failed to parse MasterMeTheme: unknown exception");
+            return;
+        }
+    }
+
+    void scaleAll(const double scaleFactor)
+    {
+        if (d_isNotEqual(scaleFactor, 1.0))
+        {
+            borderSize *= scaleFactor;
+            padding *= scaleFactor;
+            fontSize *= scaleFactor;
+            // knobIndicatorSize *= scaleFactor;
+            textHeight *= scaleFactor;
+            widgetLineSize *= scaleFactor;
+        }
+
+        windowPadding = borderSize + padding * 3;
+        textPixelRatioWidthCompensation = static_cast<uint>(scaleFactor - 1.0 + 0.25);
+    }
+};
+
+using MasterMeThemeCallback = QuantumThemeCallback;
 
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -32,22 +129,36 @@ class InspectorWindow : public ImGuiTopLevelWidget
 {
     std::list<SubWidget*> subwidgets;
 
-    QuantumTheme& theme;
-    QuantumThemeCallback* const themeChangeCallback;
+    MasterMeTheme& theme;
+    MasterMeThemeCallback* const themeChangeCallback;
+
+    // for file export/import callbacks
+    bool isSaving = true;
 
 public:
     bool isOpen = true;
     double userScaling = 1;
 
-    explicit InspectorWindow(TopLevelWidget* const tlw, QuantumTheme& t, QuantumThemeCallback* const cb)
+    explicit InspectorWindow(TopLevelWidget* const tlw, MasterMeTheme& t, MasterMeThemeCallback* const cb)
         : ImGuiTopLevelWidget(tlw->getWindow()),
           subwidgets(tlw->getChildren()),
           theme(t),
-          themeChangeCallback(cb)
+          themeChangeCallback(cb) {}
+
+    void uiFileBrowserSelected(const char* const filename)
     {
-        ResizeEvent ev;
-        ev.size = tlw->getSize();
-        onResize(ev);
+        if (isSaving)
+        {
+            String sfilename(filename);
+            if (! sfilename.contains('.'))
+                sfilename += ".json";
+
+            saveTheme(sfilename);
+        }
+        else
+        {
+            loadTheme(filename);
+        }
     }
 
 protected:
@@ -77,7 +188,16 @@ protected:
 
         ImGui::SameLine();
 
-        if (ImGui::SmallButton("150% Zoom"))
+        if (ImGui::Button("Save"))
+        {
+            String filename(getSpecialDir(kSpecialDirConfig));
+            filename += "MasterMeTheme.json";
+            saveTheme(filename);
+        }
+
+        ImGui::SameLine();
+
+        if (ImGui::Button("150% Zoom"))
         {
             changedScale = true;
             userScaling = 1.5;
@@ -85,7 +205,7 @@ protected:
 
         ImGui::SameLine();
 
-        if (ImGui::SmallButton("200% Zoom"))
+        if (ImGui::Button("200% Zoom"))
         {
             changedScale = true;
             userScaling = 2;
@@ -93,28 +213,34 @@ protected:
 
         ImGui::SameLine();
 
-        if (ImGui::SmallButton("300% Zoom"))
+        if (ImGui::Button("300% Zoom"))
         {
             changedScale = true;
             userScaling = 3;
         }
 
         ImGui::SameLine();
-        ImGui::TextUnformatted("(zoom changes reset colors)");
+        ImGui::TextUnformatted("(zoom resets colors)");
 
-        if (changedScale)
+        ImGui::SameLine();
+
+        if (ImGui::Button("Export..."))
         {
-            changedSize = true;
-            changedColors = true;
-            scaleFactor = getScaleFactor() * userScaling;
-            theme = QuantumTheme();
-            theme.borderSize *= scaleFactor;
-            theme.padding *= scaleFactor;
-            theme.fontSize *= scaleFactor;
-            theme.textHeight *= scaleFactor;
-            theme.widgetLineSize *= scaleFactor;
-            theme.windowPadding *= scaleFactor;
-            theme.textPixelRatioWidthCompensation = static_cast<uint>(scaleFactor - 1.0 + 0.25);
+            FileBrowserOptions opts;
+            opts.saving = isSaving = true;
+            opts.defaultName = "MasterMeTheme.json";
+            opts.title = "Export MasterMeTheme Theme";
+            getWindow().openFileBrowser(opts);
+        }
+
+        ImGui::SameLine();
+
+        if (ImGui::Button("Import..."))
+        {
+            FileBrowserOptions opts;
+            opts.saving = isSaving = false;
+            opts.title = "Import MasterMeTheme Theme";
+            getWindow().openFileBrowser(opts);
         }
 
         val = static_cast<int>(theme.borderSize / scaleFactor + 0.5f);
@@ -171,6 +297,14 @@ protected:
 
         ImGui::End();
 
+        if (changedScale)
+        {
+            changedSize = true;
+            changedColors = true;
+            scaleFactor = getScaleFactor() * userScaling;
+            theme = MasterMeTheme(scaleFactor, false);
+        }
+
         if (changedSize || changedColors)
         {
             theme.windowPadding = theme.borderSize + theme.padding * 3;
@@ -179,6 +313,49 @@ protected:
     }
 
 private:
+    void loadTheme(const char* const filename)
+    {
+        theme.loadTheme(filename);
+        theme.scaleAll(getScaleFactor());
+        themeChangeCallback->quantumThemeChanged(true, true);
+    }
+
+    void saveTheme(const char* const filename)
+    {
+        const double scaleFactor = getScaleFactor();
+
+        const SafeFileWriter file(filename);
+        if (file.ok())
+        {
+            nlohmann::json j;
+            j["borderSize"] = d_roundToIntPositive(theme.borderSize / scaleFactor);
+            j["padding"] = d_roundToIntPositive(theme.padding / scaleFactor);
+            j["fontSize"] = d_roundToIntPositive(theme.fontSize / scaleFactor);
+            j["textHeight"] = d_roundToIntPositive(theme.textHeight / scaleFactor);
+            // j["knobIndicatorSize"] = d_roundToIntPositive(theme.knobIndicatorSize / scaleFactor);
+            j["widgetLineSize"] = d_roundToIntPositive(theme.widgetLineSize / scaleFactor);
+            // j["sidelabelsFontSize"] = d_roundToIntPositive(theme.sidelabelsFontSize / scaleFactor);
+            j["levelMeterColor"] = ColorToString(theme.levelMeterColor);
+            j["levelMeterAlternativeColor"] = ColorToString(theme.levelMeterAlternativeColor);
+            // j["inputLevelBracket1"] = ColorToString(theme.inputLevelBracket1);
+            // j["inputLevelBracket2"] = ColorToString(theme.inputLevelBracket2);
+            // j["knobRingColor"] = ColorToString(theme.knobRingColor);
+            // j["knobAlternativeRingColor"] = ColorToString(theme.knobAlternativeRingColor);
+            j["widgetBackgroundColor"] = ColorToString(theme.widgetBackgroundColor);
+            j["widgetActiveColor"] = ColorToString(theme.widgetActiveColor);
+            j["widgetAlternativeColor"] = ColorToString(theme.widgetAlternativeColor);
+            j["widgetForegroundColor"] = ColorToString(theme.widgetForegroundColor);
+            j["windowBackgroundColor"] = ColorToString(theme.windowBackgroundColor);
+            j["textLightColor"] = ColorToString(theme.textLightColor);
+            j["textMidColor"] = ColorToString(theme.textMidColor);
+            j["textDarkColor"] = ColorToString(theme.textDarkColor);
+
+            const std::string jsonstr = j.dump(2, ' ', false, nlohmann::detail::error_handler_t::replace);
+
+            file.write(jsonstr.c_str(), jsonstr.length());
+        }
+    }
+
     static void displaySubWidget(const std::list<SubWidget*>& subwidgets)
     {
         for (SubWidget* w : subwidgets)
