@@ -3,508 +3,68 @@ name: build
 on:
   push:
 
-env:
-  CACHE_VERSION: 1
-  DEBIAN_FRONTEND: noninteractive
-  HOMEBREW_NO_AUTO_UPDATE: 1
-  HOMEBREW_NO_INSTALL_CLEANUP: 1
-
 jobs:
-  linux-arm64:
-    runs-on: ubuntu-20.04
+  linux:
+    strategy:
+      matrix:
+        target: [linux-arm64, linux-armhf, linux-i686, linux-riscv64, linux-x86_64]
+    runs-on: ubuntu-latest
+    container: ubuntu:20.04
     steps:
+      - name: Install git
+        run: |
+          apt-get update -qq && apt-get install -yqq --no-install-recommends ca-certificates curl git openssl
+          curl -sLO https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/git_2.34.1-1ubuntu1~bpo20.04.1~ppa1_amd64.deb
+          curl -sLO https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/git-man_2.34.1-1ubuntu1~bpo20.04.1~ppa1_all.deb
+          dpkg -i *.deb
+          rm *.deb
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Set up cache
-        id: cache
-        uses: actions/cache@v4
+      - uses: distrho/dpf-makefile-action@v1
         with:
-          path: |
-            *.deb
-            build/faustpp/faustpp
-          key: linux-arm64-v${{ env.CACHE_VERSION }}
-      - name: Fix GitHub's mess
-        run: |
-          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
-          sudo apt-get update -qq
-          sudo apt-get install -yqq --allow-downgrades libgd3/focal libpcre2-8-0/focal libpcre2-16-0/focal libpcre2-32-0/focal libpcre2-posix2/focal
-          sudo apt-get purge -yqq libmono* moby* mono* php* libgdiplus libpcre2-posix3 libzip4
-      - name: Set up dependencies
-        run: |
-          sudo dpkg --add-architecture arm64
-          sudo sed -i "s/deb http/deb [arch=amd64] http/" /etc/apt/sources.list
-          sudo sed -i "s/deb mirror/deb [arch=amd64] mirror/" /etc/apt/sources.list
-          echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports focal main restricted universe multiverse" | sudo tee /etc/apt/sources.list.d/ports-arm64.list
-          echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports focal-updates main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/ports-arm64.list
-          echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports focal-backports main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/ports-arm64.list
-          sudo apt-get update -qq
-          sudo apt-get install -yqq --allow-downgrades g++-aarch64-linux-gnu libgl1-mesa-dev:arm64 libx11-dev:arm64 libxcursor-dev:arm64 libxext-dev:arm64 libxrandr-dev:arm64 libsndfile1 libmicrohttpd12
-          wget -c https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/faust_2.41.1~ds0-0_amd64.deb \
-                  https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/faust-common_2.41.1~ds0-0_all.deb \
-                  https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/libfaust2_2.41.1~ds0-0_amd64.deb
-          sudo dpkg -i *.deb
-      - name: Build faustpp
-        run: make faustpp -j $(nproc)
-      - name: Build linux arm64 cross-compiled
-        env:
-          CC: aarch64-linux-gnu-gcc
-          CXX: aarch64-linux-gnu-g++
-          LDFLAGS: -static-libgcc -static-libstdc++
-          PKG_CONFIG_PATH: /usr/lib/aarch64-linux-gnu/pkgconfig
-        run: |
-          make features
-          make WITH_LTO=true -j $(nproc)
-      - name: Set sha8
-        id: slug
-        run: echo "::set-output name=sha8::$(echo ${{ github.sha }} | cut -c1-8)"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ${{ github.event.repository.name }}-linux-arm64-${{ github.event.pull_request.number || steps.slug.outputs.sha8 }}
-          path: |
-            bin/*
-      - name: Create release archive
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          tar chJf ${{ github.event.repository.name }}-${{ github.ref_name }}-linux-arm64.tar.xz \
-              --transform="s,^bin/,${{ github.event.repository.name }}-${{ github.ref_name }}/," \
-              bin/*
-      - uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
-          draft: false
-          prerelease: false
-          files: |
-            ${{ github.event.repository.name }}-${{ github.ref_name }}-linux-arm64.tar.xz
+          target: ${{ matrix.target }}
+          lto: true
 
-  linux-armhf:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - name: Set up cache
-        id: cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            *.deb
-            build/faustpp/faustpp
-          key: linux-armhf-v${{ env.CACHE_VERSION }}
-      - name: Fix GitHub's mess
-        run: |
-          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
-          sudo apt-get update -qq
-          sudo apt-get install -yqq --allow-downgrades libgd3/focal libpcre2-8-0/focal libpcre2-16-0/focal libpcre2-32-0/focal libpcre2-posix2/focal
-          sudo apt-get purge -yqq libmono* moby* mono* php* libgdiplus libpcre2-posix3 libzip4
-      - name: Set up dependencies
-        run: |
-          sudo dpkg --add-architecture armhf
-          sudo sed -i "s/deb http/deb [arch=amd64] http/" /etc/apt/sources.list
-          sudo sed -i "s/deb mirror/deb [arch=amd64] mirror/" /etc/apt/sources.list
-          echo "deb [arch=armhf] http://ports.ubuntu.com/ubuntu-ports focal main restricted universe multiverse" | sudo tee /etc/apt/sources.list.d/ports-armhf.list
-          echo "deb [arch=armhf] http://ports.ubuntu.com/ubuntu-ports focal-updates main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/ports-armhf.list
-          echo "deb [arch=armhf] http://ports.ubuntu.com/ubuntu-ports focal-backports main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/ports-armhf.list
-          sudo apt-get update -qq
-          sudo apt-get install -yqq --allow-downgrades g++-arm-linux-gnueabihf libgl1-mesa-dev:armhf libx11-dev:armhf libxcursor-dev:armhf libxext-dev:armhf libxrandr-dev:armhf libsndfile1 libmicrohttpd12
-          wget -c https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/faust_2.41.1~ds0-0_amd64.deb \
-                  https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/faust-common_2.41.1~ds0-0_all.deb \
-                  https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/libfaust2_2.41.1~ds0-0_amd64.deb
-          sudo dpkg -i *.deb
-      - name: Build faustpp
-        run: make faustpp -j $(nproc)
-      - name: Build linux armhf cross-compiled
-        env:
-          CC: arm-linux-gnueabihf-gcc
-          CXX: arm-linux-gnueabihf-g++
-          LDFLAGS: -static-libgcc -static-libstdc++
-          PKG_CONFIG_PATH: /usr/lib/arm-linux-gnueabihf/pkgconfig
-        run: |
-          make features
-          make WITH_LTO=true -j $(nproc)
-      - name: Set sha8
-        id: slug
-        run: echo "::set-output name=sha8::$(echo ${{ github.sha }} | cut -c1-8)"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ${{ github.event.repository.name }}-linux-armhf-${{ github.event.pull_request.number || steps.slug.outputs.sha8 }}
-          path: |
-            bin/*
-      - name: Create release archive
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          tar chJf ${{ github.event.repository.name }}-${{ github.ref_name }}-linux-armhf.tar.xz \
-              --transform="s,^bin/,${{ github.event.repository.name }}-${{ github.ref_name }}/," \
-              bin/*
-      - uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
-          draft: false
-          prerelease: false
-          files: |
-            ${{ github.event.repository.name }}-${{ github.ref_name }}-linux-armhf.tar.xz
-
-  linux-i686:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - name: Set up cache
-        id: cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            *.deb
-            build/faustpp/faustpp
-          key: linux-i686-v${{ env.CACHE_VERSION }}
-      - name: Fix GitHub's mess
-        run: |
-          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
-          sudo apt-get update -qq
-          sudo apt-get install -yqq --allow-downgrades libgd3/focal libpcre2-8-0/focal libpcre2-16-0/focal libpcre2-32-0/focal libpcre2-posix2/focal
-          sudo apt-get purge -yqq libmono* moby* mono* php* libgdiplus libpcre2-posix3 libzip4
-      - name: Set up dependencies
-        run: |
-          sudo dpkg --add-architecture i386
-          sudo apt-get update -qq
-          sudo apt-get install -yqq --allow-downgrades g++-i686-linux-gnu libgl1-mesa-dev:i386 libx11-dev:i386 libxcursor-dev:i386 libxext-dev:i386 libxrandr-dev:i386 libsndfile1 libmicrohttpd12
-          wget -c https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/faust_2.41.1~ds0-0_amd64.deb \
-                  https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/faust-common_2.41.1~ds0-0_all.deb \
-                  https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/libfaust2_2.41.1~ds0-0_amd64.deb
-          sudo dpkg -i *.deb
-      - name: Build faustpp
-        run: make faustpp -j $(nproc)
-      - name: Build linux i686
-        env:
-          CC: i686-linux-gnu-gcc
-          CXX: i686-linux-gnu-g++
-          CFLAGS: -m32
-          CXXFLAGS: -m32
-          LDFLAGS: -m32 -static-libgcc -static-libstdc++
-          PKG_CONFIG_PATH: /usr/lib/i386-linux-gnu/pkgconfig
-        run: |
-          make features
-          make WITH_LTO=true -j $(nproc)
-      - name: Set sha8
-        id: slug
-        run: echo "::set-output name=sha8::$(echo ${{ github.sha }} | cut -c1-8)"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ${{ github.event.repository.name }}-linux-i686-${{ github.event.pull_request.number || steps.slug.outputs.sha8 }}
-          path: |
-            bin/*
-      - name: Create release archive
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          tar chJf ${{ github.event.repository.name }}-${{ github.ref_name }}-linux-i686.tar.xz \
-              --transform="s,^bin/,${{ github.event.repository.name }}-${{ github.ref_name }}/," \
-              bin/*
-      - uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
-          draft: false
-          prerelease: false
-          files: |
-            ${{ github.event.repository.name }}-${{ github.ref_name }}-linux-i686.tar.xz
-
-  linux-riscv64:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - name: Set up cache
-        id: cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            *.deb
-            build/faustpp/faustpp
-          key: linux-riscv64-v${{ env.CACHE_VERSION }}
-      - name: Fix GitHub's mess
-        run: |
-          sudo rm /etc/apt/sources.list.d/*.list
-          sudo apt-get update -qq
-          sudo apt-get purge -yqq git-man libclang* libgbm* libllvm* libmono* libnginx* moby* mono* nginx* perl php* libgdiplus libpcre2-posix3 libselinux1-dev libzip4
-          sudo apt-get install -yqq --allow-downgrades autoconf/focal automake/focal build-essential/focal git/focal libgd3/focal libglib2.0-0/focal libglib2.0-dev/focal libpcre2-8-0/focal libpcre2-16-0/focal libpcre2-32-0/focal libpcre2-posix2/focal pkg-config/focal
-      - name: Set up dependencies
-        run: |
-          sudo dpkg --add-architecture riscv64
-          sudo sed -i "s/deb http/deb [arch=amd64] http/" /etc/apt/sources.list
-          sudo sed -i "s/deb mirror/deb [arch=amd64] mirror/" /etc/apt/sources.list
-          echo "deb [arch=riscv64] http://ports.ubuntu.com/ubuntu-ports focal main restricted universe multiverse" | sudo tee /etc/apt/sources.list.d/ports-riscv64.list
-          echo "deb [arch=riscv64] http://ports.ubuntu.com/ubuntu-ports focal-updates main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/ports-riscv64.list
-          echo "deb [arch=riscv64] http://ports.ubuntu.com/ubuntu-ports focal-backports main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/ports-riscv64.list
-          sudo apt-get update -qq
-          sudo apt-get install -yqq --allow-downgrades g++-riscv64-linux-gnu libasound2-dev:riscv64 libatomic1:riscv64 libc6:riscv64 libcairo2-dev:riscv64 libdbus-1-dev:riscv64 libgcc-s1:riscv64 libgl1-mesa-dev:riscv64 libglapi-mesa:riscv64 libglib2.0-dev:riscv64 libglvnd0:riscv64 liblo-dev:riscv64 libpulse-dev:riscv64 libstdc++6:riscv64 libx11-dev:riscv64 libxcursor-dev:riscv64 libxext-dev:riscv64 libxrandr-dev:riscv64 libsndfile1 libllvm10 libmicrohttpd12
-          wget -c https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/faust_2.41.1~ds0-0_amd64.deb \
-                  https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/faust-common_2.41.1~ds0-0_all.deb \
-                  https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/libfaust2_2.41.1~ds0-0_amd64.deb
-          sudo dpkg -i *.deb
-      - name: Build faustpp
-        run: make faustpp -j $(nproc)
-      - name: Build linux riscv64 cross-compiled
-        env:
-          CC: riscv64-linux-gnu-gcc
-          CXX: riscv64-linux-gnu-g++
-          LDFLAGS: -static-libgcc -static-libstdc++
-          PKG_CONFIG_PATH: /usr/lib/riscv64-linux-gnu/pkgconfig
-        run: |
-          make features
-          make WITH_LTO=true -j $(nproc)
-      - name: Set sha8
-        id: slug
-        run: echo "::set-output name=sha8::$(echo ${{ github.sha }} | cut -c1-8)"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ${{ github.event.repository.name }}-linux-riscv64-${{ github.event.pull_request.number || steps.slug.outputs.sha8 }}
-          path: |
-            bin/*
-      - name: Create release archive
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          tar chJf ${{ github.event.repository.name }}-${{ github.ref_name }}-linux-riscv64.tar.xz \
-              --transform="s,^bin/,${{ github.event.repository.name }}-${{ github.ref_name }}/," \
-              bin/*
-      - uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
-          draft: false
-          prerelease: false
-          files: |
-            ${{ github.event.repository.name }}-${{ github.ref_name }}-linux-riscv64.tar.xz
-
-  linux-x86_64:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - name: Set up cache
-        id: cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            *.deb
-            build/faustpp/faustpp
-          key: linux-x86_64-v${{ env.CACHE_VERSION }}
-      - name: Set up dependencies
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -yqq --allow-downgrades libgl1-mesa-dev libx11-dev libxcursor-dev libxext-dev libxrandr-dev libsndfile1 libmicrohttpd12
-          wget -c https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/faust_2.41.1~ds0-0_amd64.deb \
-                  https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/faust-common_2.41.1~ds0-0_all.deb \
-                  https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/libfaust2_2.41.1~ds0-0_amd64.deb
-          sudo dpkg -i *.deb
-      - name: Build faustpp
-        run: make faustpp -j $(nproc)
-      - name: Build linux x86_64
-        env:
-          LDFLAGS: -static-libgcc -static-libstdc++
-        run: |
-          make WITH_LTO=true -j $(nproc)
-      - name: Set sha8
-        id: slug
-        run: echo "::set-output name=sha8::$(echo ${{ github.sha }} | cut -c1-8)"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ${{ github.event.repository.name }}-linux-x86_64-${{ github.event.pull_request.number || steps.slug.outputs.sha8 }}
-          path: |
-            bin/*
-      - name: Create release archive
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          tar chJf ${{ github.event.repository.name }}-${{ github.ref_name }}-linux-x86_64.tar.xz \
-              --transform="s,^bin/,${{ github.event.repository.name }}-${{ github.ref_name }}/," \
-              bin/*
-      - uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
-          draft: false
-          prerelease: false
-          files: |
-            ${{ github.event.repository.name }}-${{ github.ref_name }}-linux-x86_64.tar.xz
-
-  macos-13:
+  macos:
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Set up cache
-        id: cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            build/faustpp/faustpp
-          key: macos-13-v${{ env.CACHE_VERSION }}
-      - name: Set up dependencies
-        run: |
-          brew install faust
-      - name: Build faustpp
-        run: make faustpp -j $(sysctl -n hw.logicalcpu)
-      - name: Build macOS universal
+      - uses: distrho/dpf-makefile-action@v1
         env:
-          CFLAGS: -O3 -arch x86_64 -arch arm64 -DMAC_OS_X_VERSION_MAX_ALLOWED=MAC_OS_X_VERSION_10_12 -DMAC_OS_X_VERSION_MIN_REQUIRED=MAC_OS_X_VERSION_10_12 -mmacosx-version-min=10.12 -mtune=generic -msse -msse2
-          CXXFLAGS: -O3 -arch x86_64 -arch arm64 -DMAC_OS_X_VERSION_MAX_ALLOWED=MAC_OS_X_VERSION_10_12 -DMAC_OS_X_VERSION_MIN_REQUIRED=MAC_OS_X_VERSION_10_12 -mmacosx-version-min=10.12 -mtune=generic -msse -msse2
-          LDFLAGS: -arch x86_64 -arch arm64 -mmacosx-version-min=10.12
-        run: |
-          make NOOPT=true WITH_LTO=true -j $(sysctl -n hw.logicalcpu)
-      - name: Package macOS plugin
-        run: |
-          env WELCOME_TXT=$(pwd)/plugin/macos-installer-welcome.txt ./dpf/utils/package-osx-bundles.sh
-      - name: Set sha8
-        id: slug
-        run: echo "::set-output name=sha8::$(echo ${{ github.sha }} | cut -c1-8)"
-      - uses: actions/upload-artifact@v4
+          WELCOME_TXT: ./plugins/macos-installer-welcome.txt
         with:
-          name: ${{ github.event.repository.name }}-macOS-universal-${{ github.event.pull_request.number || steps.slug.outputs.sha8 }}
-          path: |
-            *-macOS.pkg
-      - name: Create release archive
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          mv *-macOS.pkg ${{ github.event.repository.name }}-${{ github.ref_name }}-macOS.pkg
-      - uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
-          draft: false
-          prerelease: false
-          files: |
-            ${{ github.event.repository.name }}-${{ github.ref_name }}-macOS.pkg
+          target: macos-universal
+          lto: true
 
-  win32:
-    runs-on: ubuntu-20.04
+  windows:
+    strategy:
+      matrix:
+        target: [win32, win64]
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Set up cache
-        id: cache
-        uses: actions/cache@v4
+      - uses: distrho/dpf-makefile-action@v1
         with:
-          path: |
-            *.deb
-            build/faustpp/faustpp
-          key: win32-v${{ env.CACHE_VERSION }}
-      - name: Set up dependencies
-        run: |
-          sudo dpkg --add-architecture i386
-          sudo apt-get update -qq
-          sudo apt-get install -yqq --allow-downgrades binutils-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64 libsndfile1 libmicrohttpd12
-          wget -c https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/faust_2.41.1~ds0-0_amd64.deb \
-                  https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/faust-common_2.41.1~ds0-0_all.deb \
-                  https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/libfaust2_2.41.1~ds0-0_amd64.deb
-          sudo dpkg -i *.deb
-      - name: Build faustpp
-        run: make faustpp -j $(nproc)
-      - name: Build win32 cross-compiled
-        env:
-          AR: i686-w64-mingw32-ar
-          CC: i686-w64-mingw32-gcc
-          CXX: i686-w64-mingw32-g++
-          CROSS_COMPILING: "true"
-          PKG_CONFIG: "false"
-        run: |
-          make APP_EXT= WITH_LTO=true -j $(nproc)
-      - name: Set sha8
-        id: slug
-        run: echo "::set-output name=sha8::$(echo ${{ github.sha }} | cut -c1-8)"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ${{ github.event.repository.name }}-win32-${{ github.event.pull_request.number || steps.slug.outputs.sha8 }}
-          path: |
-            bin/*
-            !bin/*.exe
-      - name: Create release archive
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          mv bin ${{ github.event.repository.name }}-${{ github.ref_name }}
-          zip -r -9 build.zip ${{ github.event.repository.name }}-${{ github.ref_name }}/*
-          mv build.zip ${{ github.event.repository.name }}-${{ github.ref_name }}-win32.zip
-      - uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
-          draft: false
-          prerelease: false
-          files: |
-            ${{ github.event.repository.name }}-${{ github.ref_name }}-win32.zip
+          target: ${{ matrix.target }}
+          lto: false
 
-  win64:
-    runs-on: ubuntu-20.04
+  plugin-validation:
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Set up cache
-        id: cache
-        uses: actions/cache@v4
+      - uses: distrho/dpf-makefile-action@v1
         with:
-          path: |
-            *.deb
-            build/faustpp/faustpp
-          key: win64-v${{ env.CACHE_VERSION }}
-      - name: Set up dependencies
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -yqq --allow-downgrades binutils-mingw-w64-x86-64 g++-mingw-w64-x86-64 mingw-w64 libsndfile1 libmicrohttpd12
-          wget -c https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/faust_2.41.1~ds0-0_amd64.deb \
-                  https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/faust-common_2.41.1~ds0-0_all.deb \
-                  https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/libfaust2_2.41.1~ds0-0_amd64.deb
-          sudo dpkg -i *.deb
-      - name: Build faustpp
-        run: make faustpp -j $(nproc)
-      - name: Build win64 cross-compiled
-        env:
-          AR: x86_64-w64-mingw32-ar
-          CC: x86_64-w64-mingw32-gcc
-          CXX: x86_64-w64-mingw32-g++
-          CROSS_COMPILING: "true"
-          PKG_CONFIG: "false"
-        run: |
-          make APP_EXT= WITH_LTO=true -j $(nproc)
-      - name: Set sha8
-        id: slug
-        run: echo "::set-output name=sha8::$(echo ${{ github.sha }} | cut -c1-8)"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ${{ github.event.repository.name }}-win64-${{ github.event.pull_request.number || steps.slug.outputs.sha8 }}
-          path: |
-            bin/*
-            !bin/*.exe
-      - name: Create release archive
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          mv bin ${{ github.event.repository.name }}-${{ github.ref_name }}
-          zip -r -9 build.zip ${{ github.event.repository.name }}-${{ github.ref_name }}/*
-          mv build.zip ${{ github.event.repository.name }}-${{ github.ref_name }}-win64.zip
-      - uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
-          draft: false
-          prerelease: false
-          files: |
-            ${{ github.event.repository.name }}-${{ github.ref_name }}-win64.zip
+          target: pluginval
 
   source-tarball:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -512,24 +72,15 @@ jobs:
       - name: Create source tarball
         run: |
           make tarball
-      - name: Set sha8 (non-release)
-        if: startsWith(github.ref, 'refs/tags/') != true
-        id: slug1
-        run: echo "::set-output name=sha8::$(echo ${{ github.sha }} | cut -c1-8)"
-      - name: Set sha8 (release)
-        if: startsWith(github.ref, 'refs/tags/')
-        id: slug2
-        run: echo "::set-output name=sha8::$(echo ${{ github.ref_name }})"
       - name: Set sha8
-        id: slug
-        run: echo "::set-output name=sha8::$(echo ${{ steps.slug1.outputs.sha8 || steps.slug2.outputs.sha8 }})"
+        shell: bash
+        run: |
+          echo "SHA8=$(echo ${{ github.sha }} | cut -c1-8)" >> $GITHUB_ENV
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.event.repository.name }}-source-${{ github.event.pull_request.number || steps.slug.outputs.sha8 }}
+          name: podcast-plugins-source-${{ github.event.pull_request.number || env.SHA8 }}
           path: |
-            /home/runner/*.tar.xz
-            /home/runner/*/*.tar.xz
-            /home/runner/*/*/*.tar.xz
+            *.tar.xz
       - uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
@@ -538,100 +89,4 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            /home/runner/*.tar.xz
-            /home/runner/*/*.tar.xz
-            /home/runner/*/*/*.tar.xz
-
-  plugin-validation:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - name: Set up cache
-        id: cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            *.deb
-            build/faustpp/faustpp
-          key: plugin-validation-v${{ env.CACHE_VERSION }}
-      - name: Set up dependencies
-        run: |
-          # custom repos
-          wget https://launchpad.net/~kxstudio-debian/+archive/kxstudio/+files/kxstudio-repos_11.1.0_all.deb
-          sudo dpkg -i kxstudio-repos_11.1.0_all.deb
-          sudo apt-get update -qq
-          # build-deps
-          sudo apt-get install -yqq --allow-downgrades libgl1-mesa-dev libx11-dev libxcursor-dev libxext-dev libxrandr-dev libsndfile1 libmicrohttpd12
-          wget -c https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/faust_2.41.1~ds0-0_amd64.deb \
-                  https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/faust-common_2.41.1~ds0-0_all.deb \
-                  https://launchpad.net/~kxstudio-debian/+archive/ubuntu/toolchain/+files/libfaust2_2.41.1~ds0-0_amd64.deb
-          sudo dpkg -i *.deb
-          # runtime testing
-          sudo apt-get install -yqq --allow-downgrades carla-git lilv-utils lv2-dev lv2lint valgrind
-      - name: Build faustpp
-        run: make faustpp -j $(nproc)
-      - name: Build plugins
-        env:
-          CFLAGS: -g
-          CXXFLAGS: -g -DDPF_ABORT_ON_ERROR
-          LDFLAGS: -static-libgcc -static-libstdc++
-        run: |
-          make NOOPT=true SKIP_STRIPPING=true -j $(nproc)
-      - name: Validate LV2 ttl syntax
-        run: |
-          lv2_validate ./bin/*.lv2/*.ttl
-      - name: Validate LV2 metadata and binaries
-        run: |
-          export LV2_PATH=/tmp/lv2-path
-          mkdir ${LV2_PATH}
-          cp -r bin/*.lv2 \
-              /usr/lib/lv2/{atom,buf-size,core,data-access,instance-access,midi,parameters,port-groups,port-props,options,patch,presets,resize-port,state,time,ui,units,urid,worker}.lv2 \
-              ${LV2_PATH}
-          lv2lint -s lv2_generate_ttl -l ld-linux-x86-64.so.2 -M nopack $(lv2ls)
-      - name: Test LADSPA
-        run: |
-            for p in $(ls bin/ | grep ladspa.so); do \
-                env CARLA_BRIDGE_DUMMY=1 CARLA_BRIDGE_TESTING=native \
-                    valgrind \
-                    --error-exitcode=255 \
-                    --leak-check=full \
-                    --track-origins=yes \
-                    --suppressions=./dpf/utils/valgrind-dpf.supp \
-                    /usr/lib/carla/carla-bridge-native ladspa ./bin/${p} "" 1>/dev/null; \
-            done
-      - name: Test LV2
-        run: |
-            export LV2_PATH=/tmp/lv2-path
-            for p in $(lv2ls); do \
-                env CARLA_BRIDGE_DUMMY=1 CARLA_BRIDGE_TESTING=native \
-                    valgrind \
-                    --error-exitcode=255 \
-                    --leak-check=full \
-                    --track-origins=yes \
-                    --suppressions=./dpf/utils/valgrind-dpf.supp \
-                    /usr/lib/carla/carla-bridge-native lv2 "" ${p} 1>/dev/null; \
-            done
-      - name: Test VST2
-        run: |
-            for p in $(find bin/ | grep -e vst.so -e '.*\.vst/.*\.so'); do \
-                env CARLA_BRIDGE_DUMMY=1 CARLA_BRIDGE_TESTING=native \
-                    valgrind \
-                    --error-exitcode=255 \
-                    --leak-check=full \
-                    --track-origins=yes \
-                    --suppressions=./dpf/utils/valgrind-dpf.supp \
-                    /usr/lib/carla/carla-bridge-native vst2 ./${p} "" 1>/dev/null; \
-            done
-      - name: Test VST3
-        run: |
-            for p in $(ls bin/ | grep vst3); do \
-                env CARLA_BRIDGE_DUMMY=1 CARLA_BRIDGE_TESTING=native \
-                    valgrind \
-                    --error-exitcode=255 \
-                    --leak-check=full \
-                    --track-origins=yes \
-                    --suppressions=./dpf/utils/valgrind-dpf.supp \
-                    /usr/lib/carla/carla-bridge-native vst3 ./bin/${p} "" 1>/dev/null; \
-            done
+            *.tar.xz
