@@ -34,7 +34,7 @@ jobs:
           submodules: recursive
       - uses: distrho/dpf-makefile-action@v1
         env:
-          WELCOME_TXT: ./plugins/macos-installer-welcome.txt
+          WELCOME_TXT: ./plugin/macos-installer-welcome.txt
         with:
           target: macos-universal
           lto: true
