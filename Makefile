@@ -250,8 +250,9 @@ TAR_ARGS = \
 	--transform='s,^-\.-\.,..,' \
 
 tarball:
-	rm -f ../master_me-$(VERSION).tar.xz
-	tar -c --lzma $(TAR_ARGS) -f ../master_me-$(VERSION).tar.xz .
+	rm -f ../master_me-$(VERSION)-src.tar.xz
+	tar -c --lzma $(TAR_ARGS) -f ../master_me-$(VERSION)-src.tar.xz .
+	mv ../master_me-$(VERSION)-src.tar.xz .
 
 # ---------------------------------------------------------------------------------------------------------------------
 # rules for custom faustpp build
