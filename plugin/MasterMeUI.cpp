@@ -1185,19 +1185,6 @@ public:
     {
       loadSharedResources();
 
-      const double scaleFactor = getScaleFactor();
-
-      if (d_isNotEqual(scaleFactor, 1.0))
-      {
-          theme.borderSize *= scaleFactor;
-          theme.padding *= scaleFactor;
-          theme.fontSize *= scaleFactor;
-          theme.textHeight *= scaleFactor;
-          theme.widgetLineSize *= scaleFactor;
-          theme.windowPadding *= scaleFactor;
-          theme.textPixelRatioWidthCompensation = static_cast<uint>(scaleFactor - 1.0 + 0.25);
-      }
-
       // setup widget properties
       easyModeButton.setCallback(this);
       easyModeButton.setCheckable(true);
