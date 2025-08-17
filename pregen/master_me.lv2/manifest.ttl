@@ -7,6 +7,7 @@
     lv2:binary <master_me_dsp@libext@> ;
     rdfs:seeAlso <plugin.ttl> .
 
+
 <https://github.com/trummerschlunk/master_me#DPF_UI>
     a ui:@uitype@UI ;
     ui:binary <master_me_ui@libext@> ;

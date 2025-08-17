@@ -1721,7 +1721,7 @@
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
         lv2:index 78 ;
-        lv2:name "0x5586651d2ae0" ;
+        lv2:name "hbargraph0" ;
         lv2:symbol "msredux11" ;
         lv2:minimum -6.0 ;
         lv2:maximum 0.0 ;
@@ -1739,7 +1739,7 @@
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
         lv2:index 79 ;
-        lv2:name "0x5586652744a0" ;
+        lv2:name "hbargraph1" ;
         lv2:symbol "msredux12" ;
         lv2:minimum -6.0 ;
         lv2:maximum 0.0 ;
@@ -1757,7 +1757,7 @@
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
         lv2:index 80 ;
-        lv2:name "0x5586651b7610" ;
+        lv2:name "hbargraph2" ;
         lv2:symbol "msredux21" ;
         lv2:minimum -6.0 ;
         lv2:maximum 0.0 ;
@@ -1775,7 +1775,7 @@
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
         lv2:index 81 ;
-        lv2:name "0x558665271090" ;
+        lv2:name "hbargraph3" ;
         lv2:symbol "msredux22" ;
         lv2:minimum -6.0 ;
         lv2:maximum 0.0 ;
@@ -1793,7 +1793,7 @@
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
         lv2:index 82 ;
-        lv2:name "0x5586651888b0" ;
+        lv2:name "hbargraph4" ;
         lv2:symbol "msredux31" ;
         lv2:minimum -6.0 ;
         lv2:maximum 0.0 ;
@@ -1811,7 +1811,7 @@
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
         lv2:index 83 ;
-        lv2:name "0x55866526dd70" ;
+        lv2:name "hbargraph5" ;
         lv2:symbol "msredux32" ;
         lv2:minimum -6.0 ;
         lv2:maximum 0.0 ;
@@ -1829,7 +1829,7 @@
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
         lv2:index 84 ;
-        lv2:name "0x558665159a90" ;
+        lv2:name "hbargraph6" ;
         lv2:symbol "msredux41" ;
         lv2:minimum -6.0 ;
         lv2:maximum 0.0 ;
@@ -1847,7 +1847,7 @@
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
         lv2:index 85 ;
-        lv2:name "0x55866526aa50" ;
+        lv2:name "hbargraph7" ;
         lv2:symbol "msredux42" ;
         lv2:minimum -6.0 ;
         lv2:maximum 0.0 ;
@@ -1865,7 +1865,7 @@
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
         lv2:index 86 ;
-        lv2:name "0x55866512ac70" ;
+        lv2:name "hbargraph8" ;
         lv2:symbol "msredux51" ;
         lv2:minimum -6.0 ;
         lv2:maximum 0.0 ;
@@ -1883,7 +1883,7 @@
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
         lv2:index 87 ;
-        lv2:name "0x558665267730" ;
+        lv2:name "hbargraph9" ;
         lv2:symbol "msredux52" ;
         lv2:minimum -6.0 ;
         lv2:maximum 0.0 ;
@@ -1901,7 +1901,7 @@
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
         lv2:index 88 ;
-        lv2:name "0x5586650fbe50" ;
+        lv2:name "hbargraph10" ;
         lv2:symbol "msredux61" ;
         lv2:minimum -6.0 ;
         lv2:maximum 0.0 ;
@@ -1919,7 +1919,7 @@
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
         lv2:index 89 ;
-        lv2:name "0x558665264410" ;
+        lv2:name "hbargraph11" ;
         lv2:symbol "msredux62" ;
         lv2:minimum -6.0 ;
         lv2:maximum 0.0 ;
@@ -1937,7 +1937,7 @@
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
         lv2:index 90 ;
-        lv2:name "0x5586650cd030" ;
+        lv2:name "hbargraph12" ;
         lv2:symbol "msredux71" ;
         lv2:minimum -6.0 ;
         lv2:maximum 0.0 ;
@@ -1955,7 +1955,7 @@
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
         lv2:index 91 ;
-        lv2:name "0x5586652610f0" ;
+        lv2:name "hbargraph13" ;
         lv2:symbol "msredux72" ;
         lv2:minimum -6.0 ;
         lv2:maximum 0.0 ;
@@ -1973,7 +1973,7 @@
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
         lv2:index 92 ;
-        lv2:name "0x55866509ed70" ;
+        lv2:name "hbargraph14" ;
         lv2:symbol "msredux81" ;
         lv2:minimum -6.0 ;
         lv2:maximum 0.0 ;
@@ -1991,7 +1991,7 @@
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
         lv2:index 93 ;
-        lv2:name "0x55866525ec30" ;
+        lv2:name "hbargraph15" ;
         lv2:symbol "msredux82" ;
         lv2:minimum -6.0 ;
         lv2:maximum 0.0 ;
@@ -2045,7 +2045,7 @@
 
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 96 ; ;
+        lv2:index 96 ;
         lv2:name "Histogram Buffer Size" ;
         lv2:symbol "histogram_buffer_size" ;
         lv2:shortName "HistBufSize" ;
@@ -2079,5 +2079,5 @@
 
     
 
-    lv2:microVersion 1 ;
-    lv2:minorVersion 0 .
+    lv2:microVersion 3 ;
+    lv2:minorVersion 2 .
